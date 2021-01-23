@@ -16,8 +16,9 @@ $L^p$ regularity of Toeplitz Operators on Generaliazed Hartogs Triangles\
 $\delta$ monotone maps on the Heisenberg Group\
 [REU report](meiji163.github.io/files/delta_heis.pdf)
 
-Documents
+Docs
 ======
 * [Lee Smooth Manifolds Solutions](meiji163.github.io/files/lee_mfds.pdf)
 * [Basic Exam Solutions](meiji163.github.io/files/basic.pdf)
-------
+* [Knot Theory Worksheet](meiji163.github.io/files/knots.pdf)
+* [Hyperbolic Geometry Worksheet](meiji163.github.io/files/lamc_geo.pdf)
