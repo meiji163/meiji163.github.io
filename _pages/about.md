@@ -8,14 +8,16 @@ redirect_from:
   - /about.html
 ---
 
-#### Research 
+Research 
+======
 $L^p$ regularity of Toeplitz Operators on Generaliazed Hartogs Triangles\
 <https://arxiv.org/abs/2009.07260>
 
 $\delta$ monotone maps on the Heisenberg Group\
-[REU report](https://meiji163/github.io/files/delta_heis.pdf)
+[REU report](meiji163.github.io/files/delta_heis.pdf)
 
-#### Documents
-* [Lee Smooth Manifolds Solutions](lee_mfds.pdf)
-* [Basic Exam Solutions](https://meiji163.github.io/files/basic.pdf)
-
+Documents
+======
+* [Lee Smooth Manifolds Solutions](meiji163.github.io/files/lee_mfds.pdf)
+* [Basic Exam Solutions](meiji163.github.io/files/basic.pdf)
+------
