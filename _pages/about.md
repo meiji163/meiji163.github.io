@@ -8,5 +8,14 @@ redirect_from:
   - /about.html
 ---
 
+#### Research 
+$L^p$ regularity of Toeplitz Operators on Generaliazed Hartogs Triangles\
+<https://arxiv.org/abs/2009.07260>
 
-testing MathJax $e^{ix}$ , and big? $$67 - 2 = 65$$
+$\delta$ monotone maps on the Heisenberg Group\
+[REU report](https://meiji163/github.io/files/delta_heis.pdf)
+
+#### Documents
+* [Lee Smooth Manifolds Solutions](lee_mfds.pdf)
+* [Basic Exam Solutions](https://meiji163.github.io/files/basic.pdf)
+
