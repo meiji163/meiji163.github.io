@@ -38,11 +38,12 @@ and $\varphi_{a,r}(a) = \infty$, $\varphi_{a,r}(\infty) = a.$ $\varphi_{r,a}$ sw
 We can verify that $\varphi_{a,r}$ is conformal with direct computation. 
 First consider $\varphi = \varphi_{0,1}$. We calculate that
 
-$$D_x \varphi = \frac{1}{|x|^2}\left( I - 2 Q_x\right)$$
+$$D_x \varphi = \frac{1}{|x|^2}( I - 2 Q_x )$$
 
-where $Q_x$ is the symmetric matrix given by $Q_{ij} = x_i x_j/|x|^2$. Note that $Q_x$ satisfies $Q_x^2=Q_x$ since 
+where $Q_x$ is the symmetric matrix with entries $\frac{x_i\cdot x_j}{|x|^2}$. Note that $Q$ satisfies $Q^2=Q$ since 
 
-$$Q^2_{ij} = \sum_{k=1}^n \frac{x_k x_j}{|x|^2} \frac{x_i x_k}{|x|^2} = \left( \sum_{k=1}^n\frac{x_k^2}{|x|^2}\right)\frac{x_i x_j}{|x|^2} = \frac{x_i x_j}{|x|^2}$$
+$$\begin{align*}Q^2_{ij} &= \sum_{k=1}^n \frac{x_k x_j}{|x|^2} \frac{x_i x_k}{|x|^2}\\
+&= \left( \sum_{k=1}^n\frac{x_k^2}{|x|^2}\right)\frac{x_i x_j}{|x|^2} = \frac{x_i x_j}{|x|^2}\end{align*}$$
 
 Hence we get $(D_x\varphi)^T D_x \varphi = \frac{1}{|x|^4}(I-4Q-x+4Q_x^2) = \frac{1}{|x|^4}I$ so $\varphi$ is conformal. 
 For general $\varphi_{r,a}$, we use an affine transformation $\psi(x) = rx +a$, which is obviously conformal.
