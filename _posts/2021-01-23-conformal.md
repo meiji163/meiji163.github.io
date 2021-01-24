@@ -40,7 +40,8 @@ First consider $\varphi = \varphi_{0,1}$. We calculate that
 
 $$D_x \varphi = \frac{1}{|x|^2}( I - 2 Q_x )$$
 
-where $Q_x$ is the symmetric matrix with entries $\frac{x_i\cdot x_j}{|x|^2}$. Note that $Q$ satisfies $Q^2=Q$ since 
+where $Q$ is the symmetric matrix with entries $\frac{x_i\cdot x_j}{|x|^2}$. 
+Note that $Q$ satisfies $Q^2=Q$ since 
 
 $$\begin{align*}Q^2_{ij} &= \sum_{k=1}^n \frac{x_k x_j}{|x|^2} \frac{x_i x_k}{|x|^2}\\
 &= \left( \sum_{k=1}^n\frac{x_k^2}{|x|^2}\right)\frac{x_i x_j}{|x|^2} = \frac{x_i x_j}{|x|^2}\end{align*}$$
