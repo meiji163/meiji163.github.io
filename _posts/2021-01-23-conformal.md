@@ -3,7 +3,8 @@ title: 'Conformal Rigidity'
 date: 2021-01-23
 permalink: /posts/2021/01/conformal-rigidity/
 tags:
-  - geomeoperatorname{tr}y 
+  - geometry
+  - conformal 
   - analysis 
 ---
 A conformal transformation is one that preserves angles. In two dimensions, this is equivalent to being holomorphic and having a non-vanishing derivative.
