@@ -27,12 +27,54 @@ be a conformal linear transformation!
 **Definition** 
 Let $U \subset \mathbb{R}^n$ be open. A $C^1$ map $f:U \to \mathbb{R}^n$. $f$ is said to be **conformal** if $D_x f:T_xU \to T_{f(x)}\mathbb{R}^n$ is conformal for all $x \in U$.
 
-How strong is this restriction on the derivative? As it turns out, pretty strong.
+A nice example of a conformal map is spherical inversion. Denote the one-point compactification $\mathbb{R}^n \cup \{\infty\}$ of $\mathbb{R}^n$ by $\widehat{\mathbb{R}}^n$. Let $S(a,r) \subset \mathbb{R}^n$ be the sphere of radius $n$ with center $a$. The inversion about $S(a,r)$ is defined as 
+
+$$\varphi_{a,r}(x) = a + r\frac{x-a}{|x-a|^2}, \quad x \ne a,\infty$$
+
+and $\varphi_{a,r}(a) = \infty$, $\varphi_{a,r}(\infty) = a.$ $\varphi_{r,a}$ swaps the interior and exterior of the sphere and fixes $S(a,r)$. One can check that $\varphi_{a,r}$ is an involution, i.e. $\varphi_{a,r} \circ \varphi_{a,r} = \text{id}.$
+
+We can verify that $\varphi{a,r}$ is conformal with direct computation. 
+First consider $\varphi = \varphi_{0,1}$. We calculate that
+
+$$D_x \varphi = \frac{1}{|x|^2}\left( I - 2 Q_x\right)$$
+
+where $Q_x$ is the symmetric matrix given by $(Q_x)_{ij} = x_i x_j/|x|^2$. Note that $Q_x$ satisfies $Q_x^2=Q_x$ since 
+
+$$(Q_x^2)_{ij} = \sum_{k=1}^n \frac{x_k x_j}{|x|^2} \frac{x_i x_k}{|x|^2} = \left( \sum_{k=1}^n\frac{x_k^2}{|x|^2}\right)\frac{x_ix_j}{|x|^2} = \frac{x_ix_j}{|x|^2}$$
+
+Hence we get $(D_x\varphi)^T D_x \varphi = \frac{1}{|x|^4}(I-4Q-x+4Q_x^2) = \frac{1}{|x|^4}I$ so $\varphi$ is conformal. 
+For general $\varphi_{r,a}$, we use an affine transformation $\psi(x) = rx +a$, which is obviously conformal.
+Then $\varphi_{r,a}=\psi \circ \varphi \circ \psi^{-1}$ is also conformal.
+
+Another type of transformation we will need is reflections.
+Fix $a \in \mathbb{R}^n$ and $s>0$ and let $P(a,s) = \{x \in \mathbb{R}^n| a \cdot x =s\} \cup \{\infty\}$ be the corresponding plane in $\widehat{\mathbb{R}}^n$. The reflection in $P(a,s)$ is defined as 
+
+$$r_{a,s}(x) = x-2(a \cdot x -s) \frac{a}{|a|^2}, \qquad x \in \mathbb{R}^n$$
+
+and $r_{a,s}(\infty) =\infty$. We define a Mobius transformation on $\widehat{\mathbb{R}}^n$ for $n\ge 3$ 
+as a finite composition of reflections in planes and inversions about spheres.
+
+---
+Now we can precisely state what we want to prove.
+
+**Louiville's Theorem**: 
+Let $U \subset \mathbb{R}^n$ be open with $0 \in U$ and $n \ge 3$. If $f:U \to \mathbb{R}^n$ is $C^4$ and conformal, then $f$ is the restriction of a Mobius transformation. 
+
+Actually, the theorem holds for much lower regularity, but we assume $C^4$ for simplicity. The strategy we will use is to
+study vector fields whose flow is conformal. The **flow** of a $v$ is a function $f_t$ parametrized by time that satisfies
+
+$$\begin{align*}
+f_0(x) &= x\\
+\frac{d}{dt}f_t(x) &= v(f_t(x))\end{align*}$$
+
+for every $x$. The point $x$ is "flowing down the river" determined by the vector field.
+Therefore if we can transfer the problem of characterizing conformal maps into one about vector fields and differential equations.
+This tactic can be applied in many other problems!
 
 **Lemma**
 Let $v:\mathbb{R}^n \to \mathbb{R}^n$ be a $C^1$ vector field. Then the flow of $v$ is conformal if and only if
 
-$$(Dv)^T+Dv = \frac{2}{n} \operatorname{operatorname{tr}}(Dv) I$$
+$$(Dv)^T+Dv = \frac{2}{n} \operatorname{tr}(Dv) I$$
 
 _Proof_: Let $f_t$ be the local flow of $v$ and $p \in \mathbb{R}^n$. For convenience set $A=D_p f_t$, $B=D_{f_t(p)}v$. We differentiate the relation\
 $$A^T A = (\det A)^{2/n} \; I$$
@@ -43,14 +85,14 @@ $$\begin{align*} A^TB^TA+A^TBA &= \frac{2}{n}(\det (A))^{2/n -1} \det A \operato
 
 Multiplying by $(A^T)^{-1}$ on the left and $A^{-1}$ on the right we're left with 
 $$\begin{align*} B^T+B &= \frac{2}{n}(\det A)^{2/n} \operatorname{tr} (B) \underbrace{(A^T)^{-1}A^{-1}}_{=(AA^T)^{-1}}\\
-&= \frac{2}{n} \operatorname{tr}(B) I
-\end{align*}$$
+&= \frac{2}{n} \operatorname{tr}(B) I\end{align*}$$
+
 as desired. $\blacksquare$
 
 **Theorem** 
 If the flow of $v$ is conformal, then $v$ is of the form 
 
-$$v(x) = a+Bx+2(c \cdot x)x-|x|^2c$$\
+$$v(x) = a+Bx+2(c \cdot x)x-|x|^2 c$$
 
 for some $c\in \mathbb{R}^n$, where $B\in M_{n \times n}$ satisfies $B+B^T = \frac{2}{n} \operatorname{tr}(B) I_n$.
 
@@ -60,20 +102,19 @@ Therefore,
 
 $$v_i(x) = a_i + \sum_j b_{ij}x_j + \sum_{j,k} c_{ijk}x_jx_k$$
 
-for some coefficients $c_{ijk}$ such that $c_{ijk}=c_{ikj}$. Next we calculate\
-$$\begin{align*}
-\partial_i v_i(x) &= b_j + 2 \sum_{k} c_{ijk}x_k\\
-\partial_k \partial_j v_i(x)& = 2c_{ijk}\end{align*}.$$
+for some coefficients $c_{ijk}$ such that $c_{ijk}=c_{ikj}$. Next we calculate
+
+$$\begin{align*} \partial_i v_i(x) &= b_j + 2 \sum_{k} c_{ijk}x_k\\
+\partial_k \partial_j v_i(x)& = 2c_{ijk}\end{align*}$$
 
 We know $c_{iik}=c_{jjk}$ for all $i,j$ so set $c_k:=c_{iik}$ and $c = (c_1,\dots,c_n$). Using the symmetries again we get $c_{ikk} = -c_{kik} = -c_{kki}=-c_i$. 
 Now we can rewrite $v_i$ as
 
 $$\begin{align*}
 v_i(x) &= a_i + \sum_{j}b_{ij} x_j + 2 \left(\sum_k c_k x_k \right)x_i -c_i \sum_{k}x^k \\
-&=a_i +\sum_{j} b_{ij}x_j + 2(c \cdot x) x_i -|x|^2 c_i
-\end{align*}$$
+&=a_i +\sum_{j} b_{ij}x_j + 2(c \cdot x) x_i -|x|^2 c_i\end{align*}$$
 
-Writing $(B)_{ij}=b_{ij}$ and combining the equations for $i=1,2,\dots,n$ we get what we want. $\blacksquare$
+Combining the equations for $i=1,2,\dots,n$ we get what we want. $\blacksquare$
 
 Let $v(x) =e_j$ and $\varphi_t(x) = x+te_j$ its flow, where $e_j$ is the $j$th standard basis vector. 
 Let $g=f^{-1}$ and consider $h_t=g \circ \varphi_t \circ f : V \to U$, with $V \subset U$ chosen so that $\varphi_t(f(V)) \subset f(U)$. Then we have
@@ -81,6 +122,52 @@ Let $g=f^{-1}$ and consider $h_t=g \circ \varphi_t \circ f : V \to U$, with $V \
 $$\frac{d}{dt}h_t(x) = D_{f(h_t(x))}g \cdot v(f(x)).$$
 
 We conclude $h_t$ is the flow of the vector field $w(x) =D_{f(x)}g \cdot v(f(x))$.
+Now we can execute our plan to prove Liouville's theorem.
 
-**Louiville's Theorem**
-Let $U \subset \mathbb{R}^n$ be open with $0 \in U$ and $n \ge 3$. If $f:U \to \mathbb{R}^n$ is $C^4$ and conformal, then $f$ is the restriction of a Mobius transformation. 
+_Proof of Liouville_: 
+By composing with an affine map we can assume $f(0)=0$ and  $D_0f =I$. 
+Set $\varphi = \varphi_{0,1}$ as before and define $G = \varphi \circ f$, which is conformal on $U$. It suffices to show that $G$ is a M\"obius trasformation. We will embed $G$ in the flow of $v = (DG)^{-1}e_i.$ We get 
+
+$$\begin{align*}
+D_xG &= D_{f(x)}\varphi D_x f\\
+&= \frac{1}{|f(x)|^2}(I-2Q_{f(x)})D_x f\end{align*}$$ 
+
+We know $(I-2Q_x)^2 = I,$ so $(I-2Q_x)^{-1} = I-2Q_x$. With this we can calculate 
+
+$$\begin{align*}
+(D_xG)^{-1}e_i &= (D_x f)^{-1}(D_{f(x)}\varphi)^{-1}e_i \\
+&= (D_xf)^{-1} \cdot |f(x)|^2 (I -2Q_{f(x)})e_i\\
+&= |f(x)|^2 (D_xf)^{-1}e_i - 2(f(x) \cdot e_i)
+\end{align*}$$
+
+Using the Theorem on conformal vector fields, we can write 
+$$(D_x G)^{-1}e_i = a+Bx +2(c\cdot x)x-|x|^2c.$$
+
+$f(0)=0$ implies $(D_0G)^{-1}e_i = 0$, so $a=0$. We contend that $B \equiv 0$ as well. Let $u \in \mathbb{R}^n$ be unit length, and $\epsilon>0$. We consider  $\epsilon B(u)$ as $\epsilon \to 0$:  
+$$\begin{align*}
+B( \epsilon u) &= (D_{\epsilon u}G)^{-1}e_i-2(c \cdot \epsilon u) \epsilon u - |\epsilon u|^2c \\
+&= |f(\epsilon u)|^2(D_{\epsilon u}f)^{-1}\left(I-2Q_{f(\epsilon u)}\right)e_i -\epsilon^2((c\cdot u)u -c)\\ 
+&= \epsilon^2 \left| u + \frac{o(\epsilon)}{\epsilon}\right| (D_{\epsilon u}f)^{-1}\left(I-2Q_{f(\epsilon u)}\right)e_i -\epsilon^2((c\cdot u)u -c) 
+\end{align*}$$
+
+where we used a linear approximation $f(x) = x+ o(|x|)$. Dividing through by $\epsilon$, the LHS is independent of $\epsilon$ while the RHS has a factor of $\epsilon$. As $\epsilon \to 0$, the RHS converges to $0$. Consequently, we must have $B \equiv 0$, which proves the contention.
+ 
+To find $c$ we use the same argument with $x = \epsilon c$ to get 
+
+$$|c|^2c = \left|c + \frac{o(|\epsilon c|)}{|\epsilon c|}|c| \right|^2(D_{\epsilon c}f)^{-1}(I-2Q_{c})e_i$$
+
+We can write $Q_{f(\epsilon c)}=Q_{\epsilon c} + E(s)$ where $E(s) \to 0$ as $s\to 0$ (in the space of matrices). Therefore $|c|^2c = |c|^2(I-2Q_{c})e_i$
+Solving for $e_i,$ we have
+
+$$e_i = (E-2Q_c)c = c-2\frac{c\cdot c}{|c|^2}c = -c.$$
+
+We have shown that 
+$$\begin{align*}
+(D_xG)^{-1}e_i &= - 2(e_i \cdot x)x - |x|^2e_i\\
+&=|x|^2(I-2Q_x)e_i\\
+&= (D_x \varphi)^{-1}e_i
+\end{align*}$$
+
+Thus we conclude that $D_x G = D_x \varphi.$ Hence $f(x) = \varphi(\varphi(x) +d)$ for some constant $d\in \mathbb{R}^n,$
+which is indeed a Mobius transformation. $\blacksquare$
+
