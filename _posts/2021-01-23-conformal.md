@@ -40,7 +40,7 @@ First consider $\varphi = \varphi_{0,1}$. We calculate that
 
 $$D_x \varphi = \frac{1}{|x|^2}( I - 2 Q_x )$$
 
-where $Q$ is the symmetric matrix with entries $\frac{x_i\cdot x_j}{|x|^2}$. 
+where $Q$ is the symmetric matrix with entries $\frac{x_i x_j}{|x|^2}$. 
 Note that $Q$ satisfies $Q^2=Q$ since 
 
 $$\begin{align*}Q^2_{ij} &= \sum_{k=1}^n \frac{x_k x_j}{|x|^2} \frac{x_i x_k}{|x|^2}\\
@@ -147,21 +147,24 @@ $$\begin{align*}
 Using the Theorem on conformal vector fields, we can write 
 $$(D_x G)^{-1}e_i = a+Bx +2(c\cdot x)x-|x|^2c.$$
 
-$f(0)=0$ implies $(D_0G)^{-1}e_i = 0$, so $a=0$. We contend that $B \equiv 0$ as well. Let $u \in \mathbb{R}^n$ be unit length, and $\epsilon>0$. We consider  $\epsilon B(u)$ as $\epsilon \to 0$:  
+$f(0)=0$ implies $(D_0G)^{-1}e_i = 0$, so $a=0$. We contend that $B \equiv 0$ as well. 
+Let $u \in \mathbb{R}^n$ be unit length, and $\epsilon>0$. We consider  $\epsilon B(u)$ as $\epsilon \to 0$:  
+
+
 $$\begin{align*}
 B( \epsilon u) &= (D_{\epsilon u}G)^{-1}e_i-2(c \cdot \epsilon u) \epsilon u - |\epsilon u|^2c \\
 &= |f(\epsilon u)|^2(D_{\epsilon u}f)^{-1}\left(I-2Q_{f(\epsilon u)}\right)e_i -\epsilon^2((c\cdot u)u -c)\\ 
 &= \epsilon^2 \left| u + \frac{o(\epsilon)}{\epsilon}\right| (D_{\epsilon u}f)^{-1}\left(I-2Q_{f(\epsilon u)}\right)e_i -\epsilon^2((c\cdot u)u -c) 
-\end{align*}$$
+.\end{align*}$$
 
-where we used a linear approximation $f(x) = x+ o(|x|)$. Dividing through by $\epsilon$, the LHS is independent of $\epsilon$ while the RHS has a factor of $\epsilon$. As $\epsilon \to 0$, the RHS converges to $0$. Consequently, we must have $B \equiv 0$, which proves the contention.
- 
-To find $c$ we use the same argument with $x = \epsilon c$ to get 
+where we used linear approximation $f(x) = x+ o(|x|)$. Dividing through by $\epsilon$, 
+the LHS is independent of $\epsilon$ while the RHS has a factor of $\epsilon$. As $\epsilon \to 0$, the RHS converges to $0$. 
+Consequently, we must have $B \equiv 0$, which proves the contention. To find $c$ we use the same argument with $x = \epsilon c$ to get 
 
 $$|c|^2c = \left|c + \frac{o(|\epsilon c|)}{|\epsilon c|}|c| \right|^2(D_{\epsilon c}f)^{-1}(I-2Q_{c})e_i$$
 
-We can write $Q_{f(\epsilon c)}=Q_{\epsilon c} + E(s)$ where $E(s) \to 0$ as $s\to 0$ (in the space of matrices). Therefore $|c|^2c = |c|^2(I-2Q_{c})e_i$
-Solving for $e_i,$ we have
+We can write $Q_{f(\epsilon c)}=Q_{\epsilon c} + E(s)$ where $E(s) \to 0$ as $s\to 0$ (in the space of matrices). Therefore $|c|^2c = |c|^2(I-2Q_{c})e_i$.
+Solving for $e_i$ we have
 
 $$e_i = (E-2Q_c)c = c-2\frac{c\cdot c}{|c|^2}c = -c.$$
 
