@@ -8,9 +8,11 @@ tags:
 ---
 A conformal transformation is one that preserves angles. In two dimensions, this is equivalent to being holomorphic and having a non-vanishing derivative.
 There are tons of these transformations (my personal favorites are Mobius transformations). In fact, the famous [Riemann mapping Theorem](https://en.wikipedia.org/wiki/Riemann_mapping_theorem)
-asserts that any simply connected domain $U \subset \mathbb{C}$ admits a bijective conformal map $f: U \to \mathbb{D}$ to the unit disc.
-It turns out that 2 dimensions is the exception. In this note we will show that 
-the only conformal maps in dimensions $n \ge 3$ are built from inversions and reflections.
+asserts that any simply connected domain $U \subset \mathbb{C}$ admits a bijective conformal map $f: U \to \mathbb{D}$ to the unit disc. 
+
+<img src="https://upload.wikimedia.org/wikipedia/commons/1/1b/Apollonian_circles.png" alt="Mobius" width="600" >
+
+In this note we will show that the only conformal maps in dimensions $n \ge 3$ are built from inversions and reflections. It turns out that 2 dimensions is the exception!
 
 First, what exactly does "preserve angles" mean? The nicest way to talk about angles is via an inner product.
 Given a vector space $V$ with an inner product $\langle \cdot, \cdot \rangle$, the angle $\theta$ between two vectors $v,w \in V$ is defined by
@@ -33,14 +35,14 @@ $$\varphi_{a,r}(x) = a + r\frac{x-a}{|x-a|^2}, \quad x \ne a,\infty$$
 
 and $\varphi_{a,r}(a) = \infty$, $\varphi_{a,r}(\infty) = a.$ $\varphi_{r,a}$ swaps the interior and exterior of the sphere and fixes $S(a,r)$. One can check that $\varphi_{a,r}$ is an involution, i.e. $\varphi_{a,r} \circ \varphi_{a,r} = \text{id}.$
 
-We can verify that $\varphi{a,r}$ is conformal with direct computation. 
+We can verify that $\varphi_{a,r}$ is conformal with direct computation. 
 First consider $\varphi = \varphi_{0,1}$. We calculate that
 
 $$D_x \varphi = \frac{1}{|x|^2}\left( I - 2 Q_x\right)$$
 
-where $Q_x$ is the symmetric matrix given by $(Q_x)_{ij} = x_i x_j/|x|^2$. Note that $Q_x$ satisfies $Q_x^2=Q_x$ since 
+where $Q_x$ is the symmetric matrix given by $Q_{ij} = x_i x_j/|x|^2$. Note that $Q_x$ satisfies $Q_x^2=Q_x$ since 
 
-$$(Q_x^2)_{ij} = \sum_{k=1}^n \frac{x_k x_j}{|x|^2} \frac{x_i x_k}{|x|^2} = \left( \sum_{k=1}^n\frac{x_k^2}{|x|^2}\right)\frac{x_ix_j}{|x|^2} = \frac{x_ix_j}{|x|^2}$$
+$$Q^2_{ij} = \sum_{k=1}^n \frac{x_k x_j}{|x|^2} \frac{x_i x_k}{|x|^2} = \left( \sum_{k=1}^n\frac{x_k^2}{|x|^2}\right)\frac{x_i x_j}{|x|^2} = \frac{x_i x_j}{|x|^2}$$
 
 Hence we get $(D_x\varphi)^T D_x \varphi = \frac{1}{|x|^4}(I-4Q-x+4Q_x^2) = \frac{1}{|x|^4}I$ so $\varphi$ is conformal. 
 For general $\varphi_{r,a}$, we use an affine transformation $\psi(x) = rx +a$, which is obviously conformal.
