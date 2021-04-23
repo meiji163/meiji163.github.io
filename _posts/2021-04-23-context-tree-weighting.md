@@ -23,18 +23,18 @@ $$H(X) = \sum_x -P(x)\log(P(x)).$$
 
 It can be thought of as a measure of how predictable the data is on average.
 
-Now suppose we want to compress a stream of data. Formally, we want a code $C: \mathcal{A} \to { 0,1 } ^* $ where $\mathcal{A}$ is the alphabet the data comes from (e.g. ASCII characters) and ${0,1}^*$ is the set of all binary strings. A good code would have two properties: 
+Now suppose we want to compress a stream of data. Formally, we want a code $C: \mathcal{A} \to \string{ 0,1 \string} ^* $ where $\mathcal{A}$ is the alphabet the data comes from (e.g. ASCII characters) and $\string{0,1\string}^*$ is the set of all binary strings. A good code would have two properties: 
 
 * $C$ has an inverse (compression is lossless)
 * Minimal lengths of the codes $C(x)$ (good compression ratio).
 
-Shannon proved that such an optimal code would have an average code length essentially _equal to the entropy_ of the source. Moreover, he proved that for an optimal code, the code length $|C(x)|$ would be _equal to the information content_ $I(x)$.  
-In other words, if we define the _redundancy_ of our code $C$ as the difference $\rho(x) = |C(x)| - I(x)$, then finding a good code is equivalent to minimizing the redundancy. Of course this is a bit sloppy, for more precise statements see e.g. [2]
+Shannon proved that such an optimal code would have an average code length essentially _equal to the entropy_ of the source. Moreover, he proved that for an optimal code, the code length $\mid C(x) \mid$ would be _equal to the information content_ $I(x)$.  
+In other words, if we define the _redundancy_ of our code $C$ as the difference $\rho(x) = \mid C(x) \mid - I(x)$, then finding a good code is equivalent to minimizing the redundancy. Of course this is a bit sloppy, for more precise statements see e.g. [2]
 
 ## Arithmetic Coding
 Unsurprisingly, Shannon's proof is non-constructive, so how do we make an optimal code in practice? Several algorithms have been developed; you make have heard of the Huffman code or Lempel-Ziv algorithm, which one can prove are roughly optimal. Less commonly known is _arithmetic coding_. 
 
-The nice thing about arithmetic coding is you can plug in any probabilistic model $\mathcal{M}$ of the source (i.e. a way to generate predictions for the next symbol) and it guarantees you a code length approximately equal to the entropy according to your model $H(X|\mathcal{M})$. The idea is to associate each sequence to a subinterval of $[0,1)$, whose length is equal to its probability.
+The nice thing about arithmetic coding is you can plug in any probabilistic model $\mathcal{M}$ of the source (i.e. a way to generate predictions for the next symbol) and it guarantees you a code length approximately equal to the entropy according to your model $H(X \mid \mathcal{M})$. The idea is to associate each sequence to a subinterval of $[0,1)$, whose length is equal to its probability.
 
 
 To illustrate the algorithm, suppose we are recieving a stream of binary data $x_1,x_2,\dots,x_N$ (abbreviated $x_1^N$). Let $L$ be the lower endpoint of the interval and $U$ be the upper endpoint after receiving the $n$th symbol. Initially we have received no bits and set $L=0$, $U=1$. 
@@ -144,10 +144,16 @@ The good news is there is a lot of room for improvement. Obvious optimizations w
 
 ## Conclusion
 Context Tree Weighting is a beautiful example of a mixture model with "Occam's-Razor" weighting. Its solid theoretical foundations make it attractive compared to e.g. Prediction by Partial Matching. However it is trickier to implement because of greater memory and computational requirements.
+
 ## References
 [[1]](https://www.cs.cmu.edu/~aarti/Class/10704_Spring15/CTW.pdf) Willems, Shtarkov, Tjalkens "_The Context-Tree Weighting Method: Basic Properties_" 1995 
-[[2]](https://web.cs.iastate.edu/~honavar/infotheorybook.pdf) D. MacKay, "_Information Theory, Inference, and Learning Algorithms_" 2003
-[[3]](https://www.jair.org/index.php/jair/article/view/10394) Begleiter, El-Yaniv, Yona, "_On Prediction Using Variable Order Markov Models_" 2004
-[[4]](https://pure.tue.nl/ws/files/2043425/200213835.pdf) P. Volf, "_Weighting techniques in data compression: theory and algorithms_" 2002
-[[5]](https://www.aaai.org/Papers/JAIR/Vol40/JAIR-4004.pdf) Veness, Siong Ng, Hutter, Uther, Silver "_A Monte-Carlo AIXI Approximation_" 2011
+
+[[2]](https://web.cs.iastate.edu/~honavar/infotheorybook.pdf) D. MacKay, "_Information Theory, Inference, and Learning Algorithms_" 2003  
+
+[[3]](https://www.jair.org/index.php/jair/article/view/10394) Begleiter, El-Yaniv, Yona, "_On Prediction Using Variable Order Markov Models_" 2004  
+
+[[4]](https://pure.tue.nl/ws/files/2043425/200213835.pdf) P. Volf, "_Weighting techniques in data compression: theory and algorithms_" 2002  
+
+[[5]](https://www.aaai.org/Papers/JAIR/Vol40/JAIR-4004.pdf) Veness, Siong Ng, Hutter, Uther, Silver "_A Monte-Carlo AIXI Approximation_" 2011  
+
 [[6]](https://dl.acm.org/doi/10.1145/214762.214771) Witten, Neal, Cleary "_Arithmetic Coding for Data Compression_" 1987
