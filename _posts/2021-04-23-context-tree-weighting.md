@@ -7,7 +7,7 @@ tags:
   - compression
 ---
 
-In this post I go over the basics of data compression with arithmetic coding and describe the Context Tree Weighting algorithm.
+In this post I go over the basics of data compression with arithmetic coding and describe the Context Tree Weighting algorithm. At the end I discuss implementation and some experimental results.
 
 ## Information Theory Review
 First a quick review of information theory.
