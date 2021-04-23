@@ -72,7 +72,7 @@ A similar idea combined with the Lempel-Ziv algorithm forms the basis for the "P
 ## Context Tree Weighting
 Context Tree Weighting (CTW) is a beautiful algorithm invented by Willems, Shtarkov, and Tjalkens [[1]](#references) that efficiently computes a weighted sum over all prediction suffix trees of depth $D$ for a binary alphabet. Naively, this would take $O(2^D)$, while CTW computes it in $O(D)$. 
 
-We first build a complete binary tree of depth $D$, called the context tree. Like a prediction suffix tree, each node is labeled by its corresponding $s$. Each node stores the frequencies of 0's and 1's that occur after context $s$, and computes a probability $P^s$ recursively from its children as follows: Let $x_1\dots x_n$ be the past symbols, then the probability stored at the node $s$ is defined as
+We first build a complete binary tree of depth $D$, called the context tree. Like a prediction suffix tree, each node is labeled by its corresponding suffix $s$. Each node stores the frequencies of 0's and 1's that occur after suffix $s$, and computes a probability $P^s$ recursively from its children as follows: Let $x_1\dots x_n$ be the past symbols, then the probability stored at the node $s$ is defined as
 
 $$P^s = \begin{cases}P_e(x_{1}^n) & \text{ if } s \text{ is a leaf }\\
 		\frac{1}{2}\left(P_e(x_{1}^n) + P^{s0}P^{s1}\right)& \text{ otherwise.} \end{cases} $$
