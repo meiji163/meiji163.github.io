@@ -23,10 +23,10 @@ $$H(X) = \sum_x -P(x)\log(P(x)).$$
 
 It can be thought of as a measure of how predictable the data is on average.
 
-Now suppose we want to compress a stream of data. Formally, we want a code $C: \mathcal{A} \to \{ 0,1 \} ^* $ where $\mathcal{A}$ is the alphabet the data comes from (e.g. ASCII characters) and $\{0,1\}^*$ is the set of all binary strings. A good code would have two properties: 
+Now suppose we want to compress a stream of data. Formally, we want a code $C: \mathcal{A} \to { 0,1 } ^* $ where $\mathcal{A}$ is the alphabet the data comes from (e.g. ASCII characters) and ${0,1}^*$ is the set of all binary strings. A good code would have two properties: 
 
 * $C$ has an inverse (compression is lossless)
-* Minimal code lengths $|C(x)|$ (good compression ratio).
+* Minimal lengths of the codes $C(x)$ (good compression ratio).
 
 Shannon proved that such an optimal code would have an average code length essentially _equal to the entropy_ of the source. Moreover, he proved that for an optimal code, the code length $|C(x)|$ would be _equal to the information content_ $I(x)$.  
 In other words, if we define the _redundancy_ of our code $C$ as the difference $\rho(x) = |C(x)| - I(x)$, then finding a good code is equivalent to minimizing the redundancy. Of course this is a bit sloppy, for more precise statements see e.g. [2]
@@ -48,7 +48,7 @@ For $n = 1,...N$ do
 At the end, the compressed sequence is the sequence of binary digits of a number chosen from the interval $[U,L)$, (e.g. $U$ rounded up). After $n$ steps there are $2^n$ subintervals, corresponding to the possible sequences $x_1...x_n$. For example for $n=3$ the intervals might look like this: 
 
 <p class="aligncenter">
-	<img src="https://meiji163.github.io/images/coding.png" alt="coding" width="500"/>
+	<img src="https://meiji163.github.io/images/coding.png" alt="coding" width="450"/>
 </p>
 
 Note that the length of the intervals are $P(x_1\dots x_n) = P(x_1^n)$. A trivial model that predicts $P(x_1^n) = 2^{-n}$ would essentially give us back the original sequence (a terrible compressor indeed), but if our model assigns a larger probability to the sequence, that interval is guaranteed to contain a rational number $c$ with approximately $-\log( P(x_1^n))$ digits in its binary expansion, reducing the number of bits needed to describe it.
@@ -63,7 +63,7 @@ The simplest model could just use frequency counts of the different symbols to m
 A simpler option is a _tree model_. We assume that $P(x_n)$ depends on at most $D$ of the previous symbols. The main idea is to build a suffix tree (or trie) from the source. Given past symbols $x_{n-D},...,x_{n-1}$ we take the last $k \le D$ as the suffix (also known as the context) and record the frequencies of each symbol given the context. $k$ can vary between contexts. For example if the alphabet is $\mathcal{A} = \{\text{a,b,n}\}$ and the sequence "$\text{bananan}$" here is one possible depth $D=2$ tree (suffixes are read from bottom up)
 
 
-<img src="https://meiji163.github.io/images/path12.png" alt="tree1" width="600"/>
+<img src="https://meiji163.github.io/images/path12.png" alt="tree1" width="450"/>
 
 
 Each leaf has three counters (# $\text{a}$'s, # $\text{b}$'s , #$\text{n}$'s). E.g. "$\text{n}$" appears two times after the suffix "$\text{na}$". A tree like this is called a _prediction suffix tree_. We can make rough estimates of the probability using the statistics stored in the leaves with e.g. a [Dirichlet distribution](https://en.wikipedia.org/wiki/Dirichlet_distribution). Another common choice is the [Krichevsky-Trofimov estimator](https://en.wikipedia.org/wiki/Krichevsky–Trofimov_estimator).
@@ -81,11 +81,11 @@ $$P^s = \begin{cases}P_e(x_{1}^n) & \text{ if } s \text{ is a leaf }\\
 
 Here $P_e$ is a probability estimate based on the frequencies stored at $s$ (in the original paper it is the [KT estimator](https://en.wikipedia.org/wiki/Krichevsky–Trofimov_estimator)) and $s0$, $s1$ denote the children of $s$. So we just average the frequency estimate with the predictions of the children nodes. Simple, right? But what is the probability we get at the root node, corresponding to the empty suffix $\epsilon$? Brace for notation... it is
 
-$$P^{\epsilon} = \sum_{T \in \mathcal{M}_D}2^{-\Gamma_D(T)}P(x_1^n | T) \tag{1}$$
+$$P^{\epsilon} = \sum_{T \in \mathcal{M}_D}2^{-\Gamma_D(T)}P(x_1^n \mid T) $$
 
 where 
 * $\mathcal{M}_D$ is the set of all PST's of depth at most $D$ 
-* $P(x_1^n|T)$ is the probability of $x_1\dots x_n$ according to the PST $T$
+* $P(x_1^n \mid T)$ is the probability of $x_1\dots x_n$ according to the PST $T$
 * $\Gamma_D(T)$ is the number of nodes of $T$ minus the number of leaves at depth $D$
 
 Well we certainly have a weighted sum of PST predictions, but what is this $\Gamma_D$? It is actually the length of the optimal [prefix code](https://en.wikipedia.org/wiki/Prefix_code) for the tree $T$, i.e. the number of bits needed to describe $T$. So we are weighting each PST by "how complex" it is in some sense. The original paper proves a sharp bound on the redundancy of CTW [1, Theorem 2].
@@ -93,10 +93,10 @@ Well we certainly have a weighted sum of PST predictions, but what is this $\Gam
 ### Sidenote: Compression = AGI?
 Anyone into data compression probably knows about the [Hutter prize](http://prize.hutter1.net/), a cash prize for compressing the first GB of Wikipedia to smaller than the current record (116 MB). Hutter's slogan is "Compression = AGI" (artificial general intelligence), a provocative summary of his reinforcement learning agent "[AIXI](https://en.wikipedia.org/wiki/AIXI)". Roughly speaking, it solves the general reinforcement learning problem by weighing models of the (unknown) environment by both the expected reward _and_ a measure of the model's "compressability." In particular, the [Kolmogorov complexity](https://en.wikipedia.org/wiki/Kolmogorov_complexity) of the sequence of past observations and rewards. Although theoretically optimal it is pretty hard to compute, even with finite lookahead.
 
-What is so interesting about CTW is that equation $(1)$ is exactly this mixture of models weighted by complexity (for a restricted set of models) _and_ it is efficient to compute. For this reason Veness et. al [5] used CTW in their AIXI approximation algorithm. Other mixture models have also become popular in data compression algorithms (You can for example run several probability models in parallel).
+What is so interesting about CTW is that equation (4) is exactly this mixture of models weighted by complexity (for a restricted set of models) _and_ it is efficient to compute. For this reason Veness et. al [5] used CTW in their AIXI approximation algorithm. Other mixture models have also become popular in data compression algorithms (You can for example run several probability models in parallel).
 
 ### CTW Extensions
-The binary CTW can be extended to non-binary alphabets by replacing $P^{s0}P^{s1}$ by a product over all children of $s$ in the recursive formula $(1)$. However the straightforward method of making direct predictions hasn't had much empirical success, especially with large alphabets. In practice, CTW is good at making binary predictions, although it can still have non-binary contexts. How can we convert binary predictions to general symbol predictions?
+The binary CTW can be extended to non-binary alphabets by replacing $P^{s0}P^{s1}$ by a product over all children of $s$ in the recursive formula (3). However the straightforward method of making direct predictions hasn't had much empirical success, especially with large alphabets. In practice, CTW is good at making binary predictions, although it can still have non-binary contexts. How can we convert binary predictions to general symbol predictions?
 
 The obvious way to do this is to first choose a binary code for the alphabet $\mathcal{A}$, then predict each bit. This is the idea behind a "decomposition tree," which is basically a binary search tree. The leaves of the tree are the elements of $\mathcal{A}$, and each internal node has a context tree (a tree of trees?) whose job is to predict whether a symbol is in the left or right subtree of the node. The probability of a symbol $a \in \mathcal{A}$ is then calculated as the product of the probabilities on the path from the root to the leaf $a$. For example, here is a possible decomposition tree for $\mathcal{A} = \{\text{b},\text{a},\text{n}\}$.
 
