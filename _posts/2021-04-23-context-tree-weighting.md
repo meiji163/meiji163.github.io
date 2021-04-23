@@ -23,7 +23,7 @@ $$H(X) = \sum_x -P(x)\log(P(x)).$$
 
 It can be thought of as a measure of how predictable the data is on average.
 
-Now suppose we want to compress a stream of data. Formally, we want a code $C: \mathcal{A} \to \text{ { } 0,1 \text{ }} ^* $ where $\mathcal{A}$ is the alphabet the data comes from (e.g. ASCII characters) and $\text{{}0,1\text{}}^*$ is the set of all binary strings. A good code would have two properties: 
+Now suppose we want to compress a stream of data. Formally, we want a code $C: \mathcal{A} \to \text{ \{ } 0,1 \text{ \}} ^* $ where $\mathcal{A}$ is the alphabet the data comes from (e.g. ASCII characters) and $\text{\{}0,1\text{\}}^*$ is the set of all binary strings. A good code would have two properties: 
 
 * $C$ has an inverse (compression is lossless)
 * Minimal lengths of the codes $C(x)$ (good compression ratio).
