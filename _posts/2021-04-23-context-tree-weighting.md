@@ -26,12 +26,12 @@ It can be thought of as a measure of how predictable the data is on average.
 Now suppose we want to compress a stream of data. Formally, we want a code $C: \mathcal{A} \to \text{ \{0, 1\} } ^* $ where $\mathcal{A}$ is the alphabet the data comes from (e.g. ASCII characters) and $\text{\{0, 1\} }^*$ is the set of all binary strings. A good code should have two properties: 
 
 * $C$ has an inverse (compression is lossless)
-* Minimal lengths of the codes $C(x)$ (good compression ratio).
+* The codes $C(x)$ have minimal average length (good compression ratio).
 
-Shannon proved that such an optimal code would have an average code length essentially _equal to the entropy_ of the source. Moreover, he proved that for an optimal code, the code length $\mid C(x) \mid$ would be _equal to the information content_ $I(x)$.  In other words, if we define the _redundancy_ of our code $C(x)$ as the difference $\rho(x) = \mid C(x)\mid - I(x)$, then finding a good code is equivalent to minimizing the redundancy. Of course this is a bit sloppy, for more precise statements see e.g. [[2](#references)]
+Shannon proved that such an optimal code would have an average code length essentially _equal to the entropy_ of the source. Moreover, he proved that for an optimal code, the code length $\mid C(x) \mid$ would be _equal to the information content_ $I(x)$.  In other words, if we define the _redundancy_ of our code $C(x)$ as the difference $\rho(x) = \mid C(x)\mid - I(x)$, then finding a good code is equivalent to minimizing the redundancy. Of course this is a bit sloppy; for more precise statements see e.g. [[2](#references)]
 
 ## Arithmetic Coding
-Unsurprisingly, Shannon's proof is non-constructive, so how do we make an optimal code in practice? Several algorithms have been developed; you make have heard of the Huffman code or Lempel-Ziv algorithm, which one can prove are roughly optimal. Less commonly known is _arithmetic coding_. 
+Unsurprisingly, Shannon's proof is non-constructive, so how do we make an optimal code in practice? Several algorithms have been developed. You make have heard of the Huffman code or Lempel-Ziv algorithm, which one can prove are roughly optimal. Less commonly known is _arithmetic coding_. 
 
 The nice thing about arithmetic coding is you can plug in any probabilistic model $\mathcal{M}$ of the source (i.e. a way to generate predictions for the next symbol) and it guarantees you a code length approximately equal to the entropy according to your model $H(X \mid \mathcal{M})$. The idea is to associate each sequence to a subinterval of $[0,1)$, whose length is equal to its probability.
 
@@ -57,7 +57,7 @@ Assuming arithmetic coding can be implemented efficiently (see [below](#implemen
 
 The simplest model could just use frequency counts of the different symbols to make predictions. If you want to go all out you can train a neural net like an RNN or transformer on your data to make the predictions. However you'd have to account for the size of the weights, which have to be sent the decoder. It would also be too slow for most purposes (although lightweight NN's [achieve reasonable speed](http://mattmahoney.net/dc/mmahoney00.pdf)). Clearly there is a tradeoff between the time complexity of the model, and the compression ratio.
 
-A simpler option is a _tree model_. We assume that $P(x_n)$ depends on at most $D$ of the previous symbols. The main idea is to build a suffix tree (or trie) from the source. Given past symbols $x_{n-D},...,x_{n-1}$ we take the last $k \le D$ as the suffix (also known as the context) and record the frequencies of each symbol given the context. $k$ can vary between contexts. For example if the alphabet is $\mathcal{A} = \text{ \{a ,b ,n\}}$ and the sequence "$\text{bananan}$" here is one possible depth $D=2$ tree (suffixes are read from bottom up)
+A simpler option is a _tree model_. We assume that $P(x_n)$ depends on at most $D$ of the previous symbols (in probability lingo, a $D$-Markov model). The main idea is to build a suffix tree (or trie) from the source. Given past symbols $x_{n-D},...,x_{n-1}$ we take the last $k \le D$ as the suffix (also known as the context) and record the frequencies of each symbol given the context. $k$ can vary between contexts. For example if the alphabet is $\mathcal{A} = \text{ \{a ,b ,n\}}$ and the sequence "$\text{bananan}$" here is one possible depth $D=2$ tree (suffixes are read from bottom up)
 
 
 <img src="https://meiji163.github.io/images/path12.png" alt="tree1" width="400"/>
