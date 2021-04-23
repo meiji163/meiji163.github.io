@@ -23,12 +23,12 @@ $$H(X) = \sum_x -P(x)\log(P(x)).$$
 
 It can be thought of as a measure of how predictable the data is on average.
 
-Now suppose we want to compress a stream of data. Formally, we want a code $C: \mathcal{A} \to \{0,1\}^* $ where $\mathcal{A}$ is the alphabet the data comes from (e.g. ASCII characters) and $\{0,1\}^*$ is the set of all binary strings. A good code would have two properties: 
+Now suppose we want to compress a stream of data. Formally, we want a code $C: \mathcal{A} \to \{ 0,1 \} ^* $ where $\mathcal{A}$ is the alphabet the data comes from (e.g. ASCII characters) and $\{0,1\}^*$ is the set of all binary strings. A good code would have two properties: 
 
 * $C$ has an inverse (compression is lossless)
 * Minimal code lengths $|C(x)|$ (good compression ratio).
 
-Shannon proved that such an optimal code would have an average code length essentially _equal to the entropy_ of the source. Moreover, he proved that for an optimal code, the code length $|C(x)|$ would be _equal to the information content_ $I(x)$. 
+Shannon proved that such an optimal code would have an average code length essentially _equal to the entropy_ of the source. Moreover, he proved that for an optimal code, the code length $|C(x)|$ would be _equal to the information content_ $I(x)$.  
 In other words, if we define the _redundancy_ of our code $C$ as the difference $\rho(x) = |C(x)| - I(x)$, then finding a good code is equivalent to minimizing the redundancy. Of course this is a bit sloppy, for more precise statements see e.g. [2]
 
 ## Arithmetic Coding
@@ -47,12 +47,14 @@ For $n = 1,...N$ do
 
 At the end, the compressed sequence is the sequence of binary digits of a number chosen from the interval $[U,L)$, (e.g. $U$ rounded up). After $n$ steps there are $2^n$ subintervals, corresponding to the possible sequences $x_1...x_n$. For example for $n=3$ the intervals might look like this: 
 
-<img src="https://meiji163.github.io/images/coding.png" alt="coding" width="600"/>
+<p class="aligncenter">
+	<img src="https://meiji163.github.io/images/coding.png" alt="coding" width="500"/>
+</p>
 
 Note that the length of the intervals are $P(x_1\dots x_n) = P(x_1^n)$. A trivial model that predicts $P(x_1^n) = 2^{-n}$ would essentially give us back the original sequence (a terrible compressor indeed), but if our model assigns a larger probability to the sequence, that interval is guaranteed to contain a rational number $c$ with approximately $-\log( P(x_1^n))$ digits in its binary expansion, reducing the number of bits needed to describe it.
 
 Given the code $c$ and access to the same model $\mathcal{M}$, the decoder can sequentially deduce whether the $n$th bit was a $0$ or $1$ by comparing $c$ to the divider $L + P(x_n = 0)\cdot(L-U)$ and hence uniquely decode the compressed data. 
-* * *
+
 ## Models
 Assuming arithmetic coding can be implemented efficiently (see below), we have reduced compression to finding a good model of the data. Of course, the model will depend a lot on what type of data you're compressing and your speed/memory goals.
 
@@ -73,9 +75,11 @@ A similar idea combined with the Lempel-Ziv algorithm forms the basis for the "P
 Context Tree Weighting (CTW) is a beautiful algorithm invented by Willems, Shtarkov, and Tjalkens [1] that efficiently computes a weighted sum over all prediction suffix trees of depth $D$ for a binary alphabet. Naively, this would take $O(2^D)$, while CTW computes it in $O(D)$. 
 
 We first build a complete binary tree of depth $D$, called the context tree. Like a prediction suffix tree, each node is labeled by its corresponding $s$. Each node stores the frequencies of 0's and 1's that occur after context $s$, and computes a probability $P^s$ recursively from its children as follows: Let $x_1\dots x_n$ be the past symbols, then the probability stored at the node $s$ is defined as
+
 $$P^s = \begin{cases}P_e(x_{1}^n) & \text{ if } s \text{ is a leaf }\\
 		\frac{1}{2}\left(P_e(x_{1}^n) + P^{s0}P^{s1}\right)& \text{ otherwise.} \end{cases} $$
-Here $P_e$ is a probability estimate based on the frequencies store at $s$ (in the original paper the [KT estimator](https://en.wikipedia.org/wiki/Krichevsky–Trofimov_estimator)) and $s0$, $s1$ denote the children of $s$. So we just average the frequency estimate with the predictions of the children nodes. Simple, right? But what is the probability we get at the root node, corresponding to the empty suffix $\epsilon$? Brace for notation... it is
+
+Here $P_e$ is a probability estimate based on the frequencies stored at $s$ (in the original paper it is the [KT estimator](https://en.wikipedia.org/wiki/Krichevsky–Trofimov_estimator)) and $s0$, $s1$ denote the children of $s$. So we just average the frequency estimate with the predictions of the children nodes. Simple, right? But what is the probability we get at the root node, corresponding to the empty suffix $\epsilon$? Brace for notation... it is
 
 $$P^{\epsilon} = \sum_{T \in \mathcal{M}_D}2^{-\Gamma_D(T)}P(x_1^n | T) \tag{1}$$
 
@@ -96,7 +100,7 @@ The binary CTW can be extended to non-binary alphabets by replacing $P^{s0}P^{s1
 
 The obvious way to do this is to first choose a binary code for the alphabet $\mathcal{A}$, then predict each bit. This is the idea behind a "decomposition tree," which is basically a binary search tree. The leaves of the tree are the elements of $\mathcal{A}$, and each internal node has a context tree (a tree of trees?) whose job is to predict whether a symbol is in the left or right subtree of the node. The probability of a symbol $a \in \mathcal{A}$ is then calculated as the product of the probabilities on the path from the root to the leaf $a$. For example, here is a possible decomposition tree for $\mathcal{A} = \{\text{b},\text{a},\text{n}\}$.
 
-<img src="https://meiji163.github.io/images/ctw.png" alt="ctw" width="600"/>
+<img src="https://meiji163.github.io/images/ctw.png" alt="ctw" width="500"/>
 
 Context Tree 1 predicts whether the next symbol will be $\text{b}$ or not, and context tree 2 decides between $\text{a}$ and $\text{b}$.
 
