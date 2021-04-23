@@ -16,7 +16,8 @@ Suppose that we receive some data $x$ drawn from a discrete random variable $X$,
 $$I(x) = -\log(P(x)).$$
 
 Why is this a good measure of information? Basically, it formalizes the idea that less probable events yield more information, and conversely predictable events yield less information.  
-Given an incomplete message like "Hello Worl" you'd assign a high probability (say 95%) that the next character is "d". Finding out that the next character is indeed "d" would only give you about 0.07 units of information, since you in a sense already knew that.
+Given an incomplete message like "_Hello Worl_" you'd assign a high probability (say 95%) that the next character is "_d_". Finding out that the next character is indeed "_d_" would only give you about 0.07 units of information (shannons), since you in a sense already knew that.  
+
 The Shannon entropy is defined as the expected value of information 
 
 $$H(X) = \sum_x -P(x)\log(P(x)).$$
