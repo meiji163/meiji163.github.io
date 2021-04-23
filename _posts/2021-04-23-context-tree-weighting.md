@@ -28,7 +28,7 @@ Now suppose we want to compress a stream of data. Formally, we want a code $C: \
 * $C$ has an inverse (compression is lossless)
 * Minimal lengths of the codes $C(x)$ (good compression ratio).
 
-Shannon proved that such an optimal code would have an average code length essentially _equal to the entropy_ of the source. Moreover, he proved that for an optimal code, the code length $\mid C(x) \mid$ would be _equal to the information content_ $I(x)$.  In other words, if we define the _redundancy_ of our code $C$ as the difference $\rho(x) = \mid C(x) \mid - I(x)$, then finding a good code is equivalent to minimizing the redundancy. Of course this is a bit sloppy, for more precise statements see e.g. [2]
+Shannon proved that such an optimal code would have an average code length essentially _equal to the entropy_ of the source. Moreover, he proved that for an optimal code, the code length $\mid C(x) \mid$ would be _equal to the information content_ $I(x)$.  In other words, if we define the _redundancy_ of our code $C(x)$ as the difference $\rho(x) = \mid C(x)\mid - I(x)$, then finding a good code is equivalent to minimizing the redundancy. Of course this is a bit sloppy, for more precise statements see e.g. [2](#references)
 
 ## Arithmetic Coding
 Unsurprisingly, Shannon's proof is non-constructive, so how do we make an optimal code in practice? Several algorithms have been developed; you make have heard of the Huffman code or Lempel-Ziv algorithm, which one can prove are roughly optimal. Less commonly known is _arithmetic coding_. 
@@ -53,7 +53,7 @@ Note that the length of the intervals are $P(x_1\dots x_n) = P(x_1^n)$. A trivia
 Given the code $c$ and access to the same model $\mathcal{M}$, the decoder can sequentially deduce whether the $n$th bit was a $0$ or $1$ by comparing $c$ to the divider $L + P(x_n = 0)\cdot(L-U)$ and hence uniquely decode the compressed data. 
 
 ## Models
-Assuming arithmetic coding can be implemented efficiently (see [below](#implementation-anb-experiments), we have reduced compression to finding a good model of the data. Of course, the model will depend a lot on what type of data you're compressing and your speed/memory goals.
+Assuming arithmetic coding can be implemented efficiently (see [below](#implementation-and-experiments)), we have reduced compression to finding a good model of the data. Of course, the model will depend a lot on what type of data you're compressing and your speed/memory goals.
 
 The simplest model could just use frequency counts of the different symbols to make predictions. If you want to go all out you can train a neural net like an RNN or transformer on your data to make the predictions. However you'd have to account for the size of the weights, which have to be sent the decoder. It would also be too slow for most purposes (although lightweight NN's [achieve reasonable speed](http://mattmahoney.net/dc/mmahoney00.pdf)). Clearly there is a tradeoff between the time complexity of the model, and the compression ratio.
 
@@ -95,7 +95,7 @@ What is so interesting about CTW is that equation (4) is exactly this mixture of
 ### CTW Extensions
 The binary CTW can be extended to non-binary alphabets by replacing $P^{s0}P^{s1}$ by a product over all children of $s$ in the recursive formula (3). However the straightforward method of making direct predictions hasn't had much empirical success, especially with large alphabets. In practice, CTW is good at making binary predictions, although it can still have non-binary contexts. How can we convert binary predictions to general symbol predictions?
 
-The obvious way to do this is to first choose a binary code for the alphabet $\mathcal{A}$, then predict each bit. This is the idea behind a "decomposition tree," which is basically a binary search tree. The leaves of the tree are the elements of $\mathcal{A}$, and each internal node has a context tree (a tree of trees?) whose job is to predict whether a symbol is in the left or right subtree of the node. The probability of a symbol $a \in \mathcal{A}$ is then calculated as the product of the probabilities on the path from the root to the leaf $a$. For example, here is a possible decomposition tree for $\mathcal{A} = \text{\{b, a, n\}$.
+The obvious way to do this is to first choose a binary code for the alphabet $\mathcal{A}$, then predict each bit. This is the idea behind a "decomposition tree," which is basically a binary search tree. The leaves of the tree are the elements of $\mathcal{A}$, and each internal node has a context tree (a tree of trees?) whose job is to predict whether a symbol is in the left or right subtree of the node. The probability of a symbol $a \in \mathcal{A}$ is then calculated as the product of the probabilities on the path from the root to the leaf $a$. For example, here is a possible decomposition tree for $\mathcal{A} = \text{ \{b, a, n\}}$.
 
 <img src="https://meiji163.github.io/images/ctw.png" alt="ctw" width="450"/>
 
