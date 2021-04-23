@@ -23,7 +23,7 @@ $$H(X) = \sum_x -P(x)\log(P(x)).$$
 
 It can be thought of as a measure of how predictable the data is on average.
 
-Now suppose we want to compress a stream of data. Formally, we want a code $C: \mathcal{A} \to \left\{ 0,1 \right\} ^* $ where $\mathcal{A}$ is the alphabet the data comes from (e.g. ASCII characters) and $\string{0,1\string}^*$ is the set of all binary strings. A good code would have two properties: 
+Now suppose we want to compress a stream of data. Formally, we want a code $C: \mathcal{A} \to \text{ { } 0,1 \text{ }} ^* $ where $\mathcal{A}$ is the alphabet the data comes from (e.g. ASCII characters) and $\text{{}0,1\text{}}^*$ is the set of all binary strings. A good code would have two properties: 
 
 * $C$ has an inverse (compression is lossless)
 * Minimal lengths of the codes $C(x)$ (good compression ratio).
@@ -102,7 +102,6 @@ The obvious way to do this is to first choose a binary code for the alphabet $\m
 Context Tree 1 predicts whether the next symbol will be $\text{b}$ or not, and context tree 2 decides between $\text{a}$ and $\text{b}$.
 
 One drawback of this approach is that the performance is sensitive to the topology of the decomposition tree. One choice is [the Huffman tree](https://en.wikipedia.org/wiki/Huffman_coding), which minimizes the number of context trees updates that are required. In general we want to find groupings of the symbols which are "similar," in some way. We could for example collect statistics on co-occurence of symbols à la [GloVe](https://nlp.stanford.edu/projects/glove/). Once we decide on a decomposition tree, we have to describe it to the decompressor, but this is only a few more bytes overhead.
-* * *
 
 
 ## Implementation and Experiments
