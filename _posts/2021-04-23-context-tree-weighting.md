@@ -40,10 +40,10 @@ The nice thing about arithmetic coding is you can plug in any probabilistic mode
 To illustrate the algorithm, suppose we are recieving a stream of binary data $x_1,x_2,\dots,x_N$ (abbreviated $x_1^N$). Let $L$ be the lower endpoint of the interval and $U$ be the upper endpoint after receiving the $n$th symbol. Initially we have received no bits and set $L=0$, $U=1$.   
 For $n = 1,...N$ do  
 * generate prediction $P(x_n = 0)$
-* if $x_n = 1$ then $L \gets L +  P(x_n = 0)\cdot(L-U)$
-* else $x_n = 0$ and $U \gets U-P(x_n = 1)\cdot (L-U)$
+* if $x_n = 1$ then $L \gets L +  P(x_n = 0)\cdot(U-L)$
+* else $x_n = 0$ and $U \gets U-P(x_n = 1)\cdot (U-L)$
 
-At the end, the compressed sequence is the sequence of binary digits of a number chosen from the interval $[U,L)$, (e.g. $U$ rounded up). After $n$ steps there are $2^n$ subintervals, corresponding to the possible sequences $x_1...x_n$. For example for $n=3$ the intervals might look like this: 
+At each step, we divide the current interval according to the probabilities of the next symbol. At the end, the compressed sequence is the sequence of binary digits of a number chosen from the interval $[L,U)$, (e.g. $U$ rounded up). After $n$ steps there are $2^n$ subintervals, corresponding to the possible sequences $x_1...x_n$. For example for $n=3$ the intervals might look like this: 
 
 <p class="aligncenter">
 	<img src="https://meiji163.github.io/images/coding.png" alt="coding" width="450"/>
@@ -51,7 +51,7 @@ At the end, the compressed sequence is the sequence of binary digits of a number
 
 Note that the length of the intervals are $P(x_1\dots x_n) = P(x_1^n)$. A trivial model that predicts $P(x_1^n) = 2^{-n}$ would essentially give us back the original sequence (a terrible compressor indeed), but if our model assigns a larger probability to the sequence, that interval is guaranteed to contain a rational number $c$ with approximately $-\log( P(x_1^n))$ digits in its binary expansion, reducing the number of bits needed to describe it.
 
-Given the code $c$ and access to the same model $\mathcal{M}$, the decoder can sequentially deduce whether the $n$th bit was a $0$ or $1$ by comparing $c$ to the divider $L + P(x_n = 0)\cdot(L-U)$ and hence uniquely decode the compressed data. 
+Given the code $c$ and access to the same model $\mathcal{M}$, the decoder can sequentially deduce whether the $n$th bit was a $0$ or $1$ by comparing $c$ to the divider $L + P(x_n = 0)\cdot(U-L)$ and hence uniquely decode the compressed data. The encoder can end the message either with a special `EOT` symbol or by transmitting the length.
 
 ## Models
 Assuming arithmetic coding can be implemented efficiently (see [below](#implementation-and-experiments)), we have reduced compression to finding a good model of the data. Of course, the model will depend a lot on what type of data you're compressing and your speed/memory goals.
