@@ -66,7 +66,7 @@ A simpler option is a _tree model_. We assume that $P(x_n)$ depends on at most $
 <img src="https://meiji163.github.io/images/path12.png" alt="tree1" width="400"/>
 
 
-Each leaf has three counters (# $\text{a}$'s, # $\text{b}$'s , #$\text{n}$'s). E.g. "$\text{n}$" appears two times after the suffix "$\text{na}$". A tree like this is called a _prediction suffix tree_ (PST). We can make rough estimates of the probability using the statistics stored in the leaves with e.g. a [Dirichlet distribution](https://en.wikipedia.org/wiki/Dirichlet_distribution). Another common choice is the [Krichevsky-Trofimov estimator](https://en.wikipedia.org/wiki/Krichevsky–Trofimov_estimator).
+Each leaf has three counters (# $\text{a}$'s, # $\text{b}$'s , #$\text{n}$'s). E.g. "$\text{n}$" appears two times after the suffix "$\text{na}$". A tree like this is called a _prediction suffix tree_ (PST). We can make rough estimates of the probability using the statistics stored in the leaves with e.g. a [Beta distribution](https://en.wikipedia.org/wiki/Beta_distribution). Another common choice is the [Krichevsky-Trofimov estimator](https://en.wikipedia.org/wiki/Krichevsky–Trofimov_estimator).
 
 A similar idea combined with the Lempel-Ziv algorithm forms the basis for the "Prediction by Partial Matching" algorithm, which is considered one of the top-performing tree models [[3]](#references).
 
