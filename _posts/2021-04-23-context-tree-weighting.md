@@ -29,7 +29,7 @@ Now suppose we want to compress a stream of data. Formally, we want a code $C: \
 * $C$ has an inverse (compression is lossless)
 * The codes $C(x)$ have minimal average length (good compression ratio).
 
-Shannon proved that such an optimal code would have an average code length essentially _equal to the entropy_ of the source. Moreover, he proved that for an optimal code, the code length $\mid C(x) \mid$ would be _equal to the information content_ $I(x)$.  In other words, if we define the _redundancy_ of our code $C(x)$ as the difference $\rho(x) = \mid C(x)\mid - I(x)$, then finding a good code is equivalent to minimizing the redundancy. Of course this is a bit sloppy; for more precise statements see e.g. [[2](#references)]
+Shannon proved that such an optimal code would have an average code length essentially _equal to the entropy_ of the source. Moreover, he proved that for an optimal code, the code length $\mid C(x) \mid$ would be _equal to the information content_ $I(x)$.  In other words, if we define the _redundancy_ of our code $C(x)$ as the difference $\rho(x) = \mid C(x)\mid - I(x)$, then finding a good code is equivalent to minimizing the redundancy. Of course this is a bit sloppy; for more precise statements see e.g. [[2]](#references)
 
 ## Arithmetic Coding
 Unsurprisingly, Shannon's proof is non-constructive, so how do we make an optimal code in practice? Several algorithms have been developed. You make have heard of the Huffman code or Lempel-Ziv algorithm, which one can prove are roughly optimal. Less commonly known is _arithmetic coding_. 
