@@ -6,21 +6,25 @@ tags:
   - algorithms 
   - compression
 ---
-# Context Tree Weighting and Compression 
 
 In this post I go over the basics of data compression with arithmetic coding and describe the Context Tree Weighting algorithm.
 
 ## Information Theory Review
 First a quick review of information theory.
 Suppose that we receive some data $x$ drawn from a discrete random variable $X$, whose probability distribution is $P$. Then the Shannon information content of $x$ is defined as 
+
 $$I(x) = -\log(P(x)).$$
-Why is this a good measure of information? Basically, it formalizes the idea that less probable events yield more information, and conversely predictable events yield less information. 
+
+Why is this a good measure of information? Basically, it formalizes the idea that less probable events yield more information, and conversely predictable events yield less information.  
 Given an incomplete message like "Hello Worl" you'd assign a high probability (say 95%) that the next character is "d". Finding out that the next character is indeed "d" would only give you about 0.07 units of information, since you in a sense already knew that.
 The Shannon entropy is defined as the expected value of information 
+
 $$H(X) = \sum_x -P(x)\log(P(x)).$$
+
 It can be thought of as a measure of how predictable the data is on average.
 
-Now suppose we want to compress a stream of data. Formally, we want a code $C: \mathcal{A} \to \{0,1\}^*$ where $\mathcal{A}$ is the alphabet the data comes from (e.g. ASCII characters) and $\{0,1\}^*$ is the set of all binary strings. A good code would have two properties: 
+Now suppose we want to compress a stream of data. Formally, we want a code $C: \mathcal{A} \to \{0,1\}^* $ where $\mathcal{A}$ is the alphabet the data comes from (e.g. ASCII characters) and $\{0,1\}^*$ is the set of all binary strings. A good code would have two properties: 
+
 * $C$ has an inverse (compression is lossless)
 * Minimal code lengths $|C(x)|$ (good compression ratio).
 
@@ -35,6 +39,7 @@ The nice thing about arithmetic coding is you can plug in any probabilistic mode
 
 To illustrate the algorithm, suppose we are recieving a stream of binary data $x_1,x_2,\dots,x_N$ (abbreviated $x_1^N$). Let $L$ be the lower endpoint of the interval and $U$ be the upper endpoint after receiving the $n$th symbol. Initially we have received no bits and set $L=0$, $U=1$. 
 For $n = 1,...N$ do
+
 * generate prediction $P(x_n = 0)$
 * if $x_n = 1$ then $L \gets L +  P(x_n = 0)\cdot(L-U)$
 * else $x_n = 0$ and $U \gets U-P(x_n = 1)\cdot (L-U)$
@@ -71,13 +76,16 @@ We first build a complete binary tree of depth $D$, called the context tree. Lik
 $$P^s = \begin{cases}P_e(x_{1}^n) & \text{ if } s \text{ is a leaf }\\
 		\frac{1}{2}\left(P_e(x_{1}^n) + P^{s0}P^{s1}\right)& \text{ otherwise.} \end{cases} $$
 Here $P_e$ is a probability estimate based on the frequencies store at $s$ (in the original paper the [KT estimator](https://en.wikipedia.org/wiki/Krichevsky–Trofimov_estimator)) and $s0$, $s1$ denote the children of $s$. So we just average the frequency estimate with the predictions of the children nodes. Simple, right? But what is the probability we get at the root node, corresponding to the empty suffix $\epsilon$? Brace for notation... it is
+
 $$P^{\epsilon} = \sum_{T \in \mathcal{M}_D}2^{-\Gamma_D(T)}P(x_1^n | T) \tag{1}$$
+
 where 
 * $\mathcal{M}_D$ is the set of all PST's of depth at most $D$ 
 * $P(x_1^n|T)$ is the probability of $x_1\dots x_n$ according to the PST $T$
 * $\Gamma_D(T)$ is the number of nodes of $T$ minus the number of leaves at depth $D$
 
 Well we certainly have a weighted sum of PST predictions, but what is this $\Gamma_D$? It is actually the length of the optimal [prefix code](https://en.wikipedia.org/wiki/Prefix_code) for the tree $T$, i.e. the number of bits needed to describe $T$. So we are weighting each PST by "how complex" it is in some sense. The original paper proves a sharp bound on the redundancy of CTW [1, Theorem 2].
+
 ### Sidenote: Compression = AGI?
 Anyone into data compression probably knows about the [Hutter prize](http://prize.hutter1.net/), a cash prize for compressing the first GB of Wikipedia to smaller than the current record (116 MB). Hutter's slogan is "Compression = AGI" (artificial general intelligence), a provocative summary of his reinforcement learning agent "[AIXI](https://en.wikipedia.org/wiki/AIXI)". Roughly speaking, it solves the general reinforcement learning problem by weighing models of the (unknown) environment by both the expected reward _and_ a measure of the model's "compressability." In particular, the [Kolmogorov complexity](https://en.wikipedia.org/wiki/Kolmogorov_complexity) of the sequence of past observations and rewards. Although theoretically optimal it is pretty hard to compute, even with finite lookahead.
 
@@ -88,7 +96,7 @@ The binary CTW can be extended to non-binary alphabets by replacing $P^{s0}P^{s1
 
 The obvious way to do this is to first choose a binary code for the alphabet $\mathcal{A}$, then predict each bit. This is the idea behind a "decomposition tree," which is basically a binary search tree. The leaves of the tree are the elements of $\mathcal{A}$, and each internal node has a context tree (a tree of trees?) whose job is to predict whether a symbol is in the left or right subtree of the node. The probability of a symbol $a \in \mathcal{A}$ is then calculated as the product of the probabilities on the path from the root to the leaf $a$. For example, here is a possible decomposition tree for $\mathcal{A} = \{\text{b},\text{a},\text{n}\}$.
 
-<img src="https://meiji163.github.io/images/gohs_math.jpg" alt="drawing" width="600"/>
+<img src="https://meiji163.github.io/images/ctw.png" alt="ctw" width="600"/>
 
 Context Tree 1 predicts whether the next symbol will be $\text{b}$ or not, and context tree 2 decides between $\text{a}$ and $\text{b}$.
 
