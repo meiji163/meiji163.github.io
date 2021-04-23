@@ -43,7 +43,7 @@ For $n = 1,...N$ do
 * if $x_n = 1$ then $L \gets L +  P(x_n = 0)\cdot(U-L)$
 * else $x_n = 0$ and $U \gets U-P(x_n = 1)\cdot (U-L)$
 
-At each step, we divide the current interval according to the probabilities of the next symbol. At the end, the compressed sequence is the sequence of binary digits of a number chosen from the interval $[L,U)$, (e.g. $U$ rounded up). After $n$ steps there are $2^n$ subintervals, corresponding to the possible sequences $x_1...x_n$. For example for $n=3$ the intervals might look like this: 
+At each step, we divide the current interval according to the probabilities of the next symbol. At the end, the compressed sequence is the sequence of binary digits of a number chosen from the interval $[L,U)$, (e.g. $L$ rounded up). After $n$ steps there are $2^n$ subintervals, corresponding to the possible sequences $x_1...x_n$. For example for $n=3$ the intervals might look like this: 
 
 <p class="aligncenter">
 	<img src="https://meiji163.github.io/images/coding.png" alt="coding" width="450"/>
