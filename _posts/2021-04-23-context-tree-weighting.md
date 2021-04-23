@@ -23,7 +23,7 @@ $$H(X) = \sum_x -P(x)\log(P(x)).$$
 
 It can be thought of as a measure of how predictable the data is on average.
 
-Now suppose we want to compress a stream of data. Formally, we want a code $C: \mathcal{A} \to \text{ \{ 0,1 \} } ^* $ where $\mathcal{A}$ is the alphabet the data comes from (e.g. ASCII characters) and $\text{\{}0,1\text{\}}^*$ is the set of all binary strings. A good code would have two properties: 
+Now suppose we want to compress a stream of data. Formally, we want a code $C: \mathcal{A} \to \text{ \{0, 1\} } ^* $ where $\mathcal{A}$ is the alphabet the data comes from (e.g. ASCII characters) and $\text{\{0, 1\} }^*$ is the set of all binary strings. A good code should have two properties: 
 
 * $C$ has an inverse (compression is lossless)
 * Minimal lengths of the codes $C(x)$ (good compression ratio).
@@ -53,7 +53,7 @@ Note that the length of the intervals are $P(x_1\dots x_n) = P(x_1^n)$. A trivia
 Given the code $c$ and access to the same model $\mathcal{M}$, the decoder can sequentially deduce whether the $n$th bit was a $0$ or $1$ by comparing $c$ to the divider $L + P(x_n = 0)\cdot(L-U)$ and hence uniquely decode the compressed data. 
 
 ## Models
-Assuming arithmetic coding can be implemented efficiently (see below), we have reduced compression to finding a good model of the data. Of course, the model will depend a lot on what type of data you're compressing and your speed/memory goals.
+Assuming arithmetic coding can be implemented efficiently (see [below](#implementation-anb-experiments), we have reduced compression to finding a good model of the data. Of course, the model will depend a lot on what type of data you're compressing and your speed/memory goals.
 
 The simplest model could just use frequency counts of the different symbols to make predictions. If you want to go all out you can train a neural net like an RNN or transformer on your data to make the predictions. However you'd have to account for the size of the weights, which have to be sent the decoder. It would also be too slow for most purposes (although lightweight NN's [achieve reasonable speed](http://mattmahoney.net/dc/mmahoney00.pdf)). Clearly there is a tradeoff between the time complexity of the model, and the compression ratio.
 
@@ -95,9 +95,9 @@ What is so interesting about CTW is that equation (4) is exactly this mixture of
 ### CTW Extensions
 The binary CTW can be extended to non-binary alphabets by replacing $P^{s0}P^{s1}$ by a product over all children of $s$ in the recursive formula (3). However the straightforward method of making direct predictions hasn't had much empirical success, especially with large alphabets. In practice, CTW is good at making binary predictions, although it can still have non-binary contexts. How can we convert binary predictions to general symbol predictions?
 
-The obvious way to do this is to first choose a binary code for the alphabet $\mathcal{A}$, then predict each bit. This is the idea behind a "decomposition tree," which is basically a binary search tree. The leaves of the tree are the elements of $\mathcal{A}$, and each internal node has a context tree (a tree of trees?) whose job is to predict whether a symbol is in the left or right subtree of the node. The probability of a symbol $a \in \mathcal{A}$ is then calculated as the product of the probabilities on the path from the root to the leaf $a$. For example, here is a possible decomposition tree for $\mathcal{A} = \{\text{b},\text{a},\text{n}\}$.
+The obvious way to do this is to first choose a binary code for the alphabet $\mathcal{A}$, then predict each bit. This is the idea behind a "decomposition tree," which is basically a binary search tree. The leaves of the tree are the elements of $\mathcal{A}$, and each internal node has a context tree (a tree of trees?) whose job is to predict whether a symbol is in the left or right subtree of the node. The probability of a symbol $a \in \mathcal{A}$ is then calculated as the product of the probabilities on the path from the root to the leaf $a$. For example, here is a possible decomposition tree for $\mathcal{A} = \text{\{b, a, n\}$.
 
-<img src="https://meiji163.github.io/images/ctw.png" alt="ctw" width="500"/>
+<img src="https://meiji163.github.io/images/ctw.png" alt="ctw" width="450"/>
 
 Context Tree 1 predicts whether the next symbol will be $\text{b}$ or not, and context tree 2 decides between $\text{a}$ and $\text{b}$.
 
@@ -132,7 +132,7 @@ E.coli |  4.09 | 3.69  | 3.56
 
 It is interesting to look at the predictions CTW makes. It is particularly good at detecting basic structure like spaces between words, braces, parenthesis, etc. and repeated words and phrases. For example in fields.c consistently predicts ( $p \approx 0.8$) that function declarations like `realloc ()` are followed by `;` and that comments starting with `/*` end with `*/`. 
 
-In bible.txt, it is particularly good at predicting common words like "God" (big surprise). The probabilities for E.coli are actually rarely greater than $0.3$. Since $\mathcal{A} = \{g,c,t,a\}$ , the compression in this case is mainly due to the fact that the alphabet is small. We can see CTW is basically finding the "low hanging fruits" of redundancy. This is about all we can expect, since we know Markov models aren't particularly good at learning grammatical structures.
+In bible.txt, it is particularly good at predicting common words like "God" (big surprise). The probabilities for E.coli are actually rarely greater than $0.3$. Since $\mathcal{A} = \text{\{g, c, t, a\}}$ , the compression in this case is mainly due to the fact that the alphabet is small. We can see CTW is basically finding the "low hanging fruits" of redundancy. This is about all we can expect, since we know Markov models aren't particularly good at learning grammatical structures.
 
 CTW compares favorably on these text files, but my implementation failed miserably when I tried it on binary data (possible due to my janky code). My implementation is also 5-10 times slower than gzip and compress on large files, and undoubtedly uses much more memory. 
 
