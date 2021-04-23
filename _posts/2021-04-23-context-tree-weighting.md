@@ -49,9 +49,9 @@ At each step, we divide the current interval according to the probabilities of t
 	<img src="https://meiji163.github.io/images/coding.png" alt="coding" width="450"/>
 </p>
 
-Note that the length of the intervals are $P(x_1\dots x_n) = P(x_1^n)$. A trivial model that predicts $P(x_1^n) = 2^{-n}$ would essentially give us back the original sequence (a terrible compressor indeed), but if our model assigns a larger probability to the sequence, that interval is guaranteed to contain a rational number $c$ with approximately $-\log( P(x_1^n))$ digits in its binary expansion, reducing the number of bits needed to describe it.
+Note that the length of the intervals are $P(x_1\dots x_n) = P(x_1^n)$. A trivial model that predicts $P(x_1^n) = 2^{-n}$ would essentially give us back the original sequence (a terrible compressor indeed), but if our model assigns a larger probability to the sequence, that interval is guaranteed to contain a rational number $c$ with approximately $-\log( P(x_1^n))$ digits in its binary expansion, reducing the number of bits needed to describe it. The encoder can end the message either with a special `EOT` symbol or by transmitting the length.
 
-Given the code $c$ and access to the same model $\mathcal{M}$, the decoder can sequentially deduce whether the $n$th bit was a $0$ or $1$ by comparing $c$ to the divider $L + P(x_n = 0)\cdot(U-L)$ and hence uniquely decode the compressed data. The encoder can end the message either with a special `EOT` symbol or by transmitting the length.
+Given the code $c$ and access to the same model $\mathcal{M}$, the decoder can sequentially deduce whether the $n$th bit was a $0$ or $1$ by comparing $c$ to the divider $L + P(x_n = 0)\cdot(U-L)$ and hence uniquely decode the compressed data. 
 
 ## Models
 Assuming arithmetic coding can be implemented efficiently (see [below](#implementation-and-experiments)), we have reduced compression to finding a good model of the data. Of course, the model will depend a lot on what type of data you're compressing and your speed/memory goals.
@@ -66,11 +66,11 @@ A simpler option is a _tree model_. We assume that $P(x_n)$ depends on at most $
 
 Each leaf has three counters (# $\text{a}$'s, # $\text{b}$'s , #$\text{n}$'s). E.g. "$\text{n}$" appears two times after the suffix "$\text{na}$". A tree like this is called a _prediction suffix tree_ (PST). We can make rough estimates of the probability using the statistics stored in the leaves with e.g. a [Dirichlet distribution](https://en.wikipedia.org/wiki/Dirichlet_distribution). Another common choice is the [Krichevsky-Trofimov estimator](https://en.wikipedia.org/wiki/Krichevsky–Trofimov_estimator).
 
-A similar idea combined with the Lempel-Ziv algorithm forms the basis for the "Prediction by Partial Matching" algorithm, which is considered one of the top-performing tree models [[3](#references)].
+A similar idea combined with the Lempel-Ziv algorithm forms the basis for the "Prediction by Partial Matching" algorithm, which is considered one of the top-performing tree models [[3]](#references).
 
 
 ## Context Tree Weighting
-Context Tree Weighting (CTW) is a beautiful algorithm invented by Willems, Shtarkov, and Tjalkens [[1](#references)] that efficiently computes a weighted sum over all prediction suffix trees of depth $D$ for a binary alphabet. Naively, this would take $O(2^D)$, while CTW computes it in $O(D)$. 
+Context Tree Weighting (CTW) is a beautiful algorithm invented by Willems, Shtarkov, and Tjalkens [[1]](#references) that efficiently computes a weighted sum over all prediction suffix trees of depth $D$ for a binary alphabet. Naively, this would take $O(2^D)$, while CTW computes it in $O(D)$. 
 
 We first build a complete binary tree of depth $D$, called the context tree. Like a prediction suffix tree, each node is labeled by its corresponding $s$. Each node stores the frequencies of 0's and 1's that occur after context $s$, and computes a probability $P^s$ recursively from its children as follows: Let $x_1\dots x_n$ be the past symbols, then the probability stored at the node $s$ is defined as
 
@@ -86,7 +86,7 @@ where
 * $P(x_1^n \mid T)$ is the probability of $x_1\dots x_n$ according to the PST $T$
 * $\Gamma_D(T)$ is the number of nodes of $T$ minus the number of leaves at depth $D$
 
-Well we certainly have a weighted sum of PST predictions, but what is this $\Gamma_D$? It is actually the length of the optimal [prefix code](https://en.wikipedia.org/wiki/Prefix_code) for the tree $T$, i.e. the number of bits needed to describe $T$. So we are weighting each PST by "how complex" it is in some sense. The original paper proves a sharp bound on the redundancy of CTW [[1, Theorem 2](#references)].
+Well we certainly have a weighted sum of PST predictions, but what is this $\Gamma_D$? It is actually the length of the optimal [prefix code](https://en.wikipedia.org/wiki/Prefix_code) for the tree $T$, i.e. the number of bits needed to describe $T$. So we are weighting each PST by "how complex" it is in some sense. The original paper proves a sharp bound on the redundancy of CTW [[1, Theorem 2]](#references).
 
 ### Sidenote: Compression = AGI?
 Anyone into data compression probably knows about the [Hutter prize](http://prize.hutter1.net/), a cash prize for compressing the first GB of Wikipedia to smaller than the current record (116 MB). Hutter's slogan is "Compression = AGI" (artificial general intelligence), a provocative summary of his reinforcement learning agent [AIXI](https://en.wikipedia.org/wiki/AIXI). Roughly speaking, it solves the general reinforcement learning problem by weighing models of the (unknown) environment by both the expected reward _and_ a measure of the model's compressability. In particular, the compressability is measured by the [Kolmogorov complexity](https://en.wikipedia.org/wiki/Kolmogorov_complexity) of the sequence of past observations and rewards. Although theoretically optimal, the AIXI action function is hard to compute, even with finite lookahead.
@@ -108,9 +108,9 @@ One drawback of this approach is that the performance is sensitive to the topolo
 ## Implementation and Experiments
 To experiment I wrote a [simple implementation](https://github.com/meiji163/zop/tree/main/src) of CTW using a Huffman decomposition tree. 
 
-The main difficulty in implementation is the precision of the probabilities. The original form of the arithmetic encoder requires arbitrary precision. To make it practical we can use finite precision and output a bit once the leading bits of $U$ and $L$ are equal. Then we scale the whole interval by $2$. A more clever version of this scaling was invented by Witten, Neal, and Cleary [[6](#references)], which is the version I used.
+The main difficulty in implementation is the precision of the probabilities. The original form of the arithmetic encoder requires arbitrary precision. To make it practical we can use finite precision and output a bit once the leading bits of $U$ and $L$ are equal. Then we scale the whole interval by $2$. A more clever version of this scaling was invented by Witten, Neal, and Cleary [[6]](#references), which is the version I used.
 
-The original CTW algorithm also needs modification. The main technique is to store a ratio of probabilities in the nodes to handle float-point errors. The exact method I used is the one described in [[4, s. 4.4](#references)].
+The original CTW algorithm also needs modification. The main technique is to store a ratio of probabilities in the nodes to handle float-point errors. The exact method I used is the one described in [[4]](#references).
 
 I tested my implementation with depth $D=12$ on some text data from the [Canterbury corpus](https://www.corpus.canterbury.ac.nz/). For comparison I also compressed the files with Unix's "compress" and gzip on default settings. Both use variants of the Lempel-Ziv algorithm. 
 
@@ -137,7 +137,7 @@ In bible.txt, it is particularly good at predicting common words like "God" (big
 
 Although CTW compares favorably on these text files, my implementation failed miserably when I tried it on binary data (possible due to my janky code). My implementation is also 5-10 times slower than gzip and compress on large files, and undoubtedly uses much more memory. 
 
-The good news is there is a lot of room for improvement. Obvious optimizations would be parallelizing the context trees and using fixed-point arithmetic instead of doubles. I highly recommend Volf's thesis [4], in which he documents his CTW compressor project in great detail. He uses the previously mentioned optimizations (and many more) to satisfy a memory limit of 32MB and a compression speed of around 10kB/s. 
+The good news is there is a lot of room for improvement. Obvious optimizations would be parallelizing the context trees and using fixed-point arithmetic instead of doubles. I highly recommend Volf's thesis [[4]](#references), in which he documents his CTW compressor project in great detail. He uses the previously mentioned optimizations (and many more) to satisfy a memory limit of 32MB and a compression speed of around 10kB/s. 
 
 ## Conclusion
 Context Tree Weighting is a beautiful example of a mixture model with "Occam's-Razor" weighting. Its solid theoretical foundations make it attractive compared to e.g. Prediction by Partial Matching. However it is trickier to implement because of greater memory and computational requirements.
