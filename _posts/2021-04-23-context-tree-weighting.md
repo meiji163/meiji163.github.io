@@ -100,7 +100,7 @@ The obvious way to do this is to first choose a binary code for the alphabet $\m
 
 <img src="https://meiji163.github.io/images/ctw.png" alt="ctw" width="450"/>
 
-Context Tree 1 predicts whether the next symbol will be $\text{b}$ or not, and context tree 2 decides between $\text{a}$ and $\text{b}$.
+Context Tree 1 predicts whether the next symbol will be $\text{b}$ or not, and context tree 2 decides between $\text{a}$ and $\text{n}$.
 
 One drawback of this approach is that the performance is sensitive to the topology of the decomposition tree. One choice is [the Huffman tree](https://en.wikipedia.org/wiki/Huffman_coding), which minimizes the number of context trees updates that are required. In general we want to find groupings of the symbols which are "similar," in some way. We could for example collect statistics on co-occurence of symbols à la [GloVe](https://nlp.stanford.edu/projects/glove/). Once we decide on a decomposition tree, we have to describe it to the decompressor, but this is only a few more bytes overhead.
 
