@@ -23,13 +23,12 @@ $$H(X) = \sum_x -P(x)\log(P(x)).$$
 
 It can be thought of as a measure of how predictable the data is on average.
 
-Now suppose we want to compress a stream of data. Formally, we want a code $C: \mathcal{A} \to \string{ 0,1 \string} ^* $ where $\mathcal{A}$ is the alphabet the data comes from (e.g. ASCII characters) and $\string{0,1\string}^*$ is the set of all binary strings. A good code would have two properties: 
+Now suppose we want to compress a stream of data. Formally, we want a code $C: \mathcal{A} \to \left\{ 0,1 \right\} ^* $ where $\mathcal{A}$ is the alphabet the data comes from (e.g. ASCII characters) and $\string{0,1\string}^*$ is the set of all binary strings. A good code would have two properties: 
 
 * $C$ has an inverse (compression is lossless)
 * Minimal lengths of the codes $C(x)$ (good compression ratio).
 
-Shannon proved that such an optimal code would have an average code length essentially _equal to the entropy_ of the source. Moreover, he proved that for an optimal code, the code length $\mid C(x) \mid$ would be _equal to the information content_ $I(x)$.  
-In other words, if we define the _redundancy_ of our code $C$ as the difference $\rho(x) = \mid C(x) \mid - I(x)$, then finding a good code is equivalent to minimizing the redundancy. Of course this is a bit sloppy, for more precise statements see e.g. [2]
+Shannon proved that such an optimal code would have an average code length essentially _equal to the entropy_ of the source. Moreover, he proved that for an optimal code, the code length $\mid C(x) \mid$ would be _equal to the information content_ $I(x)$.  In other words, if we define the _redundancy_ of our code $C$ as the difference $\rho(x) = \mid C(x) \mid - I(x)$, then finding a good code is equivalent to minimizing the redundancy. Of course this is a bit sloppy, for more precise statements see e.g. [2]
 
 ## Arithmetic Coding
 Unsurprisingly, Shannon's proof is non-constructive, so how do we make an optimal code in practice? Several algorithms have been developed; you make have heard of the Huffman code or Lempel-Ziv algorithm, which one can prove are roughly optimal. Less commonly known is _arithmetic coding_. 
@@ -37,13 +36,11 @@ Unsurprisingly, Shannon's proof is non-constructive, so how do we make an optima
 The nice thing about arithmetic coding is you can plug in any probabilistic model $\mathcal{M}$ of the source (i.e. a way to generate predictions for the next symbol) and it guarantees you a code length approximately equal to the entropy according to your model $H(X \mid \mathcal{M})$. The idea is to associate each sequence to a subinterval of $[0,1)$, whose length is equal to its probability.
 
 
-To illustrate the algorithm, suppose we are recieving a stream of binary data $x_1,x_2,\dots,x_N$ (abbreviated $x_1^N$). Let $L$ be the lower endpoint of the interval and $U$ be the upper endpoint after receiving the $n$th symbol. Initially we have received no bits and set $L=0$, $U=1$. 
-For $n = 1,...N$ do
-
+To illustrate the algorithm, suppose we are recieving a stream of binary data $x_1,x_2,\dots,x_N$ (abbreviated $x_1^N$). Let $L$ be the lower endpoint of the interval and $U$ be the upper endpoint after receiving the $n$th symbol. Initially we have received no bits and set $L=0$, $U=1$.   
+For $n = 1,...N$ do  
 * generate prediction $P(x_n = 0)$
 * if $x_n = 1$ then $L \gets L +  P(x_n = 0)\cdot(L-U)$
 * else $x_n = 0$ and $U \gets U-P(x_n = 1)\cdot (L-U)$
-
 
 At the end, the compressed sequence is the sequence of binary digits of a number chosen from the interval $[U,L)$, (e.g. $U$ rounded up). After $n$ steps there are $2^n$ subintervals, corresponding to the possible sequences $x_1...x_n$. For example for $n=3$ the intervals might look like this: 
 
@@ -60,13 +57,13 @@ Assuming arithmetic coding can be implemented efficiently (see below), we have r
 
 The simplest model could just use frequency counts of the different symbols to make predictions. If you want to go all out you can train a neural net like an RNN or transformer on your data to make the predictions. However you'd have to account for the size of the weights, which have to be sent the decoder. It would also be too slow for most purposes (although lightweight NN's [achieve reasonable speed](http://mattmahoney.net/dc/mmahoney00.pdf)). Clearly there is a tradeoff between the time complexity of the model, and the compression ratio.
 
-A simpler option is a _tree model_. We assume that $P(x_n)$ depends on at most $D$ of the previous symbols. The main idea is to build a suffix tree (or trie) from the source. Given past symbols $x_{n-D},...,x_{n-1}$ we take the last $k \le D$ as the suffix (also known as the context) and record the frequencies of each symbol given the context. $k$ can vary between contexts. For example if the alphabet is $\mathcal{A} = \{\text{a,b,n}\}$ and the sequence "$\text{bananan}$" here is one possible depth $D=2$ tree (suffixes are read from bottom up)
+A simpler option is a _tree model_. We assume that $P(x_n)$ depends on at most $D$ of the previous symbols. The main idea is to build a suffix tree (or trie) from the source. Given past symbols $x_{n-D},...,x_{n-1}$ we take the last $k \le D$ as the suffix (also known as the context) and record the frequencies of each symbol given the context. $k$ can vary between contexts. For example if the alphabet is $\mathcal{A} = \left\{\text{a,b,n}\left\}$ and the sequence "$\text{bananan}$" here is one possible depth $D=2$ tree (suffixes are read from bottom up)
 
 
-<img src="https://meiji163.github.io/images/path12.png" alt="tree1" width="450"/>
+<img src="https://meiji163.github.io/images/path12.png" alt="tree1" width="400"/>
 
 
-Each leaf has three counters (# $\text{a}$'s, # $\text{b}$'s , #$\text{n}$'s). E.g. "$\text{n}$" appears two times after the suffix "$\text{na}$". A tree like this is called a _prediction suffix tree_. We can make rough estimates of the probability using the statistics stored in the leaves with e.g. a [Dirichlet distribution](https://en.wikipedia.org/wiki/Dirichlet_distribution). Another common choice is the [Krichevsky-Trofimov estimator](https://en.wikipedia.org/wiki/Krichevsky–Trofimov_estimator).
+Each leaf has three counters (# $\text{a}$'s, # $\text{b}$'s , #$\text{n}$'s). E.g. "$\text{n}$" appears two times after the suffix "$\text{na}$". A tree like this is called a _prediction suffix tree_ (PST). We can make rough estimates of the probability using the statistics stored in the leaves with e.g. a [Dirichlet distribution](https://en.wikipedia.org/wiki/Dirichlet_distribution). Another common choice is the [Krichevsky-Trofimov estimator](https://en.wikipedia.org/wiki/Krichevsky–Trofimov_estimator).
 
 A similar idea combined with the Lempel-Ziv algorithm forms the basis for the "Prediction by Partial Matching" algorithm, which is considered one of the top-performing tree models [3].
 
@@ -118,7 +115,7 @@ The original CTW algorithm also needs modification. The main technique is to sto
 I tested my implementation with depth $D=12$ on some text data from the [Canterbury corpus](https://www.corpus.canterbury.ac.nz/). For comparison I also compressed the files with Unix's "compress" and gzip on default settings. Both use some variant of the Lempel-Ziv algorithm. 
 
 |   File   |  Size (Bytes)    |   Description
-| :------------| :----------: | :-----:
+| :----------: | :----------: | :-----:
 | grammar.lsp |  3721 | LISP code
 |  fields.c |  11150 | C code
 | plrabn12.txt | 481861 | Milton's Paradise Lost 
@@ -127,7 +124,7 @@ I tested my implementation with depth $D=12$ on some text data from the [Canterb
 
 
  Compression Ratio  | ctw  |  compress  | gzip 
-| :---- | :----:  | :-----:| :----: | :---: |  :------: |
+| :---: | :----:  | :-----:| :----: | :---: |  :------: |
 fields.c | 4.21 | 2.24 | 3.55
 grammar.lsp | 3.65 | 2.05 | 2.99
 plrabn12.txt | 3.15 | 2.37 |2.48
