@@ -88,7 +88,9 @@ where
 * $P(x_1^n \mid T)$ is the probability of $x_1\dots x_n$ according to the PST $T$
 * $\Gamma_D(T)$ is the number of nodes of $T$ minus the number of leaves at depth $D$
 
-Well we certainly have a weighted sum of PST predictions, but what is this $\Gamma_D$? It is actually the length of the optimal [prefix code](https://en.wikipedia.org/wiki/Prefix_code) for the tree $T$, i.e. the number of bits needed to describe $T$. So we are weighting each PST by "how complex" it is in some sense. To make predictions with CTW we use the root probability, then update the path in the tree corresponding to the context. The original paper proves a sharp bound on the redundancy of the code computed by CTW (Theorem 2).
+Well we certainly have a weighted sum of PST predictions, but what is this $\Gamma_D$? It is actually the length of the optimal [prefix code](https://en.wikipedia.org/wiki/Prefix_code) for the tree $T$, i.e. the number of bits needed to describe $T$. So we are weighting each PST by "how complex" it is in some sense.  
+
+To make predictions with CTW we use the root probability, then update the path in the tree corresponding to the context when we receive the next symbol. The original paper proves a sharp bound on the redundancy of the code computed by CTW (Theorem 2).
 
 ### Sidenote: Compression = AGI?
 Anyone into data compression probably knows about the [Hutter prize](http://prize.hutter1.net/), a cash prize for compressing the first GB of Wikipedia to smaller than the current record (116 MB). Hutter's slogan is "Compression = AGI," a provocative summary of the principle behind [AIXI](https://en.wikipedia.org/wiki/AIXI). Roughly speaking, AIXI solves the general reinforcement learning problem by weighing models of the (unknown) environment by both the expected reward _and_ a measure of the model's compressability. In particular, the compressability is measured by the [Kolmogorov complexity](https://en.wikipedia.org/wiki/Kolmogorov_complexity) of the sequence of past observations and rewards. Although theoretically optimal, the AIXI action function is infeasible to compute directly.
