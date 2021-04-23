@@ -53,6 +53,8 @@ Note that the length of the intervals are $P(x_1\dots x_n) = P(x_1^n)$. A trivia
 
 Given the code $c$ and access to the same model $\mathcal{M}$, the decoder can sequentially deduce whether the $n$th bit was a $0$ or $1$ by comparing $c$ to the divider $L + P(x_n = 0)\cdot(U-L)$ and hence uniquely decode the compressed data. 
 
+Arithmetic coding works the same way for non-binary alphabets, at each step dividing the interval into $\mid\mathcal{A}\mid$ sections according to their probabilites. 
+
 ## Models
 Assuming arithmetic coding can be implemented efficiently (see [below](#implementation-and-experiments)), we have reduced compression to finding a good model of the data. Of course, the model will depend a lot on what type of data you're compressing and your speed/memory goals.
 
