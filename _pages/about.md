@@ -19,6 +19,7 @@ Research
 
 Docs
 ======
+* [Heisenberg Group Notes](https://meiji163.github.io/files/heis_intro.pdf)
 * [Lee Smooth Manifolds Solutions](https://meiji163.github.io/files/lee.pdf)
 * [Basic Exam Solutions](https://meiji163.github.io/files/basic.pdf)
 * [Knot Theory Worksheet](https://meiji163.github.io/files/knots.pdf)
