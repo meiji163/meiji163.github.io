@@ -21,18 +21,10 @@
   <script type="text/javascript">
     window.MathJax = {
       showProcessingMessages: false,
-      messageStyle: 'none',
-	  tex: {
-		  inlineMath: [['$','$'], ['\\(','\\)']
-	  },
-	  svg: {
-		  fontCache: global
-	  }
+      messageStyle: 'none'
     };
   </script>
-  <script type="text/javascript" id="MathJax-script" async
-  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js">
-  </script>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
 {{- end }}
 <!-- End -->
 
@@ -53,20 +45,14 @@
   <script defer
     src="https://cdn.jsdelivr.net/npm/katex@0.11.0/dist/contrib/auto-render.min.js"
     integrity="sha384-kWPLUVMOks5AQFrykwIup5lo0m3iMkkHrD0uJ4H5cjeGihAutqP0yW0J6dpFiVkI"
-    crossorigin="anonymous" onload="renderMathInElement(document.body, 
-		{delimiters: [
-			{left: '$', right: '$', display: false},
-			{left: '$$', right: '$$', display: true}
-			]);">
+    crossorigin="anonymous" onload="renderMathInElement(document.body);">
   </script>
   <script>
     document.addEventListener("DOMContentLoaded", function() {
       renderMathInElement(document.body, {
-			  delimiters: [
-			  	{left: '$$', right: '$$', display: true},
-				{left: '$', right: '$', display: false}]
-		  });
+        // ...options...
       });
+    });
   </script>
 {{- end }}
 <!-- End -->
