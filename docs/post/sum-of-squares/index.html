@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en" itemscope itemtype="http://schema.org/WebPage">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Fast Sum of Two Squares Algorithm - meiji163</title>
+  
+
+<meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes"/>
+
+<meta name="MobileOptimized" content="width"/>
+<meta name="HandheldFriendly" content="true"/>
+
+
+<meta name="applicable-device" content="pc,mobile">
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+<meta name="mobile-web-app-capable" content="yes">
+
+<meta name="author" content="meiji163" />
+  <meta name="description" content="In this post I show how writing primes as the sum of two squares is related to factoring Gaussian integers. I then describe an algorithm to compute the sum of two squares representation.
+Gaussian Integers I have a special penchant for Gaussian integers because they are the first ring I learned about (besides the regular integers of course). Mathematically, they are the set of complex numbers $a&#43;bi$ with $a,b$ integers, and they are denoted as $\mathbb{Z}[i]$." />
+
+  <meta name="keywords" content="Hugo, theme, jane" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.87.0" />
+
+
+<link rel="canonical" href="https://meiji163.github.io/post/sum-of-squares/" />
+
+
+
+
+
+<link rel="icon" href="/favicon.ico" />
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/sass/jane.min.fa4b2b9f31b5c6d0b683db81157a9226e17b06e61911791ab547242a4a0556f2.css" integrity="sha256-&#43;ksrnzG1xtC2g9uBFXqSJuF7BuYZEXkatUckKkoFVvI=" media="screen" crossorigin="anonymous">
+
+
+
+
+<link rel="stylesheet" href="/css/center.css">
+
+
+<meta property="og:title" content="Fast Sum of Two Squares Algorithm" />
+<meta property="og:description" content="In this post I show how writing primes as the sum of two squares is related to factoring Gaussian integers. I then describe an algorithm to compute the sum of two squares representation.
+Gaussian Integers I have a special penchant for Gaussian integers because they are the first ring I learned about (besides the regular integers of course). Mathematically, they are the set of complex numbers $a&#43;bi$ with $a,b$ integers, and they are denoted as $\mathbb{Z}[i]$." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://meiji163.github.io/post/sum-of-squares/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2021-01-23T00:00:00+00:00" />
+<meta property="article:modified_time" content="2021-01-23T00:00:00+00:00" />
+
+<meta itemprop="name" content="Fast Sum of Two Squares Algorithm">
+<meta itemprop="description" content="In this post I show how writing primes as the sum of two squares is related to factoring Gaussian integers. I then describe an algorithm to compute the sum of two squares representation.
+Gaussian Integers I have a special penchant for Gaussian integers because they are the first ring I learned about (besides the regular integers of course). Mathematically, they are the set of complex numbers $a&#43;bi$ with $a,b$ integers, and they are denoted as $\mathbb{Z}[i]$."><meta itemprop="datePublished" content="2021-01-23T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2021-01-23T00:00:00+00:00" />
+<meta itemprop="wordCount" content="1154">
+<meta itemprop="keywords" content="Gaussian integers,number theory,algorithms," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Fast Sum of Two Squares Algorithm"/>
+<meta name="twitter:description" content="In this post I show how writing primes as the sum of two squares is related to factoring Gaussian integers. I then describe an algorithm to compute the sum of two squares representation.
+Gaussian Integers I have a special penchant for Gaussian integers because they are the first ring I learned about (besides the regular integers of course). Mathematically, they are the set of complex numbers $a&#43;bi$ with $a,b$ integers, and they are denoted as $\mathbb{Z}[i]$."/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+
+
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">明治</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <li class="mobile-menu-item">
+        
+          
+          
+            <a class="menu-item-link" href="https://meiji163.github.io/">Home</a>
+          
+        
+      </li><li class="mobile-menu-item">
+        
+          
+          
+            <a class="menu-item-link" href="https://meiji163.github.io/post/">Archives</a>
+          
+        
+      </li><li class="mobile-menu-item">
+        
+          
+          
+            <a class="menu-item-link" href="https://meiji163.github.io/tags/">Tags</a>
+          
+        
+      </li><li class="mobile-menu-item">
+        
+          
+          
+            <a class="menu-item-link" href="https://meiji163.github.io/categories/">Categories</a>
+          
+        
+      </li><li class="mobile-menu-item">
+        
+          
+          
+            <a class="menu-item-link" href="https://meiji163.github.io/about/">About</a>
+          
+        
+      </li>
+    
+
+    
+  </ul>
+</nav>
+
+
+  
+    
+
+
+
+
+
+
+  <link rel="stylesheet" href="/lib/photoswipe/photoswipe.min.css" />
+  <link rel="stylesheet" href="/lib/photoswipe/default-skin/default-skin.min.css" />
+
+
+
+
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+<div class="pswp__bg"></div>
+
+<div class="pswp__scroll-wrap">
+    
+    <div class="pswp__container">
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+    </div>
+    
+    <div class="pswp__ui pswp__ui--hidden">
+    <div class="pswp__top-bar">
+      
+      <div class="pswp__counter"></div>
+      <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+      <button class="pswp__button pswp__button--share" title="Share"></button>
+      <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+      <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+      
+      
+      <div class="pswp__preloader">
+        <div class="pswp__preloader__icn">
+          <div class="pswp__preloader__cut">
+            <div class="pswp__preloader__donut"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+      <div class="pswp__share-tooltip"></div>
+    </div>
+    <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+    </button>
+    <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+    </button>
+    <div class="pswp__caption">
+      <div class="pswp__caption__center"></div>
+    </div>
+    </div>
+    </div>
+</div>
+
+  
+
+  
+
+  
+
+  <header id="header" class="header container">
+    <div class="logo-wrapper">
+  <a href="/" class="logo">
+    
+      明治
+    
+  </a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    
+    
+        <li class="menu-item">
+        
+          
+          
+            <a class="menu-item-link" href="https://meiji163.github.io/">Home</a>
+          
+
+        
+
+      </li>
+    
+        <li class="menu-item">
+        
+          
+          
+            <a class="menu-item-link" href="https://meiji163.github.io/post/">Archives</a>
+          
+
+        
+
+      </li>
+    
+        <li class="menu-item">
+        
+          
+          
+            <a class="menu-item-link" href="https://meiji163.github.io/tags/">Tags</a>
+          
+
+        
+
+      </li>
+    
+        <li class="menu-item">
+        
+          
+          
+            <a class="menu-item-link" href="https://meiji163.github.io/categories/">Categories</a>
+          
+
+        
+
+      </li>
+    
+        <li class="menu-item">
+        
+          
+          
+            <a class="menu-item-link" href="https://meiji163.github.io/about/">About</a>
+          
+
+        
+
+      </li>
+    
+
+    
+    
+
+    
+  </ul>
+</nav>
+
+  </header>
+
+  <div id="mobile-panel">
+    <main id="main" class="main bg-llight">
+      <div class="content-wrapper">
+        <div id="content" class="content container">
+          <article class="post bg-white">
+    
+    <header class="post-header">
+      <h1 class="post-title">Fast Sum of Two Squares Algorithm</h1>
+      
+      <div class="post-meta">
+        <time datetime="2021-01-23" class="post-time">
+          2021-01-23
+        </time>
+        <div class="post-category">
+            <a href="https://meiji163.github.io/categories/number-theory/"> number theory </a>
+            <a href="https://meiji163.github.io/categories/algorithms/"> algorithms </a>
+            
+          </div>
+        
+
+        
+        
+
+        
+        
+      </div>
+    </header>
+
+    
+    
+<div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Table of Contents</h2>
+  <div class="post-toc-content">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#gaussian-integers">Gaussian Integers</a>
+      <ul>
+        <li><a href="#finding-sums-of-squares">Finding Sums of Squares</a></li>
+      </ul>
+    </li>
+    <li><a href="#implementation">Implementation</a></li>
+    <li><a href="#exercises-and-further-reading">Exercises and Further Reading</a></li>
+  </ul>
+</nav>
+  </div>
+</div>
+
+    
+    <div class="post-content">
+      <p>In this post I show how writing primes as the sum of two squares is related to factoring Gaussian integers. I then describe an algorithm to compute the sum of two squares representation.</p>
+<h2 id="gaussian-integers">Gaussian Integers</h2>
+<p>I have a special penchant for Gaussian integers because they are the first ring I learned about (besides the regular integers of course).
+Mathematically, they are the set of complex numbers $a+bi$ with $a,b$ integers, and they are denoted as $\mathbb{Z}[i]$.</p>
+<p>We can add, subtract, and multiply Gaussian integers making it a structure called a <strong>ring</strong>.
+However, $\mathbb{Z}[i]$ is a very special type of ring because it has a norm</p>
+<p>If we have two Gaussian integers $z_1$ and $z_2 \ne 0$, we can divide $z_1$ by $z_2$</p>
+<p>$$z_1 = q z_2 + r$$</p>
+<p>where $q,r \in \mathbb{Z}[i]$ and $N(r) &lt; N(z_2)$. That means the Euclidean algorithm works the same as in the
+regular integers! This type of ring is called a <a href="https://en.wikipedia.org/wiki/Euclidean_domain">Euclidean domain</a>.</p>
+<p>If the remainder $r = 0$, then we say $z_1$ is divisible by $z_2$. A <strong>Gaussian prime</strong> is a Gaussian integer that
+has no divisors except for itself, and the units $\pm 1, \pm i$.
+It is a theorem in algebra that every Euclidean domain has unique factorization, that is,
+we can factor every Gaussian integer into Gaussian primes in a unique way (up to multiplication by $\pm 1, \pm i$).</p>
+<p>Plotting the Guassian primes on the complex plane makes quite a pretty pattern.</p>
+
+<link rel="stylesheet" href="/css/hugo-easy-gallery.css" />
+<div class="box">
+<figure  itemprop="associatedMedia"
+  itemscope itemtype="http://schema.org/ImageObject" >
+    <div class="img">
+      <img itemprop="thumbnail" src="https://upload.wikimedia.org/wikipedia/commons/8/85/Gaussian_primes.png#center" />
+    </div>
+    <a href="https://upload.wikimedia.org/wikipedia/commons/8/85/Gaussian_primes.png#center" itemprop="contentUrl"></a>
+  </figure>
+</div>
+
+<p>One thing you might wonder is how the familiar integer primes $2,3,5,7,\dots$ are related to
+the Gaussian primes. For example $2 = (1+i)(1-i)$ so it is not a Guassian prime!
+It turns out we can describe the relationship very simply:</p>
+<p><strong>Theorem</strong>:
+Let $p&gt;2$ be an integer prime.
+Then $p$ is a Gaussian prime if and only if $p \equiv 3 \pmod{4}$.</p>
+<p>This is closely related to the problem of representing an integer as the sum of two squares,
+since if we can factor $p = (a+bi)(a-bi)$ then $p = a^2 +b^2$. Moreover, if $q = (c+di)(c-di)$
+is also the sum of two squares, then so is $pq$ since</p>
+<p>$$pq = ((ac-bd)+i(ad+bc))((ac-bd)-i(ac+bd))$$</p>
+<p>From this we can determine all integers that can be represented as a sum of two squares
+by looking at the primes in its prime factorization (in regular integers).
+For example, $15 = 3\cdot 5$ is not the sum of squares because we can&rsquo;t factor the $3$ in Gaussian integers.</p>
+<h3 id="finding-sums-of-squares">Finding Sums of Squares</h3>
+<p>How can we efficiently factor primes in the Gaussian integers? Here is one
+very fast way due to Serret and Hermite. Let $p = 4k+1$ be prime.</p>
+<ol>
+<li>Find a quadratic non-residue c mod p</li>
+<li>Let x = c<!-- raw HTML omitted -->(p-1)/4<!-- raw HTML omitted -->  mod p so that x<!-- raw HTML omitted -->2<!-- raw HTML omitted --> = -1 mod p (this follows from <a href="https://en.wikipedia.org/wiki/Euler%27s_criterion">Euler&rsquo;s criterion</a> )</li>
+<li>Use the Euclidean algorithm on p and x until we get two remainders s,r &lt; √p</li>
+</ol>
+<p>Then, magically $p = r^2+s^2$.</p>
+<p>The idea of the algorithm is to use a symmetry in the Euclidean algorithm.
+In the Euclidean algorithm, we have a sequence of remainders $r_0 = p, r_1 = x, r_2, \dots, r_n$ that end with the
+greatest common divisor $r_n = \gcd(p, x) = 1$. We compute these recursively:</p>
+<p>$$r_{i-1} = q_{i}r_{i}+ r_{i+1}$$</p>
+<p>where $q_i = \lfloor r_{i-1}/r_{i} \rfloor$ is the quotient. We can define another sequence $(t_i)$ by the
+same recurrence, but with initial values $t_0 = 0$, $t_1 = 1$. It turns out that this sequence is just the
+reverse of the sequence $(r_i)$, up to signs. Moreover, one can see using the recurrence that</p>
+<p>$$t_i x \equiv r_i \pmod{p}$$</p>
+<p>for all i. This is the key equation, because we can square this equation and use $x^2 \equiv -1 \pmod{p}$ to get</p>
+<p>$$t_i^2 + r_i^2 \equiv 0 \pmod{p}$$</p>
+<p>From here we just need to find the $t_i$ and $r_i$ that are the right size. I encourage you to work out the details.
+If you get stuck, most of the proof is in <a href="https://www.jstor.org/stable/2323912">this article</a>.</p>
+<p>Assuming the <a href="https://en.wikipedia.org/wiki/Generalized_Riemann_hypothesis#Extended_Riemann_hypothesis_(ERH)">Generalized Riemann Hypothesis</a> is true,
+we only have to check $O( \log^2(p))$ numbers to find the non-residue $x$. Empirically, we rarely have to search more than $\log(p)$.
+The Euclidean algorithm is the faster part and is around $O(\log(p))$.</p>
+<h2 id="implementation">Implementation</h2>
+<p>As an example, let&rsquo;s sieve a bunch of primes then find their sum of two squares representation.
+To find c we loop through the primes q that we found.<br>
+Since $p \equiv 1 \pmod{4}$, <a href="https://en.wikipedia.org/wiki/Quadratic_reciprocity">quadratic reciprocity</a> implies that
+$q$ is a quadratic residue mod $p$ if and only if $p$ is a quadratic residue mod $q$, which is much easier to check.
+We can do this using Euler&rsquo;s criterion.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="kt">int</span> <span class="nf">non_res</span><span class="p">(</span> <span class="kt">int</span> <span class="n">p</span><span class="p">,</span> <span class="k">const</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">primes</span><span class="p">){</span>
+    <span class="c1">//find a quadratic non-residue mod p
+</span><span class="c1"></span>    <span class="kt">int</span> <span class="n">q</span><span class="p">;</span>
+    <span class="k">for</span> <span class="p">(</span><span class="k">auto</span> <span class="n">it</span> <span class="o">=</span> <span class="n">primes</span><span class="p">.</span><span class="n">begin</span><span class="p">();</span> <span class="n">it</span> <span class="o">!=</span> <span class="n">primes</span><span class="p">.</span><span class="n">end</span><span class="p">();</span> <span class="o">++</span><span class="n">it</span><span class="p">){</span>
+        <span class="n">q</span> <span class="o">=</span> <span class="o">*</span><span class="n">it</span><span class="p">;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">q</span> <span class="o">==</span> <span class="mi">2</span><span class="p">){</span> 
+            <span class="c1">//2 is a quadratic residue iff p = 1 or -1 (mod 8)
+</span><span class="c1"></span>            <span class="k">if</span> <span class="p">(</span><span class="n">p</span><span class="o">%</span><span class="mi">8</span> <span class="o">!=</span> <span class="mi">7</span> <span class="o">&amp;&amp;</span> <span class="n">p</span><span class="o">%</span><span class="mi">8</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">)</span>  
+                <span class="k">return</span> <span class="n">q</span><span class="p">;</span>
+        <span class="p">}</span><span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">q</span> <span class="o">==</span> <span class="mi">3</span><span class="p">){</span> 
+            <span class="c1">//3 is a quadratic residue iff p = 1 (mod 3)
+</span><span class="c1"></span>            <span class="k">if</span> <span class="p">(</span><span class="n">p</span><span class="o">%</span><span class="mi">3</span> <span class="o">==</span> <span class="mi">2</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">q</span><span class="p">;</span>
+        <span class="p">}</span><span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">p</span> <span class="o">!=</span> <span class="n">q</span><span class="p">){</span> 
+            <span class="c1">//use quadratic recprocity and Euler&#39;s criterion
+</span><span class="c1"></span>            <span class="k">if</span> <span class="p">(</span><span class="n">mod_pow</span><span class="p">(</span> <span class="n">p</span><span class="o">%</span><span class="n">q</span><span class="p">,</span> <span class="p">(</span><span class="n">q</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="n">q</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">q</span><span class="o">%</span><span class="n">p</span><span class="p">;</span> 
+        <span class="p">}</span>   
+    <span class="p">}</span>   
+<span class="p">}</span>
+</code></pre></div><p>I checked 2 and 3 separately but it&rsquo;s not necessary.</p>
+<p>After that, we just need a function to do the Euclidean algorithm part.
+(mod_pow is just fast mod p exponentiation)</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="n">pair</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="kt">int</span><span class="o">&gt;</span> <span class="n">gauss_factor</span><span class="p">(</span><span class="kt">int</span> <span class="n">p</span><span class="p">,</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">primes</span><span class="p">){</span>
+    <span class="c1">//factor prime p = 4k + 1 in Gaussian integers
+</span><span class="c1"></span>    <span class="kt">int</span> <span class="n">b</span> <span class="o">=</span> <span class="n">p</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">c</span> <span class="o">=</span> <span class="n">non_res</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">primes</span><span class="p">);</span>
+    <span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="n">mod_pow</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="p">(</span><span class="n">p</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="mi">4</span><span class="p">,</span> <span class="n">p</span><span class="p">);</span>
+
+    <span class="k">while</span> <span class="p">(</span> <span class="n">x</span><span class="o">*</span><span class="n">x</span> <span class="o">&gt;=</span> <span class="n">p</span> <span class="o">||</span> <span class="n">b</span><span class="o">*</span><span class="n">b</span> <span class="o">&gt;=</span> <span class="n">p</span><span class="p">){</span>
+        <span class="k">if</span> <span class="p">(</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="n">b</span><span class="p">){</span>
+            <span class="n">x</span> <span class="o">%=</span> <span class="n">b</span><span class="p">;</span>
+        <span class="p">}</span><span class="k">else</span><span class="p">{</span>
+            <span class="n">b</span> <span class="o">%=</span> <span class="n">x</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="n">pair</span> <span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="kt">int</span><span class="o">&gt;</span> <span class="n">out</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">b</span><span class="p">);</span>
+    <span class="k">return</span> <span class="n">out</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div><p>Testing on my junk laptop, it only took 2.07 seconds to factor all the primes below $10^8$!
+The best part is now we can enjoy long lists of primes as sums of squares. Soothing&hellip;</p>
+<pre><code>	18413 = 118^2 + 67^2 
+	18433 = 127^2 + 48^2 
+	18457 = 36^2 + 131^2 
+	18461 = 106^2 + 85^2 
+	18481 = 16^2 + 135^2 
+	18493 = 123^2 + 58^2 
+	18517 = 119^2 + 66^2 
+	18521 = 136^2 + 5^2 
+	18541 = 125^2 + 54^2 
+	18553 = 108^2 + 83^2 
+	18593 = 47^2 + 128^2 
+	18617 = 136^2 + 11^2 
+	18637 = 94^2 + 99^2 
+	18661 = 81^2 + 110^2 
+	18701 = 115^2 + 74^2 
+	18713 = 32^2 + 133^2 
+	18749 = 43^2 + 130^2 
+</code></pre><h2 id="exercises-and-further-reading">Exercises and Further Reading</h2>
+<ul>
+<li>Try to prove the Theorem (hint: the Norm is the key)! <a href="https://kconrad.math.uconn.edu/blurbs/ugradnumthy/Zinotes.pdf">Here</a> are some excellent notes if you get stuck.</li>
+<li>Write a program that outputs the prime factorization of any Gaussian integer</li>
+<li>Gaussian integers are also related to Pythagorean Triples. Can you characterize which integers $a$ satisfy $a^2 =b^2 +c^2$ for some integers b and c?</li>
+<li>Another cool ring is the <a href="https://en.wikipedia.org/wiki/Eisenstein_integer">Eisenstein Integers</a>. What are the Eisenstein integer primes? Can you factor Eisenstein integers efficiently?</li>
+</ul>
+
+    </div>
+
+    
+    
+<div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content">meiji163</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+      2021-01-23
+      
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">License</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+
+
+    
+    
+
+    <footer class="post-footer">
+      <div class="post-tags">
+          <a href="https://meiji163.github.io/tags/gaussian-integers/">Gaussian integers</a>
+          <a href="https://meiji163.github.io/tags/number-theory/">number theory</a>
+          <a href="https://meiji163.github.io/tags/algorithms/">algorithms</a>
+          
+        </div>
+
+      
+      <nav class="post-nav">
+        
+          <a class="prev" href="/post/context-tree-weighting/">
+            
+            <i class="iconfont">
+              <svg  class="icon" viewBox="0 0 1024 1024" version="1.1"
+  xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+  width="18" height="18">
+  <path d="M691.908486 949.511495l75.369571-89.491197c10.963703-12.998035 10.285251-32.864502-1.499144-44.378743L479.499795 515.267417 757.434875 204.940602c11.338233-12.190647 11.035334-32.285311-0.638543-44.850487l-80.46666-86.564541c-11.680017-12.583596-30.356378-12.893658-41.662889-0.716314L257.233596 494.235404c-11.332093 12.183484-11.041474 32.266891 0.657986 44.844348l80.46666 86.564541c1.772366 1.910513 3.706415 3.533476 5.750981 4.877077l306.620399 321.703933C662.505829 963.726242 680.945807 962.528973 691.908486 949.511495z"></path>
+</svg>
+
+            </i>
+            <span class="prev-text nav-default">Context Tree Weighting and Compression</span>
+            <span class="prev-text nav-mobile">Prev</span>
+          </a>
+        
+          <a class="next" href="/post/conformal-rigidity/">
+            <span class="next-text nav-default">Liouville&#39;s Theorem on Conformal Rigidity</span>
+            <span class="prev-text nav-mobile">Next</span>
+            
+            <i class="iconfont">
+              <svg class="icon" viewBox="0 0 1024 1024" version="1.1"
+  xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+  width="18" height="18">
+  <path d="M332.091514 74.487481l-75.369571 89.491197c-10.963703 12.998035-10.285251 32.864502 1.499144 44.378743l286.278095 300.375162L266.565125 819.058374c-11.338233 12.190647-11.035334 32.285311 0.638543 44.850487l80.46666 86.564541c11.680017 12.583596 30.356378 12.893658 41.662889 0.716314l377.434212-421.426145c11.332093-12.183484 11.041474-32.266891-0.657986-44.844348l-80.46666-86.564541c-1.772366-1.910513-3.706415-3.533476-5.750981-4.877077L373.270379 71.774697C361.493148 60.273758 343.054193 61.470003 332.091514 74.487481z"></path>
+</svg>
+
+            </i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+
+  
+  
+
+  
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+    
+
+  
+
+        </div>
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="icon-links">
+  
+  
+    <a href="mailto:mysatellite99@gmail.com" rel="me noopener" class="iconfont"
+      title="email" >
+      <svg class="icon" viewBox="0 0 1451 1024" version="1.1"
+  xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+  width="36" height="36">
+  <path d="M664.781909 681.472759 0 97.881301C0 3.997201 71.046997 0 71.046997 0L474.477909 0 961.649408 0 1361.641813 0C1361.641813 0 1432.688811 3.997201 1432.688811 97.881301L771.345323 681.472759C771.345323 681.472759 764.482731 685.154773 753.594283 688.65053L753.594283 688.664858C741.602731 693.493018 729.424896 695.068979 718.077952 694.839748 706.731093 695.068979 694.553173 693.493018 682.561621 688.664858L682.561621 688.65053C671.644501 685.140446 664.781909 681.472759 664.781909 681.472759L664.781909 681.472759ZM718.063616 811.603883C693.779541 811.016482 658.879232 802.205449 619.10784 767.734955 542.989056 701.759633 0 212.052267 0 212.052267L0 942.809523C0 942.809523 0 1024 83.726336 1024L682.532949 1024 753.579947 1024 1348.948139 1024C1432.688811 1024 1432.688811 942.809523 1432.688811 942.809523L1432.688811 212.052267C1432.688811 212.052267 893.138176 701.759633 817.019477 767.734955 777.248 802.205449 742.347691 811.03081 718.063616 811.603883L718.063616 811.603883Z"></path>
+</svg>
+
+    </a>
+  
+    <a href="https://math.stackexchange.com/users/201018/mysatellite" rel="me noopener" class="iconfont"
+      title="stack-overflow"  target="_blank"
+      >
+      <svg class="icon" viewBox="0 0 1024 1024" version="1.1"
+  xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+  width="36" height="36">
+  <path d="M809.714286 932.571429l-638.857143 0 0-274.285714-91.428571 0 0 365.714286 821.714286 0 0-365.714286-91.428571 0 0 274.285714zm-538.285714-299.428571l18.857143-89.714286 447.428571 94.285714-18.857143 89.142857zm58.857143-213.714286l38.285714-83.428571 414.285714 193.714286-38.285714 82.857143zm114.857143-203.428571l58.285714-70.285714 350.857143 293.142857-58.285714 70.285714zm226.857143-216l272.571429 366.285714-73.142857 54.857143-272.571429-366.285714zm-410.285714 840.571429l0-90.857143 457.142857 0 0 90.857143-457.142857 0z"></path>
+</svg>
+
+    </a>
+  
+    <a href="https://github.com/meiji163" rel="me noopener" class="iconfont"
+      title="github"  target="_blank"
+      >
+      <svg class="icon" style="" viewBox="0 0 1024 1024" version="1.1"
+  xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+  width="36" height="36">
+  <path d="M512 12.672c-282.88 0-512 229.248-512 512 0 226.261333 146.688 418.133333 350.08 485.76 25.6 4.821333 34.986667-11.008 34.986667-24.618667 0-12.16-0.426667-44.373333-0.64-87.04-142.421333 30.890667-172.458667-68.693333-172.458667-68.693333C188.672 770.986667 155.008 755.2 155.008 755.2c-46.378667-31.744 3.584-31.104 3.584-31.104 51.413333 3.584 78.421333 52.736 78.421333 52.736 45.653333 78.293333 119.850667 55.68 149.12 42.581333 4.608-33.109333 17.792-55.68 32.426667-68.48-113.706667-12.8-233.216-56.832-233.216-253.013333 0-55.893333 19.84-101.546667 52.693333-137.386667-5.76-12.928-23.04-64.981333 4.48-135.509333 0 0 42.88-13.738667 140.8 52.48 40.96-11.392 84.48-17.024 128-17.28 43.52 0.256 87.04 5.888 128 17.28 97.28-66.218667 140.16-52.48 140.16-52.48 27.52 70.528 10.24 122.581333 5.12 135.509333 32.64 35.84 52.48 81.493333 52.48 137.386667 0 196.693333-119.68 240-233.6 252.586667 17.92 15.36 34.56 46.762667 34.56 94.72 0 68.522667-0.64 123.562667-0.64 140.202666 0 13.44 8.96 29.44 35.2 24.32C877.44 942.592 1024 750.592 1024 524.672c0-282.752-229.248-512-512-512"></path>
+</svg>
+
+    </a>
+  
+    <a href="https://codeforces.com/profile/meiji163" rel="me noopener" class="iconfont"
+      title="codeforces"  target="_blank"
+      >
+      <svg width="36" height="36" class="icon" style="" version="1.1" viewBox="0 0 1024 1024">
+<path d="M 192 334.2 C 227.3 334.2 256 369.2 256 412.4 v 547.5 C 256 1003.2 227.3 1038.2 192 1038.2 H 64 C 28.7 1038.2 0 1003.2 0 960 V 412.4 C 0 369.2 28.7 334.2 64 334.2 h 128 z m 384 -234.7 C 611.3 99.6 640 134.5 640 177.8 v 782.2 C 640 1003.2 611.3 1038.2 576 1038.2 H 448 C 412.7 1038.2 384 1003.2 384 960 V 177.8 C 384 134.5 412.7 99.6 448 99.6 h 128 z m 384 391.1 C 995.3 490.6 1024 525.7 1024 568.9 v 391.1 C 1024 1003.2 995.3 1038.2 960 1038.2 h -128 C 796.7 1038.2 768 1003.2 768 960 V 568.9 C 768 525.7 796.7 490.6 832 490.6 h 128 z" />
+</svg>
+
+    </a>
+  
+    <a href="https://qoto.org/@meiji163" rel="me noopener" class="iconfont"
+      title="mastodon"  target="_blank"
+      >
+      <svg class="icon" style="" viewBox="0 0 448 512" version="1.1"
+  xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+  width="36" height="36"><path fill="currentColor" d="M433 179.11c0-97.2-63.71-125.7-63.71-125.7-62.52-28.7-228.56-28.4-290.48 0 0 0-63.72 28.5-63.72 125.7 0 115.7-6.6 259.4 105.63 289.1 40.51 10.7 75.32 13 103.33 11.4 50.81-2.8 79.32-18.1 79.32-18.1l-1.7-36.9s-36.31 11.4-77.12 10.1c-40.41-1.4-83-4.4-89.63-54a102.54 102.54 0 0 1-.9-13.9c85.63 20.9 158.65 9.1 178.75 6.7 56.12-6.7 105-41.3 111.23-72.9 9.8-49.8 9-121.5 9-121.5zm-75.12 125.2h-46.63v-114.2c0-49.7-64-51.6-64 6.9v62.5h-46.33V197c0-58.5-64-56.6-64-6.9v114.2H90.19c0-122.1-5.2-147.9 18.41-175 25.9-28.9 79.82-30.8 103.83 6.1l11.6 19.5 11.6-19.5c24.11-37.1 78.12-34.8 103.83-6.1 23.71 27.3 18.4 53 18.4 175z"></path></svg>
+    </a>
+
+
+<a href="https://meiji163.github.io/index.xml" rel="noopener alternate" type="application/rss&#43;xml"
+    class="iconfont" title="rss" target="_blank">
+    <svg class="icon" viewBox="0 0 1024 1024" version="1.1"
+  xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+  width="30" height="30">
+  <path d="M819.157333 1024C819.157333 574.592 449.408 204.8 0 204.8V0c561.706667 0 1024 462.293333 1024 1024h-204.842667zM140.416 743.04a140.8 140.8 0 0 1 140.501333 140.586667A140.928 140.928 0 0 1 140.074667 1024C62.72 1024 0 961.109333 0 883.626667s62.933333-140.544 140.416-140.586667zM678.784 1024h-199.04c0-263.210667-216.533333-479.786667-479.744-479.786667V345.173333c372.352 0 678.784 306.517333 678.784 678.826667z"></path>
+</svg>
+
+  </a>
+   
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - <a class="theme-link" href="https://github.com/xianmin/hugo-theme-jane">Jane</a>
+  </span>
+
+  <span class="copyright-year">
+    &copy;
+    2021
+    <span class="heart">
+      
+      <i class="iconfont">
+        <svg class="icon" viewBox="0 0 1025 1024" version="1.1"
+  xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+  width="14" height="14">
+  <path d="M1000.1 247.9c-15.5-37.3-37.6-70.6-65.7-98.9-54.4-54.8-125.8-85-201-85-85.7 0-166 39-221.4 107.4C456.6 103 376.3 64 290.6 64c-75.1 0-146.5 30.4-201.1 85.6-28.2 28.5-50.4 61.9-65.8 99.3-16 38.8-24 79.9-23.6 122.2 0.7 91.7 40.1 177.2 108.1 234.8 3.1 2.6 6 5.1 8.9 7.8 14.9 13.4 58 52.8 112.6 102.7 93.5 85.5 209.9 191.9 257.5 234.2 7 6.1 15.8 9.5 24.9 9.5 9.2 0 18.1-3.4 24.9-9.5 34.5-30.7 105.8-95.9 181.4-165 74.2-67.8 150.9-138 195.8-178.2 69.5-57.9 109.6-144.4 109.9-237.3 0.1-42.5-8-83.6-24-122.2z"
+   fill="#8a8a8a"></path>
+</svg>
+
+      </i>
+    </span><span class="author">
+        meiji163
+        
+      </span></span>
+
+  
+  
+
+  
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont">
+        
+        <svg class="icon" viewBox="0 0 1024 1024" version="1.1"
+  xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+  width="35" height="35">
+  <path d="M510.866688 227.694839 95.449397 629.218702l235.761562 0-2.057869 328.796468 362.40389 0L691.55698 628.188232l241.942331-3.089361L510.866688 227.694839zM63.840492 63.962777l894.052392 0 0 131.813095L63.840492 195.775872 63.840492 63.962777 63.840492 63.962777zM63.840492 63.962777"></path>
+</svg>
+
+      </i>
+    </div>
+  </div>
+  
+<script type="text/javascript" src="/lib/jquery/jquery-3.2.1.min.js"></script>
+  <script type="text/javascript" src="/lib/slideout/slideout-1.0.1.min.js"></script>
+
+
+
+
+<script type="text/javascript" src="/js/main.638251f4230630f0335d8c6748e53a96f94b72670920b60c09a56fdc8bece214.js" integrity="sha256-Y4JR9CMGMPAzXYxnSOU6lvlLcmcJILYMCaVv3Ivs4hQ=" crossorigin="anonymous"></script>
+
+
+
+
+
+
+  <link rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/katex@0.11.0/dist/katex.min.css"
+    integrity="sha384-BdGj8xC2eZkQaxoQ8nSLefg4AV4/AwB3Fj+8SUSo7pnKP6Eoy18liIKTPn9oBYNG"
+    crossorigin="anonymous">
+
+  
+  <script defer
+    src="https://cdn.jsdelivr.net/npm/katex@0.11.0/dist/katex.min.js"
+    integrity="sha384-JiKN5O8x9Hhs/UE5cT5AAJqieYlOZbGT3CHws/y97o3ty4R7/O5poG9F3JoiOYw1"
+    crossorigin="anonymous"></script>
+
+  
+  <script defer
+    src="https://cdn.jsdelivr.net/npm/katex@0.11.0/dist/contrib/auto-render.min.js"
+    integrity="sha384-kWPLUVMOks5AQFrykwIup5lo0m3iMkkHrD0uJ4H5cjeGihAutqP0yW0J6dpFiVkI"
+    crossorigin="anonymous" onload="renderMathInElement(document.body);">
+  </script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      renderMathInElement(document.body, {
+        
+      });
+    });
+  </script>
+
+
+
+
+
+
+  
+    <script type="text/javascript" src="/js/load-photoswipe.js"></script>
+    <script type="text/javascript" src="/lib/photoswipe/photoswipe.min.js"></script>
+    <script type="text/javascript" src="/lib/photoswipe/photoswipe-ui-default.min.js"></script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

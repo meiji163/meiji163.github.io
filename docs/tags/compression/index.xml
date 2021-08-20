@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>compression on meiji163</title>
+    <link>https://meiji163.github.io/tags/compression/</link>
+    <description>Recent content in compression on meiji163</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <lastBuildDate>Fri, 23 Apr 2021 00:00:00 +0000</lastBuildDate><atom:link href="https://meiji163.github.io/tags/compression/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Context Tree Weighting and Compression</title>
+      <link>https://meiji163.github.io/post/context-tree-weighting/</link>
+      <pubDate>Fri, 23 Apr 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://meiji163.github.io/post/context-tree-weighting/</guid>
+      <description>In this post I go over the basics of data compression with arithmetic coding and describe the Context Tree Weighting algorithm. At the end I discuss implementation and some experimental results.
+Information Theory Review First a quick review of information theory. Suppose that we receive some data $x$ drawn from a discrete random variable $X$, whose probability distribution is $P$. Then the Shannon information content of $x$ is defined as</description>
+    </item>
+    
+  </channel>
+</rss>

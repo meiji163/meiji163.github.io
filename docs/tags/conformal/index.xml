@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>conformal on meiji163</title>
+    <link>https://meiji163.github.io/tags/conformal/</link>
+    <description>Recent content in conformal on meiji163</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <lastBuildDate>Sat, 23 Jan 2021 00:00:00 +0000</lastBuildDate><atom:link href="https://meiji163.github.io/tags/conformal/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Liouville&#39;s Theorem on Conformal Rigidity</title>
+      <link>https://meiji163.github.io/post/conformal-rigidity/</link>
+      <pubDate>Sat, 23 Jan 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://meiji163.github.io/post/conformal-rigidity/</guid>
+      <description>In this post I summarize the content and proof of Liouville&amp;rsquo;s Theorem on Conformal Rigidity, which I learned in 2018 from Professor Alex Austin (now at RIT) in his class at UCLA.
+Conformal Maps A conformal transformation is one that preserves angles. In two dimensions, this is equivalent to being holomorphic and having a non-vanishing derivative. There are tons of these transformations (my personal favorites are Mobius transformations). In fact, the famous Riemann mapping Theorem asserts that any simply connected domain $U \subset \mathbb{C}$ admits a bijective conformal map $f: U \to \mathbb{D}$ to the unit disc.</description>
+    </item>
+    
+  </channel>
+</rss>
