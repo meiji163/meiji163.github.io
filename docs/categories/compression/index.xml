@@ -14,7 +14,7 @@
       
       <guid>https://meiji163.github.io/post/context-tree-weighting/</guid>
       <description>In this post I go over the basics of data compression with arithmetic coding and describe the Context Tree Weighting algorithm. At the end I discuss implementation and some experimental results.
-Information Theory Review First a quick review of information theory. Suppose that we receive some data $x$ drawn from a discrete random variable $X$, whose probability distribution is $P$. Then the Shannon information content of $x$ is defined as</description>
+Information Theory Review First a quick review of information theory. Suppose that we receive some data \(x\) drawn from a discrete random variable \(X\), whose probability distribution is \(P\). Then the Shannon information content of \(x\) is defined as</description>
     </item>
     
   </channel>

@@ -14,19 +14,18 @@
     <item>
       <title>About</title>
       <link>https://meiji163.github.io/about/</link>
-      <pubDate>Sun, 20 Aug 2017 21:38:52 +0800</pubDate>
+      <pubDate>Fri, 20 Aug 2021 21:38:52 +0800</pubDate>
       
       <guid>https://meiji163.github.io/about/</guid>
       
-        <description>&lt;p&gt;Hugo is a static site engine written in Go.&lt;/p&gt;
-&lt;p&gt;It makes use of a variety of open source projects including:&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://github.com/spf13/cobra&#34;&gt;Cobra&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://github.com/spf13/viper&#34;&gt;Viper&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://github.com/spf13/jWalterWeatherman&#34;&gt;J Walter Weatherman&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://github.com/spf13/cast&#34;&gt;Cast&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;Learn more and contribute on &lt;a href=&#34;https://github.com/gohugoio&#34;&gt;GitHub&lt;/a&gt;.&lt;/p&gt;
+        <description>&lt;p&gt;Welcome! I&amp;rsquo;m a mathematician, programmer, and aspiring mad scientist. I write about my projects, things I learn, and all things strange and fascinating.&lt;/p&gt;
+&lt;p&gt;Find me on &lt;a href=&#34;https://github.com/meiji163&#34;&gt;github&lt;/a&gt; or contact me &lt;a href=&#34;mailto:mysatellite99@gmail.com&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;If anyone needs me I&amp;rsquo;ll be in &lt;em&gt;the Chamber of Understanding&lt;/em&gt;!&lt;/p&gt;
+
+&lt;div style=&#34;position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;&#34;&gt;
+  &lt;iframe src=&#34;https://www.youtube.com/embed/78kn2YBfHFw&#34; style=&#34;position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;&#34; allowfullscreen title=&#34;YouTube Video&#34;&gt;&lt;/iframe&gt;
+&lt;/div&gt;
+
 </description>
       
     </item>
@@ -41,25 +40,25 @@
         <description>&lt;p&gt;In this post I go over the basics of data compression with arithmetic coding and describe the Context Tree Weighting algorithm. At the end I discuss implementation and some experimental results.&lt;/p&gt;
 &lt;h2 id=&#34;information-theory-review&#34;&gt;Information Theory Review&lt;/h2&gt;
 &lt;p&gt;First a quick review of information theory.
-Suppose that we receive some data $x$ drawn from a discrete random variable $X$, whose probability distribution is $P$. Then the Shannon information content of $x$ is defined as&lt;/p&gt;
+Suppose that we receive some data \(x\) drawn from a discrete random variable \(X\), whose probability distribution is \(P\). Then the Shannon information content of \(x\) is defined as&lt;/p&gt;
 &lt;p&gt;$$I(x) = -\log(P(x)).$$&lt;/p&gt;
 &lt;p&gt;Why is this a good measure of information? Basically, it formalizes the idea that less probable events yield more information, and conversely predictable events yield less information.&lt;/p&gt;
 &lt;p&gt;Given an incomplete message like &lt;code&gt;Hello Worl&lt;/code&gt; you&amp;rsquo;d assign a high probability (say 95%) that the next character is &amp;ldquo;&lt;em&gt;d&lt;/em&gt;&amp;rdquo;. Finding out that the next character is indeed &amp;ldquo;&lt;em&gt;d&lt;/em&gt;&amp;rdquo; would only give you about 0.07 units of information (also called shannons), since you in a sense already knew that.&lt;/p&gt;
 &lt;p&gt;The Shannon entropy is defined as the expected value of information $$H(X) = \sum_x -P(x)\log(P(x)).$$
 It can be thought of as a measure of how predictable the data is on average.
 Now suppose we want to compress a stream of data.&lt;br&gt;
-Formally, we want a code $C: \mathcal{A} \to \text{ \{0, 1\} } ^* $ where $\mathcal{A}$ is the alphabet the data comes from (e.g. ASCII characters) and $\text{\{0, 1\} }^*$ is the set of all binary strings. A good code should have two properties:&lt;/p&gt;
+Formally, we want a code \(C: \mathcal{A} \to \text{ \{0, 1\} } ^* \) where \(\mathcal{A}\) is the alphabet the data comes from (e.g. ASCII characters) and \(\text{\{0, 1\} }^*\) is the set of all binary strings. A good code should have two properties:&lt;/p&gt;
 &lt;ul&gt;
-&lt;li&gt;$C$ has an inverse (compression is lossless)&lt;/li&gt;
-&lt;li&gt;The codes $C(x)$ have minimal average length (good compression ratio).&lt;/li&gt;
+&lt;li&gt;\(C\) has an inverse (compression is lossless)&lt;/li&gt;
+&lt;li&gt;The codes \(C(x)\) have minimal average length (good compression ratio).&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;Shannon proved that such an optimal code would have an average code length essentially &lt;em&gt;equal to the entropy&lt;/em&gt; of the source.&lt;br&gt;
-Moreover, he proved that for an optimal code, the code length $\mid C(x) \mid$ would be &lt;em&gt;equal to the information content&lt;/em&gt; $I(x)$.  In other words, if we define the &lt;em&gt;redundancy&lt;/em&gt; of our code $C(x)$ as the difference $\rho(x) = \mid C(x)\mid - I(x)$, then finding a good code is equivalent to minimizing the redundancy.&lt;br&gt;
+Moreover, he proved that for an optimal code, the code length \(\mid C(x) \mid\) would be &lt;em&gt;equal to the information content&lt;/em&gt; \(I(x)\).  In other words, if we define the &lt;em&gt;redundancy&lt;/em&gt; of our code \(C(x)\) as the difference \(\rho(x) = \mid C(x)\mid - I(x)\), then finding a good code is equivalent to minimizing the redundancy.&lt;br&gt;
 Of course this is a bit sloppy; for more precise statements see e.g. &lt;a href=&#34;#references&#34;&gt;[2]&lt;/a&gt;&lt;/p&gt;
 &lt;h2 id=&#34;arithmetic-coding&#34;&gt;Arithmetic Coding&lt;/h2&gt;
 &lt;p&gt;Unsurprisingly, Shannon&amp;rsquo;s proof is non-constructive, so how do we make an optimal code in practice? Several algorithms have been developed. You make have heard of the Huffman code or Lempel-Ziv algorithm, which one can prove are roughly optimal. Less commonly known is &lt;em&gt;arithmetic coding&lt;/em&gt;.&lt;/p&gt;
-&lt;p&gt;The nice thing about arithmetic coding is you can plug in any probabilistic model $\mathcal{M}$ of the source (i.e. a way to generate predictions for the next symbol) and it guarantees you a code length approximately equal to the entropy according to your model $H(X \mid \mathcal{M})$. The idea is to associate each sequence to a subinterval of $[0,1)$, whose length is equal to its probability.&lt;/p&gt;
-&lt;p&gt;To illustrate the algorithm, suppose we are recieving a stream of binary data $x_1,x_2,\dots,x_N$ (abbreviated $x_1^N$). Let $L$ be the lower endpoint of the interval and $U$ be the upper endpoint after receiving the $n$th symbol. Initially we have received no bits and set $L=0$, $U=1$.&lt;/p&gt;
+&lt;p&gt;The nice thing about arithmetic coding is you can plug in any probabilistic model \(\mathcal{M}\) of the source (i.e. a way to generate predictions for the next symbol) and it guarantees you a code length approximately equal to the entropy according to your model \(H(X \mid \mathcal{M})\). The idea is to associate each sequence to a subinterval of \([0,1)\), whose length is equal to its probability.&lt;/p&gt;
+&lt;p&gt;To illustrate the algorithm, suppose we are recieving a stream of binary data \(x_1,x_2,\dots,x_N\) (abbreviated \(x_1^N\)). Let \(L\) be the lower endpoint of the interval and \(U\) be the upper endpoint after receiving the \(n\)th symbol. Initially we have received no bits and set \(L=0\), \(U=1\).&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;L, U ⟵ 0, &lt;span class=&#34;m&#34;&gt;1&lt;/span&gt;
 For &lt;span class=&#34;nv&#34;&gt;n&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; 1...N &lt;span class=&#34;k&#34;&gt;do&lt;/span&gt;  
     generate prediction P&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;xn&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; 0&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;
@@ -68,8 +67,8 @@ For &lt;span class=&#34;nv&#34;&gt;n&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;
         &lt;span class=&#34;k&#34;&gt;else&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;xn&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;m&#34;&gt;0&lt;/span&gt; and U ⟵ U-P&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;xn&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; 1&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;*&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;U-L&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;
         endif
 endfor
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;At each step, we divide the current interval according to the probabilities of the next symbol. At the end, the compressed sequence is the sequence of binary digits of a number chosen from the interval $[L,U)$, (e.g. $L$ rounded up).&lt;/p&gt;
-&lt;p&gt;After $n$ steps there are $2^n$ subintervals, corresponding to the possible sequences $x_1&amp;hellip;x_n$. For example after $n=3$ the intervals might look like this:&lt;/p&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;At each step, we divide the current interval according to the probabilities of the next symbol. At the end, the compressed sequence is the sequence of binary digits of a number chosen from the interval \([L,U)\), (e.g. \(L\) rounded up).&lt;/p&gt;
+&lt;p&gt;After \(n\) steps there are \(2^n\) subintervals, corresponding to the possible sequences \(x_1&amp;hellip;x_n\). For example after \(n=3\) the intervals might look like this:&lt;/p&gt;
 
 &lt;link rel=&#34;stylesheet&#34; href=&#34;https://meiji163.github.io/css/hugo-easy-gallery.css&#34; /&gt;
 &lt;div class=&#34;box&#34;&gt;
@@ -82,16 +81,16 @@ endfor
   &lt;/figure&gt;
 &lt;/div&gt;
 
-&lt;p&gt;Note that the length of the intervals are $P(x_1\dots x_n) = P(x_1^n)$. A trivial model that predicts $P(x_1^n) = 2^{-n}$ would essentially give us back the original sequence (a terrible compressor indeed) &amp;ndash; ideally our model assigns a larger probability to the sequence.&lt;/p&gt;
-&lt;p&gt;That interval is guaranteed to contain a rational number $c$ with approximately $-\log( P(x_1^n))$ digits in its binary expansion, reducing the number of bits needed to describe it. The encoder can end the message either with a special &lt;code&gt;EOT&lt;/code&gt; symbol or by transmitting the length.&lt;/p&gt;
-&lt;p&gt;Given the code $c$ and access to the same model $\mathcal{M}$, the decoder can sequentially deduce whether the $n$th bit was a $0$ or $1$ by comparing $c$ to the divider $L + P(x_n = 0)\cdot(U-L)$ and hence uniquely decode the compressed data.&lt;/p&gt;
-&lt;p&gt;Arithmetic coding works the same way for non-binary alphabets, at each step dividing the interval into $\mid\mathcal{A}\mid$ sections according to their probabilites.&lt;/p&gt;
+&lt;p&gt;Note that the length of the intervals are \(P(x_1\dots x_n) = P(x_1^n)\). A trivial model that predicts \(P(x_1^n) = 2^{-n}\) would essentially give us back the original sequence (a terrible compressor indeed) &amp;ndash; ideally our model assigns a larger probability to the sequence.&lt;/p&gt;
+&lt;p&gt;That interval is guaranteed to contain a rational number \(c\) with approximately \(-\log( P(x_1^n))\) digits in its binary expansion, reducing the number of bits needed to describe it. The encoder can end the message either with a special &lt;code&gt;EOT&lt;/code&gt; symbol or by transmitting the length.&lt;/p&gt;
+&lt;p&gt;Given the code \(c\) and access to the same model \(\mathcal{M}\), the decoder can sequentially deduce whether the \(n\)th bit was a 0 or 1 by comparing \(c\) to the divider \(L + P(x_n = 0)\cdot(U-L)\) and hence uniquely decode the compressed data.&lt;/p&gt;
+&lt;p&gt;Arithmetic coding works the same way for non-binary alphabets, at each step dividing the interval into \(\mid\mathcal{A}\mid\) sections according to their probabilites.&lt;/p&gt;
 &lt;h2 id=&#34;models&#34;&gt;Models&lt;/h2&gt;
 &lt;p&gt;Assuming arithmetic coding can be implemented efficiently (see &lt;a href=&#34;#implementation-and-experiments&#34;&gt;below&lt;/a&gt;), we have reduced compression to finding a good model of the data. Of course, the model will depend a lot on what type of data you&amp;rsquo;re compressing and your speed/memory goals.&lt;/p&gt;
 &lt;p&gt;The simplest model could just use frequency counts of the different symbols to make predictions. If you wanted to go all out you could train a neural net like an RNN or &lt;a href=&#34;https://en.wikipedia.org/wiki/Transformer_(machine_learning_model)&#34;&gt;transformer&lt;/a&gt; on your data to make the predictions. However you&amp;rsquo;d have to account for the size of the weights, which have to be sent the decoder. It would also be too slow for most purposes (although lightweight NN&amp;rsquo;s &lt;a href=&#34;http://mattmahoney.net/dc/mmahoney00.pdf&#34;&gt;achieve reasonable speed&lt;/a&gt;). Clearly there is a tradeoff between the complexity of the model and the compression ratio.&lt;/p&gt;
-&lt;p&gt;A simpler option is a &lt;em&gt;tree model&lt;/em&gt;. We assume that $P(x_n)$ depends on at most $D$ of the previous symbols (in probability lingo, a $D$-Markov model).&lt;/p&gt;
-&lt;p&gt;The main idea is to build a suffix tree (or trie) from the source. Given past symbols $x_{n-D},&amp;hellip;,x_{n-1}$ (also known as the _context_) we take the last $k \le D$ as the suffix. We are free to choose $k$, and it can vary between contexts.   We then record the frequencies of each symbol we observe after seeing a suffix.&lt;/p&gt;
-&lt;p&gt;For example if the alphabet is $\mathcal{A} = \text{ \{a ,b ,n\}}$ and the sequence &amp;ldquo;$\text{bananan}$&amp;rdquo; here is one possible depth $D=2$ tree (suffixes are read from bottom up)&lt;/p&gt;
+&lt;p&gt;A simpler option is a &lt;em&gt;tree model&lt;/em&gt;. We assume that \(P(x_n)\) depends on at most \(D\) of the previous symbols (in probability lingo, a \(D\)-Markov model).&lt;/p&gt;
+&lt;p&gt;The main idea is to build a suffix tree (or trie) from the source. Given past symbols \(x_{n-D},&amp;hellip;,x_{n-1}\) (also known as the _context_) we take the last \(k \le D\) as the suffix. We are free to choose \(k\), and it can vary between contexts.   We then record the frequencies of each symbol we observe after seeing a suffix.&lt;/p&gt;
+&lt;p&gt;For example if the alphabet is \(\mathcal{A} = \text{ \{a ,b ,n\}}\) and the sequence &amp;ldquo;\(\text{bananan}\)&amp;rdquo; here is one possible depth \(D=2\) tree (suffixes are read from bottom up)&lt;/p&gt;
 
 
 &lt;div class=&#34;box&#34;&gt;
@@ -107,27 +106,27 @@ endfor
   &lt;/figure&gt;
 &lt;/div&gt;
 
-&lt;p&gt;Each leaf has three counters (# $\text{a}$&amp;rsquo;s, # $\text{b}$&amp;rsquo;s , #$\text{n}$&amp;rsquo;s). E.g. &amp;ldquo;$\text{n}$&amp;rdquo; appears two times after the suffix &amp;ldquo;$\text{na}$&amp;rdquo;. A tree like this is called a &lt;em&gt;prediction suffix tree&lt;/em&gt; (PST). We can make rough estimates of the probability using the statistics stored in the leaves with e.g. a &lt;a href=&#34;https://en.wikipedia.org/wiki/Beta_distribution&#34;&gt;Beta distribution&lt;/a&gt;. Another common choice is the &lt;a href=&#34;https://en.wikipedia.org/wiki/Krichevsky%E2%80%93Trofimov_estimator&#34;&gt;Krichevsky-Trofimov estimator&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Each leaf has three counters (# \(\text{a}\)&amp;rsquo;s, # \(\text{b}\)&amp;rsquo;s , #\(\text{n}\)&amp;rsquo;s). E.g. &amp;ldquo;\(\text{n}\)&amp;rdquo; appears two times after the suffix &amp;ldquo;\(\text{na}\)&amp;rdquo;. A tree like this is called a &lt;em&gt;prediction suffix tree&lt;/em&gt; (PST). We can make rough estimates of the probability using the statistics stored in the leaves with e.g. a &lt;a href=&#34;https://en.wikipedia.org/wiki/Beta_distribution&#34;&gt;Beta distribution&lt;/a&gt;. Another common choice is the &lt;a href=&#34;https://en.wikipedia.org/wiki/Krichevsky%E2%80%93Trofimov_estimator&#34;&gt;Krichevsky-Trofimov estimator&lt;/a&gt;.&lt;/p&gt;
 &lt;p&gt;A similar idea combined with the Lempel-Ziv algorithm forms the basis for the &amp;ldquo;Prediction by Partial Matching&amp;rdquo; algorithm, which is considered one of the top-performing tree models &lt;a href=&#34;#references&#34;&gt;[3]&lt;/a&gt;.&lt;/p&gt;
 &lt;h2 id=&#34;context-tree-weighting&#34;&gt;Context Tree Weighting&lt;/h2&gt;
-&lt;p&gt;Context Tree Weighting (CTW) is a beautiful algorithm invented by Willems, Shtarkov, and Tjalkens &lt;a href=&#34;#references&#34;&gt;[1]&lt;/a&gt; that efficiently computes a weighted sum over all prediction suffix trees of depth $D$ for a binary alphabet. Naively, this would take $O(2^D)$, while CTW computes it in $O(D)$.&lt;/p&gt;
-&lt;p&gt;We first build a complete binary tree of depth $D$, called the context tree. Like a prediction suffix tree, each node is labeled by its corresponding suffix $s$. Each node stores the frequencies of 0&amp;rsquo;s and 1&amp;rsquo;s that occur after suffix $s$, and computes a probability $P^s$ recursively from its children as follows: Let $x_1\dots x_n$ be the past symbols, then the probability stored at the node $s$ is defined as&lt;/p&gt;
+&lt;p&gt;Context Tree Weighting (CTW) is a beautiful algorithm invented by Willems, Shtarkov, and Tjalkens &lt;a href=&#34;#references&#34;&gt;[1]&lt;/a&gt; that efficiently computes a weighted sum over all prediction suffix trees of depth \(D\) for a binary alphabet. Naively, this would take \(O(2^D)\), while CTW computes it in \(O(D)\).&lt;/p&gt;
+&lt;p&gt;We first build a complete binary tree of depth \(D\), called the context tree. Like a prediction suffix tree, each node is labeled by its corresponding suffix \(s\). Each node stores the frequencies of 0&amp;rsquo;s and 1&amp;rsquo;s that occur after suffix \(s\), and computes a probability \(P^s\) recursively from its children as follows: Let \(x_1\dots x_n\) be the past symbols, then the probability stored at the node \(s\) is defined as&lt;/p&gt;
 &lt;p&gt;$$
 P^s = \begin{cases}P_e(x_{1}^n) &amp;amp; \text{ if } s \text{ is a leaf }\cr
 \frac{1}{2}\left(P_e(x_{1}^n) + P^{s0}P^{s1}\right)&amp;amp; \text{ otherwise.} \end{cases}
 $$&lt;/p&gt;
-&lt;p&gt;Here $P_e$ is a probability estimate based on the frequencies stored at $s$ (in the original paper it is the &lt;a href=&#34;https://en.wikipedia.org/wiki/Krichevsky%E2%80%93Trofimov_estimator&#34;&gt;KT estimator&lt;/a&gt;) and $s0$, $s1$ denote the children of $s$.&lt;/p&gt;
-&lt;p&gt;So we just average the frequency estimate with the predictions of the children nodes. Simple, right? But what is the probability we get at the root node, corresponding to the empty suffix $\epsilon$? Brace for notation&amp;hellip; it is&lt;/p&gt;
+&lt;p&gt;Here \(P_e\) is a probability estimate based on the frequencies stored at \(s\) (in the original paper it is the &lt;a href=&#34;https://en.wikipedia.org/wiki/Krichevsky%E2%80%93Trofimov_estimator&#34;&gt;KT estimator&lt;/a&gt;) and \(s0\), \(s1\) denote the children of \(s\).&lt;/p&gt;
+&lt;p&gt;So we just average the frequency estimate with the predictions of the children nodes. Simple, right? But what is the probability we get at the root node, corresponding to the empty suffix \(\epsilon\)? Brace for notation&amp;hellip; it is&lt;/p&gt;
 &lt;p&gt;$$
 P^{\epsilon} = \sum_{T \in \mathcal{M}_D}2^{-\Gamma_D(T)}P(x_1^n \mid T)
 $$&lt;/p&gt;
 &lt;p&gt;where&lt;/p&gt;
 &lt;ul&gt;
-&lt;li&gt;$\mathcal{M}_D$ is the set of all PST&amp;rsquo;s of depth at most $D$&lt;/li&gt;
-&lt;li&gt;$P(x_1^n \mid T)$ is the probability of $x_1\dots x_n$ according to the PST $T$&lt;/li&gt;
-&lt;li&gt;$\Gamma_D(T)$ is the number of nodes of $T$ minus the number of leaves at depth $D$&lt;/li&gt;
+&lt;li&gt;\(\mathcal{M}_D\) is the set of all PST&amp;rsquo;s of depth at most \(D\)&lt;/li&gt;
+&lt;li&gt;\(P(x_1^n \mid T)\) is the probability of \(x_1\dots x_n\) according to the PST \(T\)&lt;/li&gt;
+&lt;li&gt;\(\Gamma_D(T)\) is the number of nodes of \(T\) minus the number of leaves at depth \(D\)&lt;/li&gt;
 &lt;/ul&gt;
-&lt;p&gt;Well we certainly have a weighted sum of PST predictions, but what is this $\Gamma_D$? It is actually the length of the optimal &lt;a href=&#34;https://en.wikipedia.org/wiki/Prefix_code&#34;&gt;prefix code&lt;/a&gt; for the tree $T$, i.e. the number of bits needed to describe $T$. Thus each each prediction suffix tree is weighted by an Occam&amp;rsquo;s razor-like penalty.&lt;/p&gt;
+&lt;p&gt;Well we certainly have a weighted sum of PST predictions, but what is this \(\Gamma_D\)? It is actually the length of the optimal &lt;a href=&#34;https://en.wikipedia.org/wiki/Prefix_code&#34;&gt;prefix code&lt;/a&gt; for the tree \(T\), i.e. the number of bits needed to describe \(T\). Thus each each prediction suffix tree is weighted by an Occam&amp;rsquo;s razor-like penalty.&lt;/p&gt;
 &lt;p&gt;To make predictions with CTW we use the root probability, then update the path in the tree corresponding to the context when we receive the next symbol. The original paper proves a sharp bound on the redundancy of the code computed by CTW (Theorem 2).&lt;/p&gt;
 &lt;h3 id=&#34;sidenote-compression--agi&#34;&gt;Sidenote: Compression = AGI?&lt;/h3&gt;
 &lt;p&gt;Anyone into data compression probably knows about the &lt;a href=&#34;http://prize.hutter1.net/&#34;&gt;Hutter prize&lt;/a&gt;, a cash prize for compressing the first GB of Wikipedia to smaller than the current record (116 MB). Hutter&amp;rsquo;s slogan is &amp;ldquo;Compression = AGI,&amp;rdquo; a (rather exaggerated) summary of the principle behind &lt;a href=&#34;https://en.wikipedia.org/wiki/AIXI&#34;&gt;AIXI&lt;/a&gt;.&lt;/p&gt;
@@ -135,11 +134,11 @@ $$&lt;/p&gt;
 &lt;p&gt;Although theoretically optimal, the AIXI action function is infeasible to compute directly.&lt;br&gt;
 What is so interesting about CTW is that the probability it computes is a mixture of models weighted by complexity (for a restricted set of models) &lt;em&gt;and&lt;/em&gt; it is efficient to compute. For this reason Veness et. al [&lt;a href=&#34;#references&#34;&gt;5&lt;/a&gt;] used CTW in their AIXI approximation algorithm. Other mixture models have also become popular in data compression algorithms (You can for example run several probability models in parallel).&lt;/p&gt;
 &lt;h3 id=&#34;ctw-extensions&#34;&gt;CTW Extensions&lt;/h3&gt;
-&lt;p&gt;The binary CTW can be extended to non-binary alphabets by replacing $P^{s0}P^{s1}$ by a product over all children of $s$ in the recursive formula. However the straightforward method of making direct predictions hasn&amp;rsquo;t had much empirical success, especially with large alphabets.&lt;/p&gt;
+&lt;p&gt;The binary CTW can be extended to non-binary alphabets by replacing \(P^{s0}P^{s1}\) by a product over all children of \(s\) in the recursive formula. However the straightforward method of making direct predictions hasn&amp;rsquo;t had much empirical success, especially with large alphabets.&lt;/p&gt;
 &lt;p&gt;In practice, CTW is good at making binary predictions, although it can still have non-binary contexts. How can we convert binary predictions to general symbol predictions?&lt;/p&gt;
-&lt;p&gt;The obvious way to do this is to first choose a binary code for the alphabet $\mathcal{A}$, then predict each bit. This is the idea behind a &amp;ldquo;decomposition tree,&amp;rdquo; which is basically a binary search tree. The leaves of the tree are the elements of $\mathcal{A}$, and each internal node has a context tree (a tree of trees) whose job is to predict whether a symbol is in the left or right subtree of the node.&lt;/p&gt;
-&lt;p&gt;The probability of a symbol $a \in \mathcal{A}$ is then calculated as the product of the probabilities on the path from the root to the leaf $a$.
-For example, here is a possible decomposition tree for $\mathcal{A} = \text{ \{b, a, n\}}$.&lt;/p&gt;
+&lt;p&gt;The obvious way to do this is to first choose a binary code for the alphabet \(\mathcal{A}\), then predict each bit. This is the idea behind a &amp;ldquo;decomposition tree,&amp;rdquo; which is basically a binary search tree. The leaves of the tree are the elements of \(\mathcal{A}\), and each internal node has a context tree (a tree of trees) whose job is to predict whether a symbol is in the left or right subtree of the node.&lt;/p&gt;
+&lt;p&gt;The probability of a symbol \(a \in \mathcal{A}\) is then calculated as the product of the probabilities on the path from the root to the leaf \(a\).
+For example, here is a possible decomposition tree for \(\mathcal{A} = \text{ \{b, a, n\}}\).&lt;/p&gt;
 
 
 &lt;div class=&#34;box&#34;&gt;
@@ -156,14 +155,14 @@ For example, here is a possible decomposition tree for $\mathcal{A} = \text{ \{b
   &lt;/figure&gt;
 &lt;/div&gt;
 
-&lt;p&gt;Context Tree 1 predicts whether the next symbol will be $\text{b}$ or not, and context tree 2 decides between $\text{a}$ and $\text{n}$.&lt;/p&gt;
+&lt;p&gt;Context Tree 1 predicts whether the next symbol will be \(\text{b}\) or not, and context tree 2 decides between \(\text{a}\) and \(\text{n}\).&lt;/p&gt;
 &lt;p&gt;One drawback of this approach is that the performance is sensitive to the topology of the decomposition tree. One choice is &lt;a href=&#34;https://en.wikipedia.org/wiki/Huffman_coding&#34;&gt;the Huffman tree&lt;/a&gt;, which minimizes the number of context trees updates that are required.&lt;/p&gt;
 &lt;p&gt;In general we want to find groupings of the symbols which are &amp;ldquo;similar,&amp;rdquo; in some way. We could for example collect statistics on co-occurence of symbols à la &lt;a href=&#34;https://nlp.stanford.edu/projects/glove/&#34;&gt;GloVe&lt;/a&gt;. Once we decide on a decomposition tree, we have to describe it to the decompressor, but this is only a few more bytes overhead.&lt;/p&gt;
 &lt;h2 id=&#34;implementation-and-experiments&#34;&gt;Implementation and Experiments&lt;/h2&gt;
 &lt;p&gt;To experiment I wrote a &lt;a href=&#34;https://github.com/meiji163/ctwz&#34;&gt;simple implementation&lt;/a&gt; of CTW using a Huffman decomposition tree.&lt;/p&gt;
-&lt;p&gt;The main difficulty in implementation is the precision of the probabilities. The original form of the arithmetic encoder requires arbitrary precision. To make it practical we can use finite precision and output a bit once the leading bits of $U$ and $L$ are equal. Then we scale the whole interval by $2$. A more clever version of this scaling was invented by Witten, Neal, and Cleary &lt;a href=&#34;#references&#34;&gt;[6]&lt;/a&gt;, which is the version I used.&lt;/p&gt;
+&lt;p&gt;The main difficulty in implementation is the precision of the probabilities. The original form of the arithmetic encoder requires arbitrary precision. To make it practical we can use finite precision and output a bit once the leading bits of \(U\) and \(L\) are equal. Then we scale the whole interval by \(2\). A more clever version of this scaling was invented by Witten, Neal, and Cleary &lt;a href=&#34;#references&#34;&gt;[6]&lt;/a&gt;, which is the version I used.&lt;/p&gt;
 &lt;p&gt;The original CTW algorithm also needs modification. The main technique is to store a ratio of probabilities in the nodes to handle float-point errors. The exact method I used is the one described in &lt;a href=&#34;#references&#34;&gt;[4]&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;I tested my implementation with depth $D=12$ on some text data from the &lt;a href=&#34;https://www.corpus.canterbury.ac.nz/&#34;&gt;Canterbury corpus&lt;/a&gt;. For comparison I also compressed the files with Unix&amp;rsquo;s &amp;ldquo;compress&amp;rdquo; and gzip on default settings. Both use variants of the Lempel-Ziv algorithm.&lt;/p&gt;
+&lt;p&gt;I tested my implementation with depth \(D=12\) on some text data from the &lt;a href=&#34;https://www.corpus.canterbury.ac.nz/&#34;&gt;Canterbury corpus&lt;/a&gt;. For comparison I also compressed the files with Unix&amp;rsquo;s &amp;ldquo;compress&amp;rdquo; and gzip on default settings. Both use variants of the Lempel-Ziv algorithm.&lt;/p&gt;
 &lt;table&gt;
 &lt;thead&gt;
 &lt;tr&gt;
@@ -207,8 +206,6 @@ For example, here is a possible decomposition tree for $\mathcal{A} = \text{ \{b
 &lt;th style=&#34;text-align:center&#34;&gt;ctw&lt;/th&gt;
 &lt;th style=&#34;text-align:center&#34;&gt;compress&lt;/th&gt;
 &lt;th style=&#34;text-align:center&#34;&gt;gzip&lt;/th&gt;
-&lt;th&gt;&lt;/th&gt;
-&lt;th&gt;&lt;/th&gt;
 &lt;/tr&gt;
 &lt;/thead&gt;
 &lt;tbody&gt;
@@ -217,46 +214,36 @@ For example, here is a possible decomposition tree for $\mathcal{A} = \text{ \{b
 &lt;td style=&#34;text-align:center&#34;&gt;4.21&lt;/td&gt;
 &lt;td style=&#34;text-align:center&#34;&gt;2.24&lt;/td&gt;
 &lt;td style=&#34;text-align:center&#34;&gt;3.55&lt;/td&gt;
-&lt;td&gt;&lt;/td&gt;
-&lt;td&gt;&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr&gt;
 &lt;td style=&#34;text-align:center&#34;&gt;grammar.lsp&lt;/td&gt;
 &lt;td style=&#34;text-align:center&#34;&gt;3.65&lt;/td&gt;
 &lt;td style=&#34;text-align:center&#34;&gt;2.05&lt;/td&gt;
 &lt;td style=&#34;text-align:center&#34;&gt;2.99&lt;/td&gt;
-&lt;td&gt;&lt;/td&gt;
-&lt;td&gt;&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr&gt;
 &lt;td style=&#34;text-align:center&#34;&gt;plrabn12.txt&lt;/td&gt;
 &lt;td style=&#34;text-align:center&#34;&gt;3.15&lt;/td&gt;
 &lt;td style=&#34;text-align:center&#34;&gt;2.37&lt;/td&gt;
 &lt;td style=&#34;text-align:center&#34;&gt;2.48&lt;/td&gt;
-&lt;td&gt;&lt;/td&gt;
-&lt;td&gt;&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr&gt;
 &lt;td style=&#34;text-align:center&#34;&gt;bible.txt&lt;/td&gt;
 &lt;td style=&#34;text-align:center&#34;&gt;4.50&lt;/td&gt;
 &lt;td style=&#34;text-align:center&#34;&gt;3.39&lt;/td&gt;
 &lt;td style=&#34;text-align:center&#34;&gt;3.39&lt;/td&gt;
-&lt;td&gt;&lt;/td&gt;
-&lt;td&gt;&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr&gt;
 &lt;td style=&#34;text-align:center&#34;&gt;E.coli&lt;/td&gt;
 &lt;td style=&#34;text-align:center&#34;&gt;4.09&lt;/td&gt;
 &lt;td style=&#34;text-align:center&#34;&gt;3.69&lt;/td&gt;
 &lt;td style=&#34;text-align:center&#34;&gt;3.56&lt;/td&gt;
-&lt;td&gt;&lt;/td&gt;
-&lt;td&gt;&lt;/td&gt;
 &lt;/tr&gt;
 &lt;/tbody&gt;
 &lt;/table&gt;
-&lt;p&gt;It is interesting to look at the predictions CTW makes. It is particularly good at detecting basic structure like spaces between words, braces, parenthesis, etc. and repeated words and phrases. For example in fields.c consistently predicts ( $p \approx 0.8$) that function declarations like &lt;code&gt;realloc ()&lt;/code&gt; are followed by &lt;code&gt;;&lt;/code&gt; and that comments starting with &lt;code&gt;/*&lt;/code&gt; end with &lt;code&gt;*/&lt;/code&gt;.&lt;/p&gt;
-&lt;p&gt;In &lt;code&gt;bible.txt&lt;/code&gt;, it is particularly good at predicting common words like &amp;ldquo;God&amp;rdquo; (big surprise). The probabilities for E.coli are actually rarely greater than $0.3$. Since $\mathcal{A} = \text{\{g, c, t, a\}}$ , the compression in this case is mainly due to the fact that the alphabet is small.&lt;/p&gt;
-&lt;p&gt;We can see CTW is basically finding the &amp;ldquo;low hanging fruits&amp;rdquo; of redundancy. This is about all we can expect, since we know Markov models aren&amp;rsquo;t particularly good at learning grammatical structures.&lt;/p&gt;
+&lt;p&gt;It is interesting to look at the predictions CTW makes. It is particularly good at detecting basic structure like spaces between words, braces, parenthesis, etc. and repeated words and phrases. For example in fields.c consistently predicts ( \(p \approx 0.8\)) that function declarations like &lt;code&gt;realloc ()&lt;/code&gt; are followed by &lt;code&gt;;&lt;/code&gt; and that comments starting with &lt;code&gt;/*&lt;/code&gt; end with &lt;code&gt;*/&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;In &lt;code&gt;bible.txt&lt;/code&gt;, it is particularly good at predicting common words like &amp;ldquo;God&amp;rdquo; (big surprise). The probabilities for E.coli are actually rarely greater than \(0.3\). Since \(\mathcal{A} = \text{\{g, c, t, a\}}\) , the compression in this case is mainly due to the fact that the alphabet is small.&lt;/p&gt;
+&lt;p&gt;We can see CTW is basically finding the &amp;ldquo;low hanging fruit&amp;rdquo; of redundancy. This is about all we can expect, since we know Markov models aren&amp;rsquo;t particularly good at learning grammatical structures.&lt;/p&gt;
 &lt;p&gt;Although CTW compares favorably on these text files, my implementation failed miserably when I tried it on binary data (possible due to my janky code). My implementation is also 5-10 times slower than gzip and compress on large files, and undoubtedly uses much more memory.&lt;/p&gt;
 &lt;p&gt;The good news is there is a lot of room for improvement. Obvious optimizations would be parallelizing the context trees and using fixed-point arithmetic instead of doubles. I highly recommend Volf&amp;rsquo;s thesis &lt;a href=&#34;#references&#34;&gt;[4]&lt;/a&gt;, in which he documents his CTW compressor project in great detail. He uses the previously mentioned optimizations (and many more) to satisfy a memory limit of 32MB and a compression speed of around 10kB/s.&lt;/p&gt;
 &lt;h2 id=&#34;conclusion&#34;&gt;Conclusion&lt;/h2&gt;
@@ -282,17 +269,18 @@ For example, here is a possible decomposition tree for $\mathcal{A} = \text{ \{b
         <description>&lt;p&gt;In this post I show how writing primes as the sum of two squares is related to factoring Gaussian integers. I then describe an algorithm to compute the sum of two squares representation.&lt;/p&gt;
 &lt;h2 id=&#34;gaussian-integers&#34;&gt;Gaussian Integers&lt;/h2&gt;
 &lt;p&gt;I have a special penchant for Gaussian integers because they are the first ring I learned about (besides the regular integers of course).
-Mathematically, they are the set of complex numbers $a+bi$ with $a,b$ integers, and they are denoted as $\mathbb{Z}[i]$.&lt;/p&gt;
-&lt;p&gt;We can add, subtract, and multiply Gaussian integers making it a structure called a &lt;strong&gt;ring&lt;/strong&gt;.
-However, $\mathbb{Z}[i]$ is a very special type of ring because it has a norm&lt;/p&gt;
-&lt;p&gt;If we have two Gaussian integers $z_1$ and $z_2 \ne 0$, we can divide $z_1$ by $z_2$&lt;/p&gt;
+Mathematically, they are the set of complex numbers \(a+bi\) with \(a,b\) integers, and they are denoted as \(\mathbb{Z}[i]\).&lt;/p&gt;
+&lt;p&gt;We can add, subtract, and multiply Gaussian integers making it into an algebraic structure called a &lt;strong&gt;ring&lt;/strong&gt;.
+However, \(\mathbb{Z}[i]\) is a very special type of ring because it has a norm (which is just the square of the familiar Euclidean norm)&lt;/p&gt;
+&lt;p&gt;$$N(a+bi) = a^2 + b^2.$$&lt;/p&gt;
+&lt;p&gt;The norm allows us to do the Euclidean algorithm in \(\mathbb{Z}[i]\) in the same way as in the regular integers \(\mathbb{Z}\). This type of ring is called a &lt;a href=&#34;https://en.wikipedia.org/wiki/Euclidean_domain&#34;&gt;Euclidean domain&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;In other words, if we have two Gaussian integers \(z_1\) and \(z_2 \ne 0\), we can divide \(z_1\) by \(z_2\)&lt;/p&gt;
 &lt;p&gt;$$z_1 = q z_2 + r$$&lt;/p&gt;
-&lt;p&gt;where $q,r \in \mathbb{Z}[i]$ and $N(r) &amp;lt; N(z_2)$. That means the Euclidean algorithm works the same as in the
-regular integers! This type of ring is called a &lt;a href=&#34;https://en.wikipedia.org/wiki/Euclidean_domain&#34;&gt;Euclidean domain&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;If the remainder $r = 0$, then we say $z_1$ is divisible by $z_2$. A &lt;strong&gt;Gaussian prime&lt;/strong&gt; is a Gaussian integer that
-has no divisors except for itself, and the units $\pm 1, \pm i$.
+&lt;p&gt;where \(q,r \in \mathbb{Z}[i]\) and \(N(r) &amp;lt; N(z_2)\).&lt;/p&gt;
+&lt;p&gt;If the remainder \(r = 0\), then we say \(z_1\) is divisible by \(z_2\). A &lt;strong&gt;Gaussian prime&lt;/strong&gt; is a Gaussian integer that
+has no divisors except for itself, and the units \(\pm 1, \pm i\).
 It is a theorem in algebra that every Euclidean domain has unique factorization, that is,
-we can factor every Gaussian integer into Gaussian primes in a unique way (up to multiplication by $\pm 1, \pm i$).&lt;/p&gt;
+we can factor every Gaussian integer into Gaussian primes in a unique way&lt;/p&gt;
 &lt;p&gt;Plotting the Guassian primes on the complex plane makes quite a pretty pattern.&lt;/p&gt;
 
 &lt;link rel=&#34;stylesheet&#34; href=&#34;https://meiji163.github.io/css/hugo-easy-gallery.css&#34; /&gt;
@@ -306,54 +294,149 @@ we can factor every Gaussian integer into Gaussian primes in a unique way (up to
   &lt;/figure&gt;
 &lt;/div&gt;
 
-&lt;p&gt;One thing you might wonder is how the familiar integer primes $2,3,5,7,\dots$ are related to
-the Gaussian primes. For example $2 = (1+i)(1-i)$ so it is not a Guassian prime!
+&lt;p&gt;One thing you might wonder is how the familiar integer primes \(2,3,5,7,\dots\) are related to
+the Gaussian primes.&lt;/p&gt;
+&lt;p&gt;For example \(2 = (1+i)(1-i)\) so it is not a Guassian prime!
 It turns out we can describe the relationship very simply:&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Theorem&lt;/strong&gt;:
-Let $p&amp;gt;2$ be an integer prime.
-Then $p$ is a Gaussian prime if and only if $p \equiv 3 \pmod{4}$.&lt;/p&gt;
-&lt;p&gt;This is closely related to the problem of representing an integer as the sum of two squares,
-since if we can factor $p = (a+bi)(a-bi)$ then $p = a^2 +b^2$. Moreover, if $q = (c+di)(c-di)$
-is also the sum of two squares, then so is $pq$ since&lt;/p&gt;
-&lt;p&gt;$$pq = ((ac-bd)+i(ad+bc))((ac-bd)-i(ac+bd))$$&lt;/p&gt;
+Let \(p&amp;gt;2\) be an integer prime.
+Then \(p\) is a Gaussian prime if and only if \(p \equiv 3 \pmod{4}\).&lt;/p&gt;
+&lt;h2 id=&#34;sums-of-two-squares&#34;&gt;Sums of Two Squares&lt;/h2&gt;
+&lt;p&gt;Factoring an integer in Gaussian integers is closely related to representing that integer as the sum of two squares.&lt;/p&gt;
+&lt;p&gt;If we can factor \(p = (a+bi)(a-bi)\) then \(p = a^2 +b^2\). &lt;br&gt;
+Moreover, if \(q = (c+di)(c-di)\) is also the sum of two squares, then so is \(pq\) since&lt;/p&gt;
+&lt;p&gt;$$pq = ((ac-bd)+i(ad+bc))((ac-bd)-i(ac+bd)).$$&lt;/p&gt;
 &lt;p&gt;From this we can determine all integers that can be represented as a sum of two squares
-by looking at the primes in its prime factorization (in regular integers).
-For example, $15 = 3\cdot 5$ is not the sum of squares because we can&amp;rsquo;t factor the $3$ in Gaussian integers.&lt;/p&gt;
-&lt;h3 id=&#34;finding-sums-of-squares&#34;&gt;Finding Sums of Squares&lt;/h3&gt;
+by looking at the primes in its prime factorization (in regular integers).&lt;/p&gt;
+&lt;p&gt;For example, \(15 = 3\cdot 5\) is not the sum of squares because we can&amp;rsquo;t factor the \(3\) in Gaussian integers.&lt;/p&gt;
+&lt;h3 id=&#34;the-algorithm&#34;&gt;The Algorithm&lt;/h3&gt;
 &lt;p&gt;How can we efficiently factor primes in the Gaussian integers? Here is one
-very fast way due to Serret and Hermite. Let $p = 4k+1$ be prime.&lt;/p&gt;
+very fast way due to Serret and Hermite. Let \(p = 4k+1\) be prime.&lt;/p&gt;
 &lt;ol&gt;
-&lt;li&gt;Find a quadratic non-residue c mod p&lt;/li&gt;
-&lt;li&gt;Let x = c&lt;!-- raw HTML omitted --&gt;(p-1)/4&lt;!-- raw HTML omitted --&gt;  mod p so that x&lt;!-- raw HTML omitted --&gt;2&lt;!-- raw HTML omitted --&gt; = -1 mod p (this follows from &lt;a href=&#34;https://en.wikipedia.org/wiki/Euler%27s_criterion&#34;&gt;Euler&amp;rsquo;s criterion&lt;/a&gt; )&lt;/li&gt;
-&lt;li&gt;Use the Euclidean algorithm on p and x until we get two remainders s,r &amp;lt; √p&lt;/li&gt;
+&lt;li&gt;Find a quadratic non-residue \(c \mod{p}\)&lt;/li&gt;
+&lt;li&gt;Let \(x = c^{(p-1)/4} \mod{p}\) so that \(x^2 \equiv -1 \mod{p}\) (by &lt;a href=&#34;https://en.wikipedia.org/wiki/Euler%27s_criterion&#34;&gt;Euler&amp;rsquo;s criterion&lt;/a&gt; )&lt;/li&gt;
+&lt;li&gt;Use the Euclidean algorithm on \(p\) and \(x\) until we get two remainders \(s,r &amp;lt; \sqrt{p}\) that satisfy \(p = r^2+s^2\).&lt;/li&gt;
 &lt;/ol&gt;
-&lt;p&gt;Then, magically $p = r^2+s^2$.&lt;/p&gt;
-&lt;p&gt;The idea of the algorithm is to use a symmetry in the Euclidean algorithm.
-In the Euclidean algorithm, we have a sequence of remainders $r_0 = p, r_1 = x, r_2, \dots, r_n$ that end with the
-greatest common divisor $r_n = \gcd(p, x) = 1$. We compute these recursively:&lt;/p&gt;
-&lt;p&gt;$$r_{i-1} = q_{i}r_{i}+ r_{i+1}$$&lt;/p&gt;
-&lt;p&gt;where $q_i = \lfloor r_{i-1}/r_{i} \rfloor$ is the quotient. We can define another sequence $(t_i)$ by the
-same recurrence, but with initial values $t_0 = 0$, $t_1 = 1$. It turns out that this sequence is just the
-reverse of the sequence $(r_i)$, up to signs. Moreover, one can see using the recurrence that&lt;/p&gt;
-&lt;p&gt;$$t_i x \equiv r_i \pmod{p}$$&lt;/p&gt;
-&lt;p&gt;for all i. This is the key equation, because we can square this equation and use $x^2 \equiv -1 \pmod{p}$ to get&lt;/p&gt;
-&lt;p&gt;$$t_i^2 + r_i^2 \equiv 0 \pmod{p}$$&lt;/p&gt;
-&lt;p&gt;From here we just need to find the $t_i$ and $r_i$ that are the right size. I encourage you to work out the details.
-If you get stuck, most of the proof is in &lt;a href=&#34;https://www.jstor.org/stable/2323912&#34;&gt;this article&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Recall that a quadratic residue mod \(p\) is an integer a such that \(a \equiv b^2 \mod{p}\) for some integer b&lt;sup id=&#34;fnref:1&#34;&gt;&lt;a href=&#34;#fn:1&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;1&lt;/a&gt;&lt;/sup&gt;.&lt;/p&gt;
+&lt;p&gt;Why does the algorithm work? The idea is to use a symmetry in the Euclidean algorithm.
+In the Euclidean algorithm, we have a sequence of remainders \(r_0, r_1, r_2, \dots, r_n\) that end with the
+greatest common divisor \(r_n = \gcd(r_0, r_1)\).&lt;/p&gt;
+&lt;p&gt;We compute these recursively with initial values \(r_0=p, r_1=x\):&lt;/p&gt;
+&lt;p&gt;$$r_{i-1} = q_{i}r_{i}+ r_{i+1} \quad \text{ where } q_i = \lfloor r_{i-1}/r_{i} \rfloor.$$&lt;/p&gt;
+&lt;p&gt;We can define another sequence \((t_i)\) by the
+same recurrence, but with initial values \(t_0 = 0\), \(t_1 = 1\):&lt;/p&gt;
+&lt;p&gt;$$t_{i-1} = q_it_i + t{i+1} \quad \text{ where } q_i = \lfloor r_{i-1}/r_{i} \rfloor.$$&lt;/p&gt;
+&lt;p&gt;It turns out that the \((t_i)\) sequence is just the reverse of the sequence \((r_i)\), up to signs.&lt;/p&gt;
+&lt;p&gt;Moreover, one can see using the recurrence that \(t_i x \equiv r_i \pmod{p}\) for all i.&lt;br&gt;
+Square this equation and use \(x^2 \equiv -1 \pmod{p}\) to get \(t_i^2 + r_i^2 \equiv 0 \pmod{p}\). &lt;br&gt;
+From there we just need to find the \(t_i\) and \(r_i\) that are the right size so that \(t_i^2+r_i^2=p\).&lt;/p&gt;
+&lt;p&gt;I encourage you to work out the details and try to prove it. (If you get stuck, most of the proof is in &lt;a href=&#34;https://www.jstor.org/stable/2323912&#34;&gt;this article&lt;/a&gt;)&lt;/p&gt;
+&lt;h3 id=&#34;an-example&#34;&gt;An Example&lt;/h3&gt;
+&lt;p&gt;To see the algorithm at work, take \(p=157\), and \(x=28\) (so that \(x^2 \equiv -1 \mod{p}\)).&lt;/p&gt;
+&lt;p&gt;The sequences \((r_i), (t_i), (q_i)\) are as follows:&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;index&lt;/th&gt;
+&lt;th&gt;r&lt;/th&gt;
+&lt;th&gt;t&lt;/th&gt;
+&lt;th&gt;q&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;0&lt;/td&gt;
+&lt;td&gt;157&lt;/td&gt;
+&lt;td&gt;0&lt;/td&gt;
+&lt;td&gt;-&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;1&lt;/td&gt;
+&lt;td&gt;28&lt;/td&gt;
+&lt;td&gt;1&lt;/td&gt;
+&lt;td&gt;5&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;2&lt;/td&gt;
+&lt;td&gt;17&lt;/td&gt;
+&lt;td&gt;-5&lt;/td&gt;
+&lt;td&gt;1&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;3&lt;/td&gt;
+&lt;td&gt;11&lt;/td&gt;
+&lt;td&gt;6&lt;/td&gt;
+&lt;td&gt;1&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;4&lt;/td&gt;
+&lt;td&gt;6&lt;/td&gt;
+&lt;td&gt;-11&lt;/td&gt;
+&lt;td&gt;1&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;5&lt;/td&gt;
+&lt;td&gt;5&lt;/td&gt;
+&lt;td&gt;17&lt;/td&gt;
+&lt;td&gt;1&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;6&lt;/td&gt;
+&lt;td&gt;1&lt;/td&gt;
+&lt;td&gt;-28&lt;/td&gt;
+&lt;td&gt;5&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;7&lt;/td&gt;
+&lt;td&gt;0&lt;/td&gt;
+&lt;td&gt;157&lt;/td&gt;
+&lt;td&gt;-&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;Notice the symmetry and the alternating sign of the t-sequence.&lt;br&gt;
+Going to the middle of the sequence at index 3 or 4 we find \(11^2 + 6^2 = 157\).&lt;/p&gt;
+&lt;h3 id=&#34;complexity-analysis&#34;&gt;Complexity Analysis&lt;/h3&gt;
+&lt;p&gt;How fast is this algorithm given a prime p ?&lt;/p&gt;
+&lt;p&gt;Step 3 of the algorithm (The Euclidean algorithm) is \(O(\log(p))\) by a &lt;a href=&#34;https://en.wikipedia.org/wiki/Euclidean_algorithm#Algorithmic_efficiency&#34;&gt;standard inductive argument&lt;/a&gt;.
+The matter of finding a non-residue \(c\) is trickier to analyze.&lt;/p&gt;
 &lt;p&gt;Assuming the &lt;a href=&#34;https://en.wikipedia.org/wiki/Generalized_Riemann_hypothesis#Extended_Riemann_hypothesis_(ERH)&#34;&gt;Generalized Riemann Hypothesis&lt;/a&gt; is true,
-we only have to check $O( \log^2(p))$ numbers to find the non-residue $x$. Empirically, we rarely have to search more than $\log(p)$.
-The Euclidean algorithm is the faster part and is around $O(\log(p))$.&lt;/p&gt;
+the theoretical upper bound on the least non-residue is \(2\log^2(p)\). In practice we rarely have to search more than \(\log(p).\) Quadratic resiudes and non-residues modulo a prime are &amp;ldquo;equally distributed,&amp;rdquo; but making this precise and proving it will lead you deep into number theory&lt;sup id=&#34;fnref:2&#34;&gt;&lt;a href=&#34;#fn:2&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;2&lt;/a&gt;&lt;/sup&gt;.&lt;/p&gt;
+&lt;p&gt;In any case, the total time complexity is \( O(\log^2(p)) \).&lt;/p&gt;
 &lt;h2 id=&#34;implementation&#34;&gt;Implementation&lt;/h2&gt;
-&lt;p&gt;As an example, let&amp;rsquo;s sieve a bunch of primes then find their sum of two squares representation.
-To find c we loop through the primes q that we found.&lt;br&gt;
-Since $p \equiv 1 \pmod{4}$, &lt;a href=&#34;https://en.wikipedia.org/wiki/Quadratic_reciprocity&#34;&gt;quadratic reciprocity&lt;/a&gt; implies that
-$q$ is a quadratic residue mod $p$ if and only if $p$ is a quadratic residue mod $q$, which is much easier to check.
-We can do this using Euler&amp;rsquo;s criterion.&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;non_res&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;p&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;const&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;vector&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;primes&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;){&lt;/span&gt;
-    &lt;span class=&#34;c1&#34;&gt;//find a quadratic non-residue mod p
-&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;    &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;q&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;p&gt;To illustrate the algorithm, let&amp;rsquo;s sieve a bunch of primes then find their sum of two squares representation. Here&amp;rsquo;s a (slightly optimized)
+&lt;a href=&#34;https://en.wikipedia.org/wiki/Sieve_of_Eratosthenes&#34;&gt;Sieve of Eratosthenes&lt;/a&gt; for sieving primes.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-c++&#34; data-lang=&#34;c++&#34;&gt;&lt;span class=&#34;c1&#34;&gt;// sieve of eratosthenes
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;std&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;::&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;vector&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;sieve&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;max&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;){&lt;/span&gt;
+	&lt;span class=&#34;n&#34;&gt;std&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;::&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;vector&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;primes&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;2&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;3&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;};&lt;/span&gt;
+	&lt;span class=&#34;n&#34;&gt;std&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;::&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;vector&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;bool&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;not_prime&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;max&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;+&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+	&lt;span class=&#34;kt&#34;&gt;bool&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;a&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;b&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;true&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+	&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;j&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;i&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;5&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+	&lt;span class=&#34;k&#34;&gt;while&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;i&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;max&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;){&lt;/span&gt;
+		&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;not_prime&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;i&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;==&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;false&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;){&lt;/span&gt;
+			&lt;span class=&#34;n&#34;&gt;primes&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;push_back&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;i&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+			&lt;span class=&#34;n&#34;&gt;a&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;b&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+			&lt;span class=&#34;n&#34;&gt;j&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;i&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;i&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+			&lt;span class=&#34;k&#34;&gt;while&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;j&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;max&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;){&lt;/span&gt;
+				&lt;span class=&#34;n&#34;&gt;not_prime&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;j&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;true&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+				&lt;span class=&#34;n&#34;&gt;j&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;+=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;i&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;a&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;?&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;2&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;4&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+				&lt;span class=&#34;n&#34;&gt;a&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;!&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;a&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+			&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+		&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+		&lt;span class=&#34;n&#34;&gt;i&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;+=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;b&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;?&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;2&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;4&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+		&lt;span class=&#34;n&#34;&gt;b&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;!&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;b&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+	&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+	&lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;primes&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;To find c (the non-residue) we loop through the primes q that we found.&lt;br&gt;
+Since \(p \equiv 1 \pmod{4}\), &lt;a href=&#34;https://en.wikipedia.org/wiki/Quadratic_reciprocity&#34;&gt;quadratic reciprocity&lt;/a&gt; implies that
+\(q\) is a quadratic residue mod \(p\) if and only if \(p\) is a quadratic residue mod \(q\), which is much easier to check.
+We can do this using Euler&amp;rsquo;s criterion.
+&lt;!-- raw HTML omitted --&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span class=&#34;c1&#34;&gt;//find a quadratic non-residue mod p
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;non_residue&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;p&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;const&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;vector&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;primes&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;){&lt;/span&gt;
     &lt;span class=&#34;k&#34;&gt;for&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;auto&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;it&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;primes&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;begin&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;();&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;it&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;!=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;primes&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;end&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;();&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;++&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;it&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;){&lt;/span&gt;
-        &lt;span class=&#34;n&#34;&gt;q&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;it&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+        &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;q&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;it&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
         &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;q&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;==&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;2&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;){&lt;/span&gt; 
             &lt;span class=&#34;c1&#34;&gt;//2 is a quadratic residue iff p = 1 or -1 (mod 8)
 &lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;            &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;p&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;%&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;8&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;!=&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;7&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;p&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;%&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;8&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;!=&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;  
@@ -371,13 +454,12 @@ We can do this using Euler&amp;rsquo;s criterion.&lt;/p&gt;
 &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;I checked 2 and 3 separately but it&amp;rsquo;s not necessary.&lt;/p&gt;
 &lt;p&gt;After that, we just need a function to do the Euclidean algorithm part.
-(mod_pow is just fast mod p exponentiation)&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span class=&#34;n&#34;&gt;pair&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;gauss_factor&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;p&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;vector&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;primes&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;){&lt;/span&gt;
-    &lt;span class=&#34;c1&#34;&gt;//factor prime p = 4k + 1 in Gaussian integers
-&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;    &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;b&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;p&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+(Note mod_pow is just fast mod p exponentiation)&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span class=&#34;c1&#34;&gt;//factor prime p = 4k + 1 in Gaussian integers
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;std&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;::&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;pair&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;gauss_factor&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;p&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;vector&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;primes&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;){&lt;/span&gt;
+    &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;b&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;p&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
     &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;c&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;non_res&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;p&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;primes&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
     &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;x&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;mod_pow&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;c&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;p&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;/&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;4&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;p&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
-
     &lt;span class=&#34;k&#34;&gt;while&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;x&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;x&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;p&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;||&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;b&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;b&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;p&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;){&lt;/span&gt;
         &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;x&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;b&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;){&lt;/span&gt;
             &lt;span class=&#34;n&#34;&gt;x&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;%=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;b&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
@@ -385,10 +467,9 @@ We can do this using Euler&amp;rsquo;s criterion.&lt;/p&gt;
             &lt;span class=&#34;n&#34;&gt;b&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;%=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;x&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
         &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
     &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
-    &lt;span class=&#34;n&#34;&gt;pair&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;out&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;x&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;b&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
-    &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;out&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;std&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;::&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;make_pair&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;x&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;b&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
 &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Testing on my junk laptop, it only took 2.07 seconds to factor all the primes below $10^8$!
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Testing on my junk laptop, it only took 2.07 seconds to factor all the primes below 1e8!
 The best part is now we can enjoy long lists of primes as sums of squares. Soothing&amp;hellip;&lt;/p&gt;
 &lt;pre&gt;&lt;code&gt;	18413 = 118^2 + 67^2 
 	18433 = 127^2 + 48^2 
@@ -411,9 +492,20 @@ The best part is now we can enjoy long lists of primes as sums of squares. Sooth
 &lt;ul&gt;
 &lt;li&gt;Try to prove the Theorem (hint: the Norm is the key)! &lt;a href=&#34;https://kconrad.math.uconn.edu/blurbs/ugradnumthy/Zinotes.pdf&#34;&gt;Here&lt;/a&gt; are some excellent notes if you get stuck.&lt;/li&gt;
 &lt;li&gt;Write a program that outputs the prime factorization of any Gaussian integer&lt;/li&gt;
-&lt;li&gt;Gaussian integers are also related to Pythagorean Triples. Can you characterize which integers $a$ satisfy $a^2 =b^2 +c^2$ for some integers b and c?&lt;/li&gt;
+&lt;li&gt;Gaussian integers are also related to Pythagorean Triples. Can you characterize which integers \(a\) satisfy \(a^2 =b^2 +c^2\) for some integers b and c?&lt;/li&gt;
 &lt;li&gt;Another cool ring is the &lt;a href=&#34;https://en.wikipedia.org/wiki/Eisenstein_integer&#34;&gt;Eisenstein Integers&lt;/a&gt;. What are the Eisenstein integer primes? Can you factor Eisenstein integers efficiently?&lt;/li&gt;
 &lt;/ul&gt;
+&lt;section class=&#34;footnotes&#34; role=&#34;doc-endnotes&#34;&gt;
+&lt;hr&gt;
+&lt;ol&gt;
+&lt;li id=&#34;fn:1&#34; role=&#34;doc-endnote&#34;&gt;
+&lt;p&gt;. The terminology &amp;ldquo;residue&amp;rdquo; is a little funny (I&amp;rsquo;m reminded of the &lt;a href=&#34;https://www.math.purdue.edu/~eremenko/jokes.html&#34;&gt;joke&lt;/a&gt; about the dog Cauchy who leaves a residue at every pole). A better term would be &amp;ldquo;square mod p.&amp;rdquo;&amp;#160;&lt;a href=&#34;#fnref:1&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:2&#34; role=&#34;doc-endnote&#34;&gt;
+&lt;p&gt;One such result is &lt;a href=&#34;https://www.cs.umd.edu/~gasarch/TOPICS/res/resperalta.pdf&#34;&gt;Peralta&lt;/a&gt;. He gives a precise bound on the deviation of the distribution of residues from a Bernoulli distribution. To obtain a better complexity bound we could choose random integers until we get a quadratic residue, but this would not speed up the algorithm in practice.&amp;#160;&lt;a href=&#34;#fnref:2&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/section&gt;
 </description>
       
     </item>
@@ -429,7 +521,7 @@ The best part is now we can enjoy long lists of primes as sums of squares. Sooth
 &lt;h2 id=&#34;conformal-maps&#34;&gt;Conformal Maps&lt;/h2&gt;
 &lt;p&gt;A conformal transformation is one that preserves angles. In two dimensions, this is equivalent to being holomorphic and having a non-vanishing derivative.
 There are tons of these transformations (my personal favorites are Mobius transformations).
-In fact, the famous &lt;a href=&#34;https://en.wikipedia.org/wiki/Riemann_mapping_theorem&#34;&gt;Riemann mapping Theorem&lt;/a&gt; asserts that any simply connected domain $U \subset \mathbb{C}$ admits a bijective conformal map $f: U \to \mathbb{D}$ to the unit disc.&lt;/p&gt;
+In fact, the famous &lt;a href=&#34;https://en.wikipedia.org/wiki/Riemann_mapping_theorem&#34;&gt;Riemann mapping Theorem&lt;/a&gt; asserts that any simply connected domain \( U \subset \mathbb{C} \) admits a bijective conformal map \(f: U \to \mathbb{D}\) to the unit disc.&lt;/p&gt;
 
 &lt;link rel=&#34;stylesheet&#34; href=&#34;https://meiji163.github.io/css/hugo-easy-gallery.css&#34; /&gt;
 &lt;div class=&#34;box&#34;&gt;
@@ -445,112 +537,112 @@ In fact, the famous &lt;a href=&#34;https://en.wikipedia.org/wiki/Riemann_mappin
   &lt;/figure&gt;
 &lt;/div&gt;
 
-&lt;p&gt;In this note we will show that the only conformal maps in dimensions $n \ge 3$ are built from inversions and reflections. It turns out that 2 dimensions is the exception!&lt;/p&gt;
+&lt;p&gt;In this note we will show that the only conformal maps in dimensions \(n \ge 3\) are built from inversions and reflections. It turns out that 2 dimensions is the exception!&lt;/p&gt;
 &lt;p&gt;First, what exactly does &amp;ldquo;preserve angles&amp;rdquo; mean? The nicest way to talk about angles is via an inner product.
-Given a vector space $V$ with an inner product $\langle \cdot, \cdot \rangle$, the angle $\theta$ between two vectors $v,w \in V$ is defined by&lt;/p&gt;
+Given a vector space \(V\) with an inner product \(\langle \cdot, \cdot \rangle\), the angle \(\theta\) between two vectors \(v,w \in V\) is defined by&lt;/p&gt;
 &lt;p&gt;$$ \cos \theta = \dfrac{ \langle v, w \rangle}{\sqrt{ \langle v,v \rangle \langle w, w \rangle}}.$$&lt;/p&gt;
-&lt;p&gt;In Euclidean space with the standard inner product, this matches the formula you know. Thus a linear transformation $A: V \to V$
-preserves angles if $\langle Av, Aw \rangle = \lambda^2 \langle v, w \rangle$ for all $v,w$ and some $\lambda &amp;gt; 0$. Note that since $\lambda^2 &amp;gt; 0$ we are requiring the orientation of the angle to be preserved as well.&lt;/p&gt;
+&lt;p&gt;In Euclidean space with the standard inner product, this matches the formula you know. Thus a linear transformation \(A: V \to V\)
+preserves angles if \(\langle Av, Aw \rangle = \lambda^2 \langle v, w \rangle\) for all \(v,w\) and some \(\lambda &amp;gt; 0\). Note that since \(\lambda^2 &amp;gt; 0\) we are requiring the orientation of the angle to be preserved as well.&lt;/p&gt;
 &lt;p&gt;Thus a conformal linear transformation is just an orientation and distance preserving map (called a special orthogonal matrix)
 followed by a dilation. Well, that&amp;rsquo;s pretty boring. But now we can define more general conformal maps by requiring its derivative to
 be a conformal linear transformation!&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Definition&lt;/strong&gt;
-Let $U \subset \mathbb{R}^n$ be open. A $C^1$ map $f:U \to \mathbb{R}^n$. $f$ is said to be &lt;strong&gt;conformal&lt;/strong&gt; if $D_x f:T_xU \to T_{f(x)}\mathbb{R}^n$ is conformal for all $x \in U$.&lt;/p&gt;
+Let \(U \subset \mathbb{R}^n\) be open. A \(C^1\) map \(f:U \to \mathbb{R}^n\). \(f\) is said to be &lt;strong&gt;conformal&lt;/strong&gt; if \(D_x f:T_xU \to T_{f(x)}\mathbb{R}^n\) is conformal for all \(x \in U\).&lt;/p&gt;
 &lt;h3 id=&#34;inversions-and-reflections&#34;&gt;Inversions and Reflections&lt;/h3&gt;
-&lt;p&gt;A nice example of a conformal map is spherical inversion. Denote the one-point compactification $\mathbb{R}^n \cup {\infty}$ of $\mathbb{R}^n$ by $\widehat{\mathbb{R}}^n$. Let $S(a,r) \subset \mathbb{R}^n$ be the sphere of radius $n$ with center $a$. The inversion about $S(a,r)$ is defined as&lt;/p&gt;
+&lt;p&gt;A nice example of a conformal map is spherical inversion. Denote the one-point compactification \(\mathbb{R}^n \cup {\infty}\) of \(\mathbb{R}^n\) by \(\widehat{\mathbb{R}}^n\). Let \(S(a,r) \subset \mathbb{R}^n\) be the sphere of radius \(n\) with center \(a\). The inversion about \(S(a,r)\) is defined as&lt;/p&gt;
 &lt;p&gt;$$\varphi_{a,r}(x) = a + r\frac{x-a}{|x-a|^2}, \quad x \ne a,\infty$$&lt;/p&gt;
-&lt;p&gt;and $\varphi_{a,r}(a) = \infty$, $\varphi_{a,r}(\infty) = a.$&lt;/p&gt;
-&lt;p&gt;$\varphi_{r,a}$ swaps the interior and exterior of the sphere and fixes $S(a,r)$. One can check that $\varphi_{a,r}$ is an involution, i.e. $\varphi_{a,r} \circ \varphi_{a,r} = \text{id}.$&lt;/p&gt;
-&lt;p&gt;We can verify that $\varphi_{a,r}$ is conformal with direct computation.
-First consider $\varphi = \varphi_{0,1}$. We calculate that&lt;/p&gt;
+&lt;p&gt;and \(\varphi_{a,r}(a) = \infty\), \(\varphi_{a,r}(\infty) = a.\)&lt;/p&gt;
+&lt;p&gt;\(\varphi_{r,a}\) swaps the interior and exterior of the sphere and fixes \(S(a,r)\). One can check that \(\varphi_{a,r}\) is an involution, i.e. \(\varphi_{a,r} \circ \varphi_{a,r} = \text{id}.\)&lt;/p&gt;
+&lt;p&gt;We can verify that \(\varphi_{a,r}\) is conformal with direct computation.
+First consider \(\varphi = \varphi_{0,1}\). We calculate that&lt;/p&gt;
 &lt;p&gt;$$D_x \varphi = \frac{1}{|x|^2}( I - 2 Q_x )$$&lt;/p&gt;
-&lt;p&gt;where $Q$ is the symmetric matrix with entries $\dfrac{x_i x_j}{|x|^2}$.
-Note that $Q$ satisfies $Q^2=Q$ since&lt;/p&gt;
+&lt;p&gt;where \(Q\) is the symmetric matrix with entries \(\dfrac{x_i x_j}{|x|^2}\).
+Note that \(Q\) satisfies \(Q^2=Q\) since&lt;/p&gt;
 &lt;p&gt;$$\begin{aligned}
 Q^2_{ij} &amp;amp;= \sum_{k=1}^n \frac{x_k x_j}{|x|^2} \frac{x_i x_k}{|x|^2}\cr
 &amp;amp;= \left( \sum_{k=1}^n\frac{x_k^2}{|x|^2}\right)\frac{x_i x_j}{|x|^2} = \frac{x_i x_j}{|x|^2}.
 \end{aligned}$$&lt;/p&gt;
-&lt;p&gt;Hence we get $(D_x\varphi)^T D_x \varphi = \frac{1}{|x|^4}(I-4Q-x+4Q_x^2) = \frac{1}{|x|^4}I$ so $\varphi$ is conformal.
-For general $\varphi_{r,a}$, we use an affine transformation $\psi(x) = rx +a$, which is obviously conformal.
-Then $\varphi_{r,a}=\psi \circ \varphi \circ \psi^{-1}$ is also conformal.&lt;/p&gt;
+&lt;p&gt;Hence we get \((D_x\varphi)^T D_x \varphi = \frac{1}{|x|^4}(I-4Q-x+4Q_x^2) = \frac{1}{|x|^4}I\) so \(\varphi\) is conformal.
+For general \(\varphi_{r,a}\), we use an affine transformation \(\psi(x) = rx +a\), which is obviously conformal.
+Then \(\varphi_{r,a}=\psi \circ \varphi \circ \psi^{-1}\) is also conformal.&lt;/p&gt;
 &lt;p&gt;Another type of transformation we will need is reflections.
-Fix $a \in \mathbb{R}^n$ and $s&amp;gt;0$ and let $P(a,s) = {x \in \mathbb{R}^n| a \cdot x =s} \cup {\infty}$ be the corresponding plane in $\widehat{\mathbb{R}}^n$. The reflection in $P(a,s)$ is defined as&lt;/p&gt;
+Fix \(a \in \mathbb{R}^n\) and \(s&amp;gt;0\) and let \(P(a,s) = \{x \in \mathbb{R}^n| a \cdot x =s\} \cup \{\infty\} \) be the corresponding plane in \(\widehat{\mathbb{R}}^n\). The reflection in \(P(a,s)\) is defined as&lt;/p&gt;
 &lt;p&gt;$$r_{a,s}(x) = x-2(a \cdot x -s) \frac{a}{|a|^2}, \qquad x \in \mathbb{R}^n$$&lt;/p&gt;
-&lt;p&gt;and $r_{a,s}(\infty) =\infty$. We define a Mobius transformation on $\widehat{\mathbb{R}}^n$ for $n\ge 3$
+&lt;p&gt;and \(r_{a,s}(\infty) =\infty\). We define a Mobius transformation on \(\widehat{\mathbb{R}}^n\) for \(n\ge 3\)
 as a finite composition of reflections in planes and inversions about spheres.&lt;/p&gt;
 &lt;h2 id=&#34;liouvilles-theorem&#34;&gt;Liouville&amp;rsquo;s Theorem&lt;/h2&gt;
 &lt;p&gt;Now we can precisely state what we want to prove.&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;Liouville&amp;rsquo;s Theorem&lt;sup id=&#34;fnref:1&#34;&gt;&lt;a href=&#34;#fn:1&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;1&lt;/a&gt;&lt;/sup&gt;&lt;/strong&gt;: Let $U \subset \mathbb{R}^n$ be open with $0 \in U$ and $n \ge 3$. &lt;br&gt;
-If $f:U \to \mathbb{R}^n$ is $C^4$ and conformal, then $f$ is the restriction of a Mobius transformation.&lt;/p&gt;
-&lt;p&gt;Actually, the theorem holds for much lower regularity, but we assume $C^4$ for simplicity. The strategy we will use is to
-study vector fields whose flow is conformal. The &lt;strong&gt;flow&lt;/strong&gt; of a $v$ is a function $f_t$ parametrized by time that satisfies&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Liouville&amp;rsquo;s Theorem&lt;sup id=&#34;fnref:1&#34;&gt;&lt;a href=&#34;#fn:1&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;1&lt;/a&gt;&lt;/sup&gt;&lt;/strong&gt;: Let \(U \subset \mathbb{R}^n\) be open with \(0 \in U\) and \(n \ge 3\). &lt;br&gt;
+If \(f:U \to \mathbb{R}^n\) is \(C^4\) and conformal, then \(f\) is the restriction of a Mobius transformation.&lt;/p&gt;
+&lt;p&gt;Actually, the theorem holds for much lower regularity, but we assume \(C^4\) for simplicity. The strategy we will use is to
+study vector fields whose flow is conformal. The &lt;strong&gt;flow&lt;/strong&gt; of a \(v\) is a function \(f_t\) parametrized by time that satisfies&lt;/p&gt;
 &lt;p&gt;$$\begin{aligned}
 f_0(x) &amp;amp;= x\cr
 \frac{d}{dt}f_t(x) &amp;amp;= v(f_t(x))\end{aligned}$$&lt;/p&gt;
-&lt;p&gt;for every $x$. The point $x$ is &amp;ldquo;flowing down the river&amp;rdquo; determined by the vector field (for this reason I&amp;rsquo;ve heard the &lt;a href=&#34;https://en.wikipedia.org/wiki/Lie_derivative&#34;&gt;Lie derivative&lt;/a&gt; called the &amp;ldquo;fisherman&amp;rsquo;s derivative&amp;rdquo;!)
+&lt;p&gt;for every \(x\). The point \(x\) is &amp;ldquo;flowing down the river&amp;rdquo; determined by the vector field (for this reason I&amp;rsquo;ve heard the &lt;a href=&#34;https://en.wikipedia.org/wiki/Lie_derivative&#34;&gt;Lie derivative&lt;/a&gt; called the &amp;ldquo;fisherman&amp;rsquo;s derivative&amp;rdquo;!)
 Therefore if we can transfer the problem of characterizing conformal maps into one about vector fields and differential equations.
 This tactic can be applied in many other problems!&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Lemma&lt;/strong&gt;
-Let $v:\mathbb{R}^n \to \mathbb{R}^n$ be a $C^1$ vector field. Then the flow of $v$ is conformal if and only if
+Let \(v:\mathbb{R}^n \to \mathbb{R}^n\) be a \(C^1\) vector field. Then the flow of \(v\) is conformal if and only if
 $$(Dv)^T+Dv = \frac{2}{n} \operatorname{tr}(Dv) I.$$&lt;/p&gt;
-&lt;p&gt;&lt;em&gt;Proof&lt;/em&gt;: Let $f_t$ be the local flow of $v$ and $p \in \mathbb{R}^n$. For convenience set $A=D_p f_t$, $B=D_{f_t(p)}v$. We differentiate the relation&lt;br&gt;
+&lt;p&gt;&lt;em&gt;Proof&lt;/em&gt;: Let \(f_t\) be the local flow of \(v\) and \(p \in \mathbb{R}^n\). For convenience set \(A=D_p f_t\), \(B=D_{f_t(p)}v\). We differentiate the relation&lt;br&gt;
 $$A^T A = (\det A)^{2/n} ; I$$
-with respect to $t$ and use &lt;a href=&#34;https://en.wikipedia.org/wiki/Jacobi%27s_formula&#34;&gt;Jacobi&amp;rsquo;s formula&lt;/a&gt; to obtain&lt;/p&gt;
+with respect to \(t\) and use &lt;a href=&#34;https://en.wikipedia.org/wiki/Jacobi%27s_formula&#34;&gt;Jacobi&amp;rsquo;s formula&lt;/a&gt; to obtain&lt;/p&gt;
 &lt;p&gt;$$\begin{aligned} A^TB^TA+A^TBA &amp;amp;= \frac{2}{n}(\det (A))^{2/n -1} \det A \operatorname{tr} \left(A^{-1} \frac{dA}{dt}\right)\cr
 &amp;amp;=\frac{2}{n} (\det A)^{2/n} \operatorname{tr} (B) I.\end{aligned}$$&lt;/p&gt;
-&lt;p&gt;Multiplying by $(A^T)^{-1}$ on the left and $A^{-1}$ on the right we&amp;rsquo;re left with
+&lt;p&gt;Multiplying by \((A^T)^{-1}\) on the left and \(A^{-1}\) on the right we&amp;rsquo;re left with
 $$\begin{aligned} B^T+B &amp;amp;= \frac{2}{n}(\det A)^{2/n} \operatorname{tr} (B) \underbrace{(A^T)^{-1}A^{-1}}_{=(AA^T)^{-1}}\cr
 &amp;amp;= \frac{2}{n} \operatorname{tr}(B) I\end{aligned}$$&lt;/p&gt;
-&lt;p&gt;as desired. $\blacksquare$&lt;/p&gt;
+&lt;p&gt;as desired. \(\blacksquare\)&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Theorem&lt;/strong&gt;
-If the flow of $v$ is conformal, then $v$ is of the form&lt;/p&gt;
+If the flow of \(v\) is conformal, then \(v\) is of the form&lt;/p&gt;
 &lt;p&gt;$$v(x) = a+Bx+2(c \cdot x)x-|x|^2 c$$&lt;/p&gt;
-&lt;p&gt;for some $c\in \mathbb{R}^n$, where $B\in M_{n \times n}$ satisfies $B+B^T = \frac{2}{n} \operatorname{tr}(B) I_n$.&lt;/p&gt;
-&lt;p&gt;&lt;em&gt;Proof&lt;/em&gt;: Using the lemma we get $\partial_i v_i = \partial_j v_j$  for all $i,j$
-and $\partial_i v_j = - \partial_j v_i$ for all $i \ne j$. By repeatedly using these facts we can deduce that all third order partial derivatives of $v$ vanish.
+&lt;p&gt;for some \(c\in \mathbb{R}^n\), where \(B\in M_{n \times n}\) satisfies \(B+B^T = \frac{2}{n} \operatorname{tr}(B) I_n\).&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Proof&lt;/em&gt;: Using the lemma we get \(\partial_i v_i = \partial_j v_j\)  for all \(i,j\)
+and \(\partial_i v_j = - \partial_j v_i\) for all \(i \ne j\). By repeatedly using these facts we can deduce that all third order partial derivatives of \(v\) vanish.
 Therefore,&lt;/p&gt;
 &lt;p&gt;$$v_i(x) = a_i + \sum_j b_{ij}x_j + \sum_{j,k} c_{ijk}x_jx_k$$&lt;/p&gt;
-&lt;p&gt;for some coefficients $c_{ijk}$ such that $c_{ijk}=c_{ikj}$. Next we calculate&lt;/p&gt;
+&lt;p&gt;for some coefficients \(c_{ijk}\) such that \(c_{ijk}=c_{ikj}\). Next we calculate&lt;/p&gt;
 &lt;p&gt;$$\begin{aligned} \partial_i v_i(x) &amp;amp;= b_j + 2 \sum_{k} c_{ijk}x_k\cr
 \partial_k \partial_j v_i(x)&amp;amp; = 2c_{ijk}\end{aligned}$$&lt;/p&gt;
-&lt;p&gt;We know $c_{iik}=c_{jjk}$ for all $i,j$ so set $c_k:=c_{iik}$ and $c = (c_1,\dots,c_n$). Using the symmetries again we get $c_{ikk} = -c_{kik} = -c_{kki}=-c_i$.
-Now we can rewrite $v_i$ as&lt;/p&gt;
+&lt;p&gt;We know \(c_{iik}=c_{jjk}\) for all \(i,j\) so set \(c_k:=c_{iik}\) and \(c = (c_1,\dots,c_n\)). Using the symmetries again we get \(c_{ikk} = -c_{kik} = -c_{kki}=-c_i\).
+Now we can rewrite \(v_i\) as&lt;/p&gt;
 &lt;p&gt;$$\begin{aligned}
 v_i(x) &amp;amp;= a_i + \sum_{j}b_{ij} x_j + 2 \left(\sum_k c_k x_k \right)x_i -c_i \sum_{k}x^k \cr
 &amp;amp;=a_i +\sum_{j} b_{ij}x_j + 2(c \cdot x) x_i -|x|^2 c_i\end{aligned}$$&lt;/p&gt;
-&lt;p&gt;Combining the equations for $i=1,2,\dots,n$ we get what we want. $\blacksquare$&lt;/p&gt;
-&lt;p&gt;Let $v(x) =e_j$ and $\varphi_t(x) = x+te_j$ its flow, where $e_j$ is the $j$th standard basis vector.
-Let $g=f^{-1}$ and consider $h_t=g \circ \varphi_t \circ f : V \to U$, with $V \subset U$ chosen so that $\varphi_t(f(V)) \subset f(U)$. Then we have&lt;/p&gt;
+&lt;p&gt;Combining the equations for \(i=1,2,\dots,n\) we get what we want. \(\blacksquare\)&lt;/p&gt;
+&lt;p&gt;Let \(v(x) =e_j\) and \(\varphi_t(x) = x+te_j\) its flow, where \(e_j\) is the \(j\)th standard basis vector.
+Let \(g=f^{-1}\) and consider \(h_t=g \circ \varphi_t \circ f : V \to U\), with \(V \subset U\) chosen so that \(\varphi_t(f(V)) \subset f(U)\). Then we have&lt;/p&gt;
 &lt;p&gt;$$\frac{d}{dt}h_t(x) = D_{f(h_t(x))}g \cdot v(f(x)).$$&lt;/p&gt;
-&lt;p&gt;We conclude $h_t$ is the flow of the vector field $w(x) =D_{f(x)}g \cdot v(f(x))$.
+&lt;p&gt;We conclude \(h_t\) is the flow of the vector field \(w(x) =D_{f(x)}g \cdot v(f(x))\).
 Now we can execute our plan to prove Liouville&amp;rsquo;s theorem.&lt;/p&gt;
 &lt;p&gt;&lt;em&gt;Proof of Liouville&lt;/em&gt;:
-By composing with an affine map we can assume $f(0)=0$ and  $D_0f =I$.
-Set $\varphi = \varphi_{0,1}$ as before and define $G = \varphi \circ f$, which is conformal on $U$. It suffices to show that $G$ is a M&amp;quot;obius trasformation. We will embed $G$ in the flow of $v = (DG)^{-1}e_i.$ We get&lt;/p&gt;
+By composing with an affine map we can assume \(f(0)=0\) and  \(D_0f =I\).
+Set \(\varphi = \varphi_{0,1}\) as before and define \(G = \varphi \circ f\), which is conformal on \(U\). It suffices to show that \(G\) is a M&amp;quot;obius trasformation. We will embed \(G\) in the flow of \(v = (DG)^{-1}e_i.\) We get&lt;/p&gt;
 &lt;p&gt;$$\begin{aligned}
 D_xG &amp;amp;= D_{f(x)}\varphi D_x f\cr
 &amp;amp;= \frac{1}{|f(x)|^2}(I-2Q_{f(x)})D_x f\end{aligned}$$&lt;/p&gt;
-&lt;p&gt;We know $(I-2Q_x)^2 = I,$ so $(I-2Q_x)^{-1} = I-2Q_x$. With this we can calculate&lt;/p&gt;
+&lt;p&gt;We know \((I-2Q_x)^2 = I,\) so \((I-2Q_x)^{-1} = I-2Q_x\). With this we can calculate&lt;/p&gt;
 &lt;p&gt;$$\begin{aligned}
 (D_xG)^{-1}e_i &amp;amp;= (D_x f)^{-1}(D_{f(x)}\varphi)^{-1}e_i\cr
 &amp;amp;= (D_xf)^{-1} \cdot |f(x)|^2 (I -2Q_{f(x)})e_i\cr
 &amp;amp;= |f(x)|^2 (D_xf)^{-1}e_i - 2(f(x) \cdot e_i)
 \end{aligned}$$&lt;/p&gt;
 &lt;p&gt;Using the Theorem on conformal vector fields, we can write
-$(D_x G)^{-1}e_i = a+Bx +2(c\cdot x)x-|x|^2c.$&lt;/p&gt;
-&lt;p&gt;$f(0)=0$ implies $(D_0G)^{-1}e_i = 0$, so $a=0$. We contend that $B \equiv 0$ as well.
-Let $u \in \mathbb{R}^n$ be unit length, and $\epsilon&amp;gt;0$. We consider  $\epsilon B(u)$ as $\epsilon \to 0$:&lt;/p&gt;
+\((D_x G)^{-1}e_i = a+Bx +2(c\cdot x)x-|x|^2c.\)&lt;/p&gt;
+&lt;p&gt;\(f(0)=0\) implies \((D_0G)^{-1}e_i = 0\), so \(a=0\). We contend that \(B \equiv 0\) as well.
+Let \(u \in \mathbb{R}^n\) be unit length, and \(\epsilon&amp;gt;0\). We consider  \(\epsilon B(u)\) as \(\epsilon \to 0\):&lt;/p&gt;
 &lt;p&gt;$$\begin{aligned}
 B( \epsilon u) &amp;amp;= (D_{\epsilon u}G)^{-1}e_i-2(c \cdot \epsilon u) \epsilon u - |\epsilon u|^2c\cr
 &amp;amp;= |f(\epsilon u)|^2(D_{\epsilon u}f)^{-1}\left(I-2Q_{f(\epsilon u)}\right)e_i -\epsilon^2((c\cdot u)u -c)\cr
 &amp;amp;= \epsilon^2 \left| u + \frac{o(\epsilon)}{\epsilon}\right| (D_{\epsilon u}f)^{-1}\left(I-2Q_{f(\epsilon u)}\right)e_i -\epsilon^2((c\cdot u)u -c)
 .\end{aligned}$$&lt;/p&gt;
-&lt;p&gt;where we used linear approximation $f(x) = x+ o(|x|)$. Dividing through by $\epsilon$,
-the LHS is independent of $\epsilon$ while the RHS has a factor of $\epsilon$. As $\epsilon \to 0$, the RHS converges to $0$.
-Consequently, we must have $B \equiv 0$, which proves the contention. To find $c$ we use the same argument with $x = \epsilon c$ to get&lt;/p&gt;
+&lt;p&gt;where we used linear approximation \(f(x) = x+ o(|x|)\). Dividing through by \(\epsilon\),
+the LHS is independent of \(\epsilon\) while the RHS has a factor of \(\epsilon\). As \(\epsilon \to 0\), the RHS converges to \(0\).
+Consequently, we must have \(B \equiv 0\), which proves the contention. To find \(c\) we use the same argument with \(x = \epsilon c\) to get&lt;/p&gt;
 &lt;p&gt;$$|c|^2c = \left|c + \frac{o(|\epsilon c|)}{|\epsilon c|}|c| \right|^2(D_{\epsilon c}f)^{-1}(I-2Q_{c})e_i$$&lt;/p&gt;
-&lt;p&gt;We can write $Q_{f(\epsilon c)}=Q_{\epsilon c} + E(s)$ where $E(s) \to 0$ as $s\to 0$ (in the space of matrices). Therefore $|c|^2c = |c|^2(I-2Q_{c})e_i$.
-Solving for $e_i$ we have&lt;/p&gt;
+&lt;p&gt;We can write \(Q_{f(\epsilon c)}=Q_{\epsilon c} + E(s)\) where \(E(s) \to 0\) as \(s\to 0\) (in the space of matrices). Therefore \(|c|^2c = |c|^2(I-2Q_{c})e_i\).
+Solving for \(e_i\) we have&lt;/p&gt;
 &lt;p&gt;$$e_i = (E-2Q_c)c = c-2\frac{c\cdot c}{|c|^2}c = -c.$$&lt;/p&gt;
 &lt;p&gt;We have shown that
 $$\begin{aligned}
@@ -558,8 +650,8 @@ $$\begin{aligned}
 &amp;amp;=|x|^2(I-2Q_x)e_i\cr
 &amp;amp;= (D_x \varphi)^{-1}e_i
 \end{aligned}$$&lt;/p&gt;
-&lt;p&gt;Thus we conclude that $D_x G = D_x \varphi.$ Hence $f(x) = \varphi(\varphi(x) +d)$ for some constant $d\in \mathbb{R}^n,$
-which is indeed a Mobius transformation. $\blacksquare$&lt;/p&gt;
+&lt;p&gt;Thus we conclude that \(D_x G = D_x \varphi.\) Hence \(f(x) = \varphi(\varphi(x) +d)\) for some constant \(d\in \mathbb{R}^n,\)
+which is indeed a Mobius transformation. \(\blacksquare\)&lt;/p&gt;
 &lt;section class=&#34;footnotes&#34; role=&#34;doc-endnotes&#34;&gt;
 &lt;hr&gt;
 &lt;ol&gt;

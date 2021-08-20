@@ -24,7 +24,7 @@
 
 <meta name="author" content="meiji163" />
   <meta name="description" content="In this post I go over the basics of data compression with arithmetic coding and describe the Context Tree Weighting algorithm. At the end I discuss implementation and some experimental results.
-Information Theory Review First a quick review of information theory. Suppose that we receive some data $x$ drawn from a discrete random variable $X$, whose probability distribution is $P$. Then the Shannon information content of $x$ is defined as" />
+Information Theory Review First a quick review of information theory. Suppose that we receive some data \(x\) drawn from a discrete random variable \(X\), whose probability distribution is \(P\). Then the Shannon information content of \(x\) is defined as" />
 
   <meta name="keywords" content="Hugo, theme, jane" />
 
@@ -33,7 +33,7 @@ Information Theory Review First a quick review of information theory. Suppose th
 
 
 
-<meta name="generator" content="Hugo 0.87.0" />
+<meta name="generator" content="Hugo 0.86.0" />
 
 
 <link rel="canonical" href="https://meiji163.github.io/post/context-tree-weighting/" />
@@ -64,7 +64,7 @@ Information Theory Review First a quick review of information theory. Suppose th
 
 <meta property="og:title" content="Context Tree Weighting and Compression" />
 <meta property="og:description" content="In this post I go over the basics of data compression with arithmetic coding and describe the Context Tree Weighting algorithm. At the end I discuss implementation and some experimental results.
-Information Theory Review First a quick review of information theory. Suppose that we receive some data $x$ drawn from a discrete random variable $X$, whose probability distribution is $P$. Then the Shannon information content of $x$ is defined as" />
+Information Theory Review First a quick review of information theory. Suppose that we receive some data \(x\) drawn from a discrete random variable \(X\), whose probability distribution is \(P\). Then the Shannon information content of \(x\) is defined as" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://meiji163.github.io/post/context-tree-weighting/" /><meta property="article:section" content="post" />
 <meta property="article:published_time" content="2021-04-23T00:00:00+00:00" />
@@ -72,13 +72,13 @@ Information Theory Review First a quick review of information theory. Suppose th
 
 <meta itemprop="name" content="Context Tree Weighting and Compression">
 <meta itemprop="description" content="In this post I go over the basics of data compression with arithmetic coding and describe the Context Tree Weighting algorithm. At the end I discuss implementation and some experimental results.
-Information Theory Review First a quick review of information theory. Suppose that we receive some data $x$ drawn from a discrete random variable $X$, whose probability distribution is $P$. Then the Shannon information content of $x$ is defined as"><meta itemprop="datePublished" content="2021-04-23T00:00:00+00:00" />
+Information Theory Review First a quick review of information theory. Suppose that we receive some data \(x\) drawn from a discrete random variable \(X\), whose probability distribution is \(P\). Then the Shannon information content of \(x\) is defined as"><meta itemprop="datePublished" content="2021-04-23T00:00:00+00:00" />
 <meta itemprop="dateModified" content="2021-04-23T00:00:00+00:00" />
 <meta itemprop="wordCount" content="2496">
 <meta itemprop="keywords" content="algorithms,compression,context tree weighting," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Context Tree Weighting and Compression"/>
 <meta name="twitter:description" content="In this post I go over the basics of data compression with arithmetic coding and describe the Context Tree Weighting algorithm. At the end I discuss implementation and some experimental results.
-Information Theory Review First a quick review of information theory. Suppose that we receive some data $x$ drawn from a discrete random variable $X$, whose probability distribution is $P$. Then the Shannon information content of $x$ is defined as"/>
+Information Theory Review First a quick review of information theory. Suppose that we receive some data \(x\) drawn from a discrete random variable \(X\), whose probability distribution is \(P\). Then the Shannon information content of \(x\) is defined as"/>
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
@@ -348,25 +348,25 @@ Information Theory Review First a quick review of information theory. Suppose th
       <p>In this post I go over the basics of data compression with arithmetic coding and describe the Context Tree Weighting algorithm. At the end I discuss implementation and some experimental results.</p>
 <h2 id="information-theory-review">Information Theory Review</h2>
 <p>First a quick review of information theory.
-Suppose that we receive some data $x$ drawn from a discrete random variable $X$, whose probability distribution is $P$. Then the Shannon information content of $x$ is defined as</p>
+Suppose that we receive some data \(x\) drawn from a discrete random variable \(X\), whose probability distribution is \(P\). Then the Shannon information content of \(x\) is defined as</p>
 <p>$$I(x) = -\log(P(x)).$$</p>
 <p>Why is this a good measure of information? Basically, it formalizes the idea that less probable events yield more information, and conversely predictable events yield less information.</p>
 <p>Given an incomplete message like <code>Hello Worl</code> you&rsquo;d assign a high probability (say 95%) that the next character is &ldquo;<em>d</em>&rdquo;. Finding out that the next character is indeed &ldquo;<em>d</em>&rdquo; would only give you about 0.07 units of information (also called shannons), since you in a sense already knew that.</p>
 <p>The Shannon entropy is defined as the expected value of information $$H(X) = \sum_x -P(x)\log(P(x)).$$
 It can be thought of as a measure of how predictable the data is on average.
 Now suppose we want to compress a stream of data.<br>
-Formally, we want a code $C: \mathcal{A} \to \text{ \{0, 1\} } ^* $ where $\mathcal{A}$ is the alphabet the data comes from (e.g. ASCII characters) and $\text{\{0, 1\} }^*$ is the set of all binary strings. A good code should have two properties:</p>
+Formally, we want a code \(C: \mathcal{A} \to \text{ \{0, 1\} } ^* \) where \(\mathcal{A}\) is the alphabet the data comes from (e.g. ASCII characters) and \(\text{\{0, 1\} }^*\) is the set of all binary strings. A good code should have two properties:</p>
 <ul>
-<li>$C$ has an inverse (compression is lossless)</li>
-<li>The codes $C(x)$ have minimal average length (good compression ratio).</li>
+<li>\(C\) has an inverse (compression is lossless)</li>
+<li>The codes \(C(x)\) have minimal average length (good compression ratio).</li>
 </ul>
 <p>Shannon proved that such an optimal code would have an average code length essentially <em>equal to the entropy</em> of the source.<br>
-Moreover, he proved that for an optimal code, the code length $\mid C(x) \mid$ would be <em>equal to the information content</em> $I(x)$.  In other words, if we define the <em>redundancy</em> of our code $C(x)$ as the difference $\rho(x) = \mid C(x)\mid - I(x)$, then finding a good code is equivalent to minimizing the redundancy.<br>
+Moreover, he proved that for an optimal code, the code length \(\mid C(x) \mid\) would be <em>equal to the information content</em> \(I(x)\).  In other words, if we define the <em>redundancy</em> of our code \(C(x)\) as the difference \(\rho(x) = \mid C(x)\mid - I(x)\), then finding a good code is equivalent to minimizing the redundancy.<br>
 Of course this is a bit sloppy; for more precise statements see e.g. <a href="#references">[2]</a></p>
 <h2 id="arithmetic-coding">Arithmetic Coding</h2>
 <p>Unsurprisingly, Shannon&rsquo;s proof is non-constructive, so how do we make an optimal code in practice? Several algorithms have been developed. You make have heard of the Huffman code or Lempel-Ziv algorithm, which one can prove are roughly optimal. Less commonly known is <em>arithmetic coding</em>.</p>
-<p>The nice thing about arithmetic coding is you can plug in any probabilistic model $\mathcal{M}$ of the source (i.e. a way to generate predictions for the next symbol) and it guarantees you a code length approximately equal to the entropy according to your model $H(X \mid \mathcal{M})$. The idea is to associate each sequence to a subinterval of $[0,1)$, whose length is equal to its probability.</p>
-<p>To illustrate the algorithm, suppose we are recieving a stream of binary data $x_1,x_2,\dots,x_N$ (abbreviated $x_1^N$). Let $L$ be the lower endpoint of the interval and $U$ be the upper endpoint after receiving the $n$th symbol. Initially we have received no bits and set $L=0$, $U=1$.</p>
+<p>The nice thing about arithmetic coding is you can plug in any probabilistic model \(\mathcal{M}\) of the source (i.e. a way to generate predictions for the next symbol) and it guarantees you a code length approximately equal to the entropy according to your model \(H(X \mid \mathcal{M})\). The idea is to associate each sequence to a subinterval of \([0,1)\), whose length is equal to its probability.</p>
+<p>To illustrate the algorithm, suppose we are recieving a stream of binary data \(x_1,x_2,\dots,x_N\) (abbreviated \(x_1^N\)). Let \(L\) be the lower endpoint of the interval and \(U\) be the upper endpoint after receiving the \(n\)th symbol. Initially we have received no bits and set \(L=0\), \(U=1\).</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">L, U ⟵ 0, <span class="m">1</span>
 For <span class="nv">n</span> <span class="o">=</span> 1...N <span class="k">do</span>  
     generate prediction P<span class="o">(</span><span class="nv">xn</span> <span class="o">=</span> 0<span class="o">)</span>
@@ -375,8 +375,8 @@ For <span class="nv">n</span> <span class="o">=</span> 1...N <span class="k">do<
         <span class="k">else</span> <span class="nv">xn</span> <span class="o">=</span> <span class="m">0</span> and U ⟵ U-P<span class="o">(</span><span class="nv">xn</span> <span class="o">=</span> 1<span class="o">)</span>*<span class="o">(</span>U-L<span class="o">)</span>
         endif
 endfor
-</code></pre></div><p>At each step, we divide the current interval according to the probabilities of the next symbol. At the end, the compressed sequence is the sequence of binary digits of a number chosen from the interval $[L,U)$, (e.g. $L$ rounded up).</p>
-<p>After $n$ steps there are $2^n$ subintervals, corresponding to the possible sequences $x_1&hellip;x_n$. For example after $n=3$ the intervals might look like this:</p>
+</code></pre></div><p>At each step, we divide the current interval according to the probabilities of the next symbol. At the end, the compressed sequence is the sequence of binary digits of a number chosen from the interval \([L,U)\), (e.g. \(L\) rounded up).</p>
+<p>After \(n\) steps there are \(2^n\) subintervals, corresponding to the possible sequences \(x_1&hellip;x_n\). For example after \(n=3\) the intervals might look like this:</p>
 
 <link rel="stylesheet" href="/css/hugo-easy-gallery.css" />
 <div class="box">
@@ -389,16 +389,16 @@ endfor
   </figure>
 </div>
 
-<p>Note that the length of the intervals are $P(x_1\dots x_n) = P(x_1^n)$. A trivial model that predicts $P(x_1^n) = 2^{-n}$ would essentially give us back the original sequence (a terrible compressor indeed) &ndash; ideally our model assigns a larger probability to the sequence.</p>
-<p>That interval is guaranteed to contain a rational number $c$ with approximately $-\log( P(x_1^n))$ digits in its binary expansion, reducing the number of bits needed to describe it. The encoder can end the message either with a special <code>EOT</code> symbol or by transmitting the length.</p>
-<p>Given the code $c$ and access to the same model $\mathcal{M}$, the decoder can sequentially deduce whether the $n$th bit was a $0$ or $1$ by comparing $c$ to the divider $L + P(x_n = 0)\cdot(U-L)$ and hence uniquely decode the compressed data.</p>
-<p>Arithmetic coding works the same way for non-binary alphabets, at each step dividing the interval into $\mid\mathcal{A}\mid$ sections according to their probabilites.</p>
+<p>Note that the length of the intervals are \(P(x_1\dots x_n) = P(x_1^n)\). A trivial model that predicts \(P(x_1^n) = 2^{-n}\) would essentially give us back the original sequence (a terrible compressor indeed) &ndash; ideally our model assigns a larger probability to the sequence.</p>
+<p>That interval is guaranteed to contain a rational number \(c\) with approximately \(-\log( P(x_1^n))\) digits in its binary expansion, reducing the number of bits needed to describe it. The encoder can end the message either with a special <code>EOT</code> symbol or by transmitting the length.</p>
+<p>Given the code \(c\) and access to the same model \(\mathcal{M}\), the decoder can sequentially deduce whether the \(n\)th bit was a 0 or 1 by comparing \(c\) to the divider \(L + P(x_n = 0)\cdot(U-L)\) and hence uniquely decode the compressed data.</p>
+<p>Arithmetic coding works the same way for non-binary alphabets, at each step dividing the interval into \(\mid\mathcal{A}\mid\) sections according to their probabilites.</p>
 <h2 id="models">Models</h2>
 <p>Assuming arithmetic coding can be implemented efficiently (see <a href="#implementation-and-experiments">below</a>), we have reduced compression to finding a good model of the data. Of course, the model will depend a lot on what type of data you&rsquo;re compressing and your speed/memory goals.</p>
 <p>The simplest model could just use frequency counts of the different symbols to make predictions. If you wanted to go all out you could train a neural net like an RNN or <a href="https://en.wikipedia.org/wiki/Transformer_(machine_learning_model)">transformer</a> on your data to make the predictions. However you&rsquo;d have to account for the size of the weights, which have to be sent the decoder. It would also be too slow for most purposes (although lightweight NN&rsquo;s <a href="http://mattmahoney.net/dc/mmahoney00.pdf">achieve reasonable speed</a>). Clearly there is a tradeoff between the complexity of the model and the compression ratio.</p>
-<p>A simpler option is a <em>tree model</em>. We assume that $P(x_n)$ depends on at most $D$ of the previous symbols (in probability lingo, a $D$-Markov model).</p>
-<p>The main idea is to build a suffix tree (or trie) from the source. Given past symbols $x_{n-D},&hellip;,x_{n-1}$ (also known as the _context_) we take the last $k \le D$ as the suffix. We are free to choose $k$, and it can vary between contexts.   We then record the frequencies of each symbol we observe after seeing a suffix.</p>
-<p>For example if the alphabet is $\mathcal{A} = \text{ \{a ,b ,n\}}$ and the sequence &ldquo;$\text{bananan}$&rdquo; here is one possible depth $D=2$ tree (suffixes are read from bottom up)</p>
+<p>A simpler option is a <em>tree model</em>. We assume that \(P(x_n)\) depends on at most \(D\) of the previous symbols (in probability lingo, a \(D\)-Markov model).</p>
+<p>The main idea is to build a suffix tree (or trie) from the source. Given past symbols \(x_{n-D},&hellip;,x_{n-1}\) (also known as the _context_) we take the last \(k \le D\) as the suffix. We are free to choose \(k\), and it can vary between contexts.   We then record the frequencies of each symbol we observe after seeing a suffix.</p>
+<p>For example if the alphabet is \(\mathcal{A} = \text{ \{a ,b ,n\}}\) and the sequence &ldquo;\(\text{bananan}\)&rdquo; here is one possible depth \(D=2\) tree (suffixes are read from bottom up)</p>
 
 
 <div class="box">
@@ -414,27 +414,27 @@ endfor
   </figure>
 </div>
 
-<p>Each leaf has three counters (# $\text{a}$&rsquo;s, # $\text{b}$&rsquo;s , #$\text{n}$&rsquo;s). E.g. &ldquo;$\text{n}$&rdquo; appears two times after the suffix &ldquo;$\text{na}$&rdquo;. A tree like this is called a <em>prediction suffix tree</em> (PST). We can make rough estimates of the probability using the statistics stored in the leaves with e.g. a <a href="https://en.wikipedia.org/wiki/Beta_distribution">Beta distribution</a>. Another common choice is the <a href="https://en.wikipedia.org/wiki/Krichevsky%E2%80%93Trofimov_estimator">Krichevsky-Trofimov estimator</a>.</p>
+<p>Each leaf has three counters (# \(\text{a}\)&rsquo;s, # \(\text{b}\)&rsquo;s , #\(\text{n}\)&rsquo;s). E.g. &ldquo;\(\text{n}\)&rdquo; appears two times after the suffix &ldquo;\(\text{na}\)&rdquo;. A tree like this is called a <em>prediction suffix tree</em> (PST). We can make rough estimates of the probability using the statistics stored in the leaves with e.g. a <a href="https://en.wikipedia.org/wiki/Beta_distribution">Beta distribution</a>. Another common choice is the <a href="https://en.wikipedia.org/wiki/Krichevsky%E2%80%93Trofimov_estimator">Krichevsky-Trofimov estimator</a>.</p>
 <p>A similar idea combined with the Lempel-Ziv algorithm forms the basis for the &ldquo;Prediction by Partial Matching&rdquo; algorithm, which is considered one of the top-performing tree models <a href="#references">[3]</a>.</p>
 <h2 id="context-tree-weighting">Context Tree Weighting</h2>
-<p>Context Tree Weighting (CTW) is a beautiful algorithm invented by Willems, Shtarkov, and Tjalkens <a href="#references">[1]</a> that efficiently computes a weighted sum over all prediction suffix trees of depth $D$ for a binary alphabet. Naively, this would take $O(2^D)$, while CTW computes it in $O(D)$.</p>
-<p>We first build a complete binary tree of depth $D$, called the context tree. Like a prediction suffix tree, each node is labeled by its corresponding suffix $s$. Each node stores the frequencies of 0&rsquo;s and 1&rsquo;s that occur after suffix $s$, and computes a probability $P^s$ recursively from its children as follows: Let $x_1\dots x_n$ be the past symbols, then the probability stored at the node $s$ is defined as</p>
+<p>Context Tree Weighting (CTW) is a beautiful algorithm invented by Willems, Shtarkov, and Tjalkens <a href="#references">[1]</a> that efficiently computes a weighted sum over all prediction suffix trees of depth \(D\) for a binary alphabet. Naively, this would take \(O(2^D)\), while CTW computes it in \(O(D)\).</p>
+<p>We first build a complete binary tree of depth \(D\), called the context tree. Like a prediction suffix tree, each node is labeled by its corresponding suffix \(s\). Each node stores the frequencies of 0&rsquo;s and 1&rsquo;s that occur after suffix \(s\), and computes a probability \(P^s\) recursively from its children as follows: Let \(x_1\dots x_n\) be the past symbols, then the probability stored at the node \(s\) is defined as</p>
 <p>$$
 P^s = \begin{cases}P_e(x_{1}^n) &amp; \text{ if } s \text{ is a leaf }\cr
 \frac{1}{2}\left(P_e(x_{1}^n) + P^{s0}P^{s1}\right)&amp; \text{ otherwise.} \end{cases}
 $$</p>
-<p>Here $P_e$ is a probability estimate based on the frequencies stored at $s$ (in the original paper it is the <a href="https://en.wikipedia.org/wiki/Krichevsky%E2%80%93Trofimov_estimator">KT estimator</a>) and $s0$, $s1$ denote the children of $s$.</p>
-<p>So we just average the frequency estimate with the predictions of the children nodes. Simple, right? But what is the probability we get at the root node, corresponding to the empty suffix $\epsilon$? Brace for notation&hellip; it is</p>
+<p>Here \(P_e\) is a probability estimate based on the frequencies stored at \(s\) (in the original paper it is the <a href="https://en.wikipedia.org/wiki/Krichevsky%E2%80%93Trofimov_estimator">KT estimator</a>) and \(s0\), \(s1\) denote the children of \(s\).</p>
+<p>So we just average the frequency estimate with the predictions of the children nodes. Simple, right? But what is the probability we get at the root node, corresponding to the empty suffix \(\epsilon\)? Brace for notation&hellip; it is</p>
 <p>$$
 P^{\epsilon} = \sum_{T \in \mathcal{M}_D}2^{-\Gamma_D(T)}P(x_1^n \mid T)
 $$</p>
 <p>where</p>
 <ul>
-<li>$\mathcal{M}_D$ is the set of all PST&rsquo;s of depth at most $D$</li>
-<li>$P(x_1^n \mid T)$ is the probability of $x_1\dots x_n$ according to the PST $T$</li>
-<li>$\Gamma_D(T)$ is the number of nodes of $T$ minus the number of leaves at depth $D$</li>
+<li>\(\mathcal{M}_D\) is the set of all PST&rsquo;s of depth at most \(D\)</li>
+<li>\(P(x_1^n \mid T)\) is the probability of \(x_1\dots x_n\) according to the PST \(T\)</li>
+<li>\(\Gamma_D(T)\) is the number of nodes of \(T\) minus the number of leaves at depth \(D\)</li>
 </ul>
-<p>Well we certainly have a weighted sum of PST predictions, but what is this $\Gamma_D$? It is actually the length of the optimal <a href="https://en.wikipedia.org/wiki/Prefix_code">prefix code</a> for the tree $T$, i.e. the number of bits needed to describe $T$. Thus each each prediction suffix tree is weighted by an Occam&rsquo;s razor-like penalty.</p>
+<p>Well we certainly have a weighted sum of PST predictions, but what is this \(\Gamma_D\)? It is actually the length of the optimal <a href="https://en.wikipedia.org/wiki/Prefix_code">prefix code</a> for the tree \(T\), i.e. the number of bits needed to describe \(T\). Thus each each prediction suffix tree is weighted by an Occam&rsquo;s razor-like penalty.</p>
 <p>To make predictions with CTW we use the root probability, then update the path in the tree corresponding to the context when we receive the next symbol. The original paper proves a sharp bound on the redundancy of the code computed by CTW (Theorem 2).</p>
 <h3 id="sidenote-compression--agi">Sidenote: Compression = AGI?</h3>
 <p>Anyone into data compression probably knows about the <a href="http://prize.hutter1.net/">Hutter prize</a>, a cash prize for compressing the first GB of Wikipedia to smaller than the current record (116 MB). Hutter&rsquo;s slogan is &ldquo;Compression = AGI,&rdquo; a (rather exaggerated) summary of the principle behind <a href="https://en.wikipedia.org/wiki/AIXI">AIXI</a>.</p>
@@ -442,11 +442,11 @@ $$</p>
 <p>Although theoretically optimal, the AIXI action function is infeasible to compute directly.<br>
 What is so interesting about CTW is that the probability it computes is a mixture of models weighted by complexity (for a restricted set of models) <em>and</em> it is efficient to compute. For this reason Veness et. al [<a href="#references">5</a>] used CTW in their AIXI approximation algorithm. Other mixture models have also become popular in data compression algorithms (You can for example run several probability models in parallel).</p>
 <h3 id="ctw-extensions">CTW Extensions</h3>
-<p>The binary CTW can be extended to non-binary alphabets by replacing $P^{s0}P^{s1}$ by a product over all children of $s$ in the recursive formula. However the straightforward method of making direct predictions hasn&rsquo;t had much empirical success, especially with large alphabets.</p>
+<p>The binary CTW can be extended to non-binary alphabets by replacing \(P^{s0}P^{s1}\) by a product over all children of \(s\) in the recursive formula. However the straightforward method of making direct predictions hasn&rsquo;t had much empirical success, especially with large alphabets.</p>
 <p>In practice, CTW is good at making binary predictions, although it can still have non-binary contexts. How can we convert binary predictions to general symbol predictions?</p>
-<p>The obvious way to do this is to first choose a binary code for the alphabet $\mathcal{A}$, then predict each bit. This is the idea behind a &ldquo;decomposition tree,&rdquo; which is basically a binary search tree. The leaves of the tree are the elements of $\mathcal{A}$, and each internal node has a context tree (a tree of trees) whose job is to predict whether a symbol is in the left or right subtree of the node.</p>
-<p>The probability of a symbol $a \in \mathcal{A}$ is then calculated as the product of the probabilities on the path from the root to the leaf $a$.
-For example, here is a possible decomposition tree for $\mathcal{A} = \text{ \{b, a, n\}}$.</p>
+<p>The obvious way to do this is to first choose a binary code for the alphabet \(\mathcal{A}\), then predict each bit. This is the idea behind a &ldquo;decomposition tree,&rdquo; which is basically a binary search tree. The leaves of the tree are the elements of \(\mathcal{A}\), and each internal node has a context tree (a tree of trees) whose job is to predict whether a symbol is in the left or right subtree of the node.</p>
+<p>The probability of a symbol \(a \in \mathcal{A}\) is then calculated as the product of the probabilities on the path from the root to the leaf \(a\).
+For example, here is a possible decomposition tree for \(\mathcal{A} = \text{ \{b, a, n\}}\).</p>
 
 
 <div class="box">
@@ -463,14 +463,14 @@ For example, here is a possible decomposition tree for $\mathcal{A} = \text{ \{b
   </figure>
 </div>
 
-<p>Context Tree 1 predicts whether the next symbol will be $\text{b}$ or not, and context tree 2 decides between $\text{a}$ and $\text{n}$.</p>
+<p>Context Tree 1 predicts whether the next symbol will be \(\text{b}\) or not, and context tree 2 decides between \(\text{a}\) and \(\text{n}\).</p>
 <p>One drawback of this approach is that the performance is sensitive to the topology of the decomposition tree. One choice is <a href="https://en.wikipedia.org/wiki/Huffman_coding">the Huffman tree</a>, which minimizes the number of context trees updates that are required.</p>
 <p>In general we want to find groupings of the symbols which are &ldquo;similar,&rdquo; in some way. We could for example collect statistics on co-occurence of symbols à la <a href="https://nlp.stanford.edu/projects/glove/">GloVe</a>. Once we decide on a decomposition tree, we have to describe it to the decompressor, but this is only a few more bytes overhead.</p>
 <h2 id="implementation-and-experiments">Implementation and Experiments</h2>
 <p>To experiment I wrote a <a href="https://github.com/meiji163/ctwz">simple implementation</a> of CTW using a Huffman decomposition tree.</p>
-<p>The main difficulty in implementation is the precision of the probabilities. The original form of the arithmetic encoder requires arbitrary precision. To make it practical we can use finite precision and output a bit once the leading bits of $U$ and $L$ are equal. Then we scale the whole interval by $2$. A more clever version of this scaling was invented by Witten, Neal, and Cleary <a href="#references">[6]</a>, which is the version I used.</p>
+<p>The main difficulty in implementation is the precision of the probabilities. The original form of the arithmetic encoder requires arbitrary precision. To make it practical we can use finite precision and output a bit once the leading bits of \(U\) and \(L\) are equal. Then we scale the whole interval by \(2\). A more clever version of this scaling was invented by Witten, Neal, and Cleary <a href="#references">[6]</a>, which is the version I used.</p>
 <p>The original CTW algorithm also needs modification. The main technique is to store a ratio of probabilities in the nodes to handle float-point errors. The exact method I used is the one described in <a href="#references">[4]</a>.</p>
-<p>I tested my implementation with depth $D=12$ on some text data from the <a href="https://www.corpus.canterbury.ac.nz/">Canterbury corpus</a>. For comparison I also compressed the files with Unix&rsquo;s &ldquo;compress&rdquo; and gzip on default settings. Both use variants of the Lempel-Ziv algorithm.</p>
+<p>I tested my implementation with depth \(D=12\) on some text data from the <a href="https://www.corpus.canterbury.ac.nz/">Canterbury corpus</a>. For comparison I also compressed the files with Unix&rsquo;s &ldquo;compress&rdquo; and gzip on default settings. Both use variants of the Lempel-Ziv algorithm.</p>
 <table>
 <thead>
 <tr>
@@ -514,8 +514,6 @@ For example, here is a possible decomposition tree for $\mathcal{A} = \text{ \{b
 <th style="text-align:center">ctw</th>
 <th style="text-align:center">compress</th>
 <th style="text-align:center">gzip</th>
-<th></th>
-<th></th>
 </tr>
 </thead>
 <tbody>
@@ -524,46 +522,36 @@ For example, here is a possible decomposition tree for $\mathcal{A} = \text{ \{b
 <td style="text-align:center">4.21</td>
 <td style="text-align:center">2.24</td>
 <td style="text-align:center">3.55</td>
-<td></td>
-<td></td>
 </tr>
 <tr>
 <td style="text-align:center">grammar.lsp</td>
 <td style="text-align:center">3.65</td>
 <td style="text-align:center">2.05</td>
 <td style="text-align:center">2.99</td>
-<td></td>
-<td></td>
 </tr>
 <tr>
 <td style="text-align:center">plrabn12.txt</td>
 <td style="text-align:center">3.15</td>
 <td style="text-align:center">2.37</td>
 <td style="text-align:center">2.48</td>
-<td></td>
-<td></td>
 </tr>
 <tr>
 <td style="text-align:center">bible.txt</td>
 <td style="text-align:center">4.50</td>
 <td style="text-align:center">3.39</td>
 <td style="text-align:center">3.39</td>
-<td></td>
-<td></td>
 </tr>
 <tr>
 <td style="text-align:center">E.coli</td>
 <td style="text-align:center">4.09</td>
 <td style="text-align:center">3.69</td>
 <td style="text-align:center">3.56</td>
-<td></td>
-<td></td>
 </tr>
 </tbody>
 </table>
-<p>It is interesting to look at the predictions CTW makes. It is particularly good at detecting basic structure like spaces between words, braces, parenthesis, etc. and repeated words and phrases. For example in fields.c consistently predicts ( $p \approx 0.8$) that function declarations like <code>realloc ()</code> are followed by <code>;</code> and that comments starting with <code>/*</code> end with <code>*/</code>.</p>
-<p>In <code>bible.txt</code>, it is particularly good at predicting common words like &ldquo;God&rdquo; (big surprise). The probabilities for E.coli are actually rarely greater than $0.3$. Since $\mathcal{A} = \text{\{g, c, t, a\}}$ , the compression in this case is mainly due to the fact that the alphabet is small.</p>
-<p>We can see CTW is basically finding the &ldquo;low hanging fruits&rdquo; of redundancy. This is about all we can expect, since we know Markov models aren&rsquo;t particularly good at learning grammatical structures.</p>
+<p>It is interesting to look at the predictions CTW makes. It is particularly good at detecting basic structure like spaces between words, braces, parenthesis, etc. and repeated words and phrases. For example in fields.c consistently predicts ( \(p \approx 0.8\)) that function declarations like <code>realloc ()</code> are followed by <code>;</code> and that comments starting with <code>/*</code> end with <code>*/</code>.</p>
+<p>In <code>bible.txt</code>, it is particularly good at predicting common words like &ldquo;God&rdquo; (big surprise). The probabilities for E.coli are actually rarely greater than \(0.3\). Since \(\mathcal{A} = \text{\{g, c, t, a\}}\) , the compression in this case is mainly due to the fact that the alphabet is small.</p>
+<p>We can see CTW is basically finding the &ldquo;low hanging fruit&rdquo; of redundancy. This is about all we can expect, since we know Markov models aren&rsquo;t particularly good at learning grammatical structures.</p>
 <p>Although CTW compares favorably on these text files, my implementation failed miserably when I tried it on binary data (possible due to my janky code). My implementation is also 5-10 times slower than gzip and compress on large files, and undoubtedly uses much more memory.</p>
 <p>The good news is there is a lot of room for improvement. Obvious optimizations would be parallelizing the context trees and using fixed-point arithmetic instead of doubles. I highly recommend Volf&rsquo;s thesis <a href="#references">[4]</a>, in which he documents his CTW compressor project in great detail. He uses the previously mentioned optimizations (and many more) to satisfy a memory limit of 32MB and a compression speed of around 10kB/s.</p>
 <h2 id="conclusion">Conclusion</h2>

@@ -14,7 +14,7 @@
       
       <guid>https://meiji163.github.io/post/context-tree-weighting/</guid>
       <description>In this post I go over the basics of data compression with arithmetic coding and describe the Context Tree Weighting algorithm. At the end I discuss implementation and some experimental results.
-Information Theory Review First a quick review of information theory. Suppose that we receive some data $x$ drawn from a discrete random variable $X$, whose probability distribution is $P$. Then the Shannon information content of $x$ is defined as</description>
+Information Theory Review First a quick review of information theory. Suppose that we receive some data \(x\) drawn from a discrete random variable \(X\), whose probability distribution is \(P\). Then the Shannon information content of \(x\) is defined as</description>
     </item>
     
     <item>
@@ -24,7 +24,7 @@ Information Theory Review First a quick review of information theory. Suppose th
       
       <guid>https://meiji163.github.io/post/sum-of-squares/</guid>
       <description>In this post I show how writing primes as the sum of two squares is related to factoring Gaussian integers. I then describe an algorithm to compute the sum of two squares representation.
-Gaussian Integers I have a special penchant for Gaussian integers because they are the first ring I learned about (besides the regular integers of course). Mathematically, they are the set of complex numbers $a+bi$ with $a,b$ integers, and they are denoted as $\mathbb{Z}[i]$.</description>
+Gaussian Integers I have a special penchant for Gaussian integers because they are the first ring I learned about (besides the regular integers of course). Mathematically, they are the set of complex numbers \(a+bi\) with \(a,b\) integers, and they are denoted as \(\mathbb{Z}[i]\).</description>
     </item>
     
     <item>
@@ -34,7 +34,7 @@ Gaussian Integers I have a special penchant for Gaussian integers because they a
       
       <guid>https://meiji163.github.io/post/conformal-rigidity/</guid>
       <description>In this post I summarize the content and proof of Liouville&amp;rsquo;s Theorem on Conformal Rigidity, which I learned in 2018 from Professor Alex Austin (now at RIT) in his class at UCLA.
-Conformal Maps A conformal transformation is one that preserves angles. In two dimensions, this is equivalent to being holomorphic and having a non-vanishing derivative. There are tons of these transformations (my personal favorites are Mobius transformations). In fact, the famous Riemann mapping Theorem asserts that any simply connected domain $U \subset \mathbb{C}$ admits a bijective conformal map $f: U \to \mathbb{D}$ to the unit disc.</description>
+Conformal Maps A conformal transformation is one that preserves angles. In two dimensions, this is equivalent to being holomorphic and having a non-vanishing derivative. There are tons of these transformations (my personal favorites are Mobius transformations). In fact, the famous Riemann mapping Theorem asserts that any simply connected domain \( U \subset \mathbb{C} \) admits a bijective conformal map \(f: U \to \mathbb{D}\) to the unit disc.</description>
     </item>
     
   </channel>

@@ -3,7 +3,7 @@
   
   <url>
     <loc>https://meiji163.github.io/about/</loc>
-    <lastmod>2017-08-28T21:41:52+08:00</lastmod>
+    <lastmod>2021-08-28T21:41:52+08:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
@@ -87,6 +87,13 @@
   
   <url>
     <loc>https://meiji163.github.io/tags/conformal/</loc>
+    <lastmod>2021-01-23T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://meiji163.github.io/categories/educational/</loc>
     <lastmod>2021-01-23T00:00:00+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>

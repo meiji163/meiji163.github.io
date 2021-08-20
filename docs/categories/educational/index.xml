@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>number theory on meiji163</title>
-    <link>https://meiji163.github.io/categories/number-theory/</link>
-    <description>Recent content in number theory on meiji163</description>
+    <title>educational on meiji163</title>
+    <link>https://meiji163.github.io/categories/educational/</link>
+    <description>Recent content in educational on meiji163</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
-    <lastBuildDate>Sat, 23 Jan 2021 00:00:00 +0000</lastBuildDate><atom:link href="https://meiji163.github.io/categories/number-theory/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sat, 23 Jan 2021 00:00:00 +0000</lastBuildDate><atom:link href="https://meiji163.github.io/categories/educational/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Fast Sum of Two Squares Algorithm</title>
       <link>https://meiji163.github.io/post/sum-of-squares/</link>

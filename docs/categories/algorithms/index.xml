@@ -14,7 +14,7 @@
       
       <guid>https://meiji163.github.io/post/context-tree-weighting/</guid>
       <description>In this post I go over the basics of data compression with arithmetic coding and describe the Context Tree Weighting algorithm. At the end I discuss implementation and some experimental results.
-Information Theory Review First a quick review of information theory. Suppose that we receive some data $x$ drawn from a discrete random variable $X$, whose probability distribution is $P$. Then the Shannon information content of $x$ is defined as</description>
+Information Theory Review First a quick review of information theory. Suppose that we receive some data \(x\) drawn from a discrete random variable \(X\), whose probability distribution is \(P\). Then the Shannon information content of \(x\) is defined as</description>
     </item>
     
     <item>
@@ -24,7 +24,7 @@ Information Theory Review First a quick review of information theory. Suppose th
       
       <guid>https://meiji163.github.io/post/sum-of-squares/</guid>
       <description>In this post I show how writing primes as the sum of two squares is related to factoring Gaussian integers. I then describe an algorithm to compute the sum of two squares representation.
-Gaussian Integers I have a special penchant for Gaussian integers because they are the first ring I learned about (besides the regular integers of course). Mathematically, they are the set of complex numbers $a+bi$ with $a,b$ integers, and they are denoted as $\mathbb{Z}[i]$.</description>
+Gaussian Integers I have a special penchant for Gaussian integers because they are the first ring I learned about (besides the regular integers of course). Mathematically, they are the set of complex numbers \(a+bi\) with \(a,b\) integers, and they are denoted as \(\mathbb{Z}[i]\).</description>
     </item>
     
   </channel>

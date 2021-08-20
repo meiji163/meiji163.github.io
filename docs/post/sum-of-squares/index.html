@@ -24,7 +24,7 @@
 
 <meta name="author" content="meiji163" />
   <meta name="description" content="In this post I show how writing primes as the sum of two squares is related to factoring Gaussian integers. I then describe an algorithm to compute the sum of two squares representation.
-Gaussian Integers I have a special penchant for Gaussian integers because they are the first ring I learned about (besides the regular integers of course). Mathematically, they are the set of complex numbers $a&#43;bi$ with $a,b$ integers, and they are denoted as $\mathbb{Z}[i]$." />
+Gaussian Integers I have a special penchant for Gaussian integers because they are the first ring I learned about (besides the regular integers of course). Mathematically, they are the set of complex numbers \(a&#43;bi\) with \(a,b\) integers, and they are denoted as \(\mathbb{Z}[i]\)." />
 
   <meta name="keywords" content="Hugo, theme, jane" />
 
@@ -33,7 +33,7 @@ Gaussian Integers I have a special penchant for Gaussian integers because they a
 
 
 
-<meta name="generator" content="Hugo 0.87.0" />
+<meta name="generator" content="Hugo 0.86.0" />
 
 
 <link rel="canonical" href="https://meiji163.github.io/post/sum-of-squares/" />
@@ -64,7 +64,7 @@ Gaussian Integers I have a special penchant for Gaussian integers because they a
 
 <meta property="og:title" content="Fast Sum of Two Squares Algorithm" />
 <meta property="og:description" content="In this post I show how writing primes as the sum of two squares is related to factoring Gaussian integers. I then describe an algorithm to compute the sum of two squares representation.
-Gaussian Integers I have a special penchant for Gaussian integers because they are the first ring I learned about (besides the regular integers of course). Mathematically, they are the set of complex numbers $a&#43;bi$ with $a,b$ integers, and they are denoted as $\mathbb{Z}[i]$." />
+Gaussian Integers I have a special penchant for Gaussian integers because they are the first ring I learned about (besides the regular integers of course). Mathematically, they are the set of complex numbers \(a&#43;bi\) with \(a,b\) integers, and they are denoted as \(\mathbb{Z}[i]\)." />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://meiji163.github.io/post/sum-of-squares/" /><meta property="article:section" content="post" />
 <meta property="article:published_time" content="2021-01-23T00:00:00+00:00" />
@@ -72,13 +72,13 @@ Gaussian Integers I have a special penchant for Gaussian integers because they a
 
 <meta itemprop="name" content="Fast Sum of Two Squares Algorithm">
 <meta itemprop="description" content="In this post I show how writing primes as the sum of two squares is related to factoring Gaussian integers. I then describe an algorithm to compute the sum of two squares representation.
-Gaussian Integers I have a special penchant for Gaussian integers because they are the first ring I learned about (besides the regular integers of course). Mathematically, they are the set of complex numbers $a&#43;bi$ with $a,b$ integers, and they are denoted as $\mathbb{Z}[i]$."><meta itemprop="datePublished" content="2021-01-23T00:00:00+00:00" />
+Gaussian Integers I have a special penchant for Gaussian integers because they are the first ring I learned about (besides the regular integers of course). Mathematically, they are the set of complex numbers \(a&#43;bi\) with \(a,b\) integers, and they are denoted as \(\mathbb{Z}[i]\)."><meta itemprop="datePublished" content="2021-01-23T00:00:00+00:00" />
 <meta itemprop="dateModified" content="2021-01-23T00:00:00+00:00" />
-<meta itemprop="wordCount" content="1154">
+<meta itemprop="wordCount" content="1520">
 <meta itemprop="keywords" content="Gaussian integers,number theory,algorithms," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Fast Sum of Two Squares Algorithm"/>
 <meta name="twitter:description" content="In this post I show how writing primes as the sum of two squares is related to factoring Gaussian integers. I then describe an algorithm to compute the sum of two squares representation.
-Gaussian Integers I have a special penchant for Gaussian integers because they are the first ring I learned about (besides the regular integers of course). Mathematically, they are the set of complex numbers $a&#43;bi$ with $a,b$ integers, and they are denoted as $\mathbb{Z}[i]$."/>
+Gaussian Integers I have a special penchant for Gaussian integers because they are the first ring I learned about (besides the regular integers of course). Mathematically, they are the set of complex numbers \(a&#43;bi\) with \(a,b\) integers, and they are denoted as \(\mathbb{Z}[i]\)."/>
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
@@ -305,6 +305,7 @@ Gaussian Integers I have a special penchant for Gaussian integers because they a
           2021-01-23
         </time>
         <div class="post-category">
+            <a href="https://meiji163.github.io/categories/educational/"> educational </a>
             <a href="https://meiji163.github.io/categories/number-theory/"> number theory </a>
             <a href="https://meiji163.github.io/categories/algorithms/"> algorithms </a>
             
@@ -326,9 +327,12 @@ Gaussian Integers I have a special penchant for Gaussian integers because they a
   <div class="post-toc-content">
     <nav id="TableOfContents">
   <ul>
-    <li><a href="#gaussian-integers">Gaussian Integers</a>
+    <li><a href="#gaussian-integers">Gaussian Integers</a></li>
+    <li><a href="#sums-of-two-squares">Sums of Two Squares</a>
       <ul>
-        <li><a href="#finding-sums-of-squares">Finding Sums of Squares</a></li>
+        <li><a href="#the-algorithm">The Algorithm</a></li>
+        <li><a href="#an-example">An Example</a></li>
+        <li><a href="#complexity-analysis">Complexity Analysis</a></li>
       </ul>
     </li>
     <li><a href="#implementation">Implementation</a></li>
@@ -343,17 +347,18 @@ Gaussian Integers I have a special penchant for Gaussian integers because they a
       <p>In this post I show how writing primes as the sum of two squares is related to factoring Gaussian integers. I then describe an algorithm to compute the sum of two squares representation.</p>
 <h2 id="gaussian-integers">Gaussian Integers</h2>
 <p>I have a special penchant for Gaussian integers because they are the first ring I learned about (besides the regular integers of course).
-Mathematically, they are the set of complex numbers $a+bi$ with $a,b$ integers, and they are denoted as $\mathbb{Z}[i]$.</p>
-<p>We can add, subtract, and multiply Gaussian integers making it a structure called a <strong>ring</strong>.
-However, $\mathbb{Z}[i]$ is a very special type of ring because it has a norm</p>
-<p>If we have two Gaussian integers $z_1$ and $z_2 \ne 0$, we can divide $z_1$ by $z_2$</p>
+Mathematically, they are the set of complex numbers \(a+bi\) with \(a,b\) integers, and they are denoted as \(\mathbb{Z}[i]\).</p>
+<p>We can add, subtract, and multiply Gaussian integers making it into an algebraic structure called a <strong>ring</strong>.
+However, \(\mathbb{Z}[i]\) is a very special type of ring because it has a norm (which is just the square of the familiar Euclidean norm)</p>
+<p>$$N(a+bi) = a^2 + b^2.$$</p>
+<p>The norm allows us to do the Euclidean algorithm in \(\mathbb{Z}[i]\) in the same way as in the regular integers \(\mathbb{Z}\). This type of ring is called a <a href="https://en.wikipedia.org/wiki/Euclidean_domain">Euclidean domain</a>.</p>
+<p>In other words, if we have two Gaussian integers \(z_1\) and \(z_2 \ne 0\), we can divide \(z_1\) by \(z_2\)</p>
 <p>$$z_1 = q z_2 + r$$</p>
-<p>where $q,r \in \mathbb{Z}[i]$ and $N(r) &lt; N(z_2)$. That means the Euclidean algorithm works the same as in the
-regular integers! This type of ring is called a <a href="https://en.wikipedia.org/wiki/Euclidean_domain">Euclidean domain</a>.</p>
-<p>If the remainder $r = 0$, then we say $z_1$ is divisible by $z_2$. A <strong>Gaussian prime</strong> is a Gaussian integer that
-has no divisors except for itself, and the units $\pm 1, \pm i$.
+<p>where \(q,r \in \mathbb{Z}[i]\) and \(N(r) &lt; N(z_2)\).</p>
+<p>If the remainder \(r = 0\), then we say \(z_1\) is divisible by \(z_2\). A <strong>Gaussian prime</strong> is a Gaussian integer that
+has no divisors except for itself, and the units \(\pm 1, \pm i\).
 It is a theorem in algebra that every Euclidean domain has unique factorization, that is,
-we can factor every Gaussian integer into Gaussian primes in a unique way (up to multiplication by $\pm 1, \pm i$).</p>
+we can factor every Gaussian integer into Gaussian primes in a unique way</p>
 <p>Plotting the Guassian primes on the complex plane makes quite a pretty pattern.</p>
 
 <link rel="stylesheet" href="/css/hugo-easy-gallery.css" />
@@ -367,54 +372,149 @@ we can factor every Gaussian integer into Gaussian primes in a unique way (up to
   </figure>
 </div>
 
-<p>One thing you might wonder is how the familiar integer primes $2,3,5,7,\dots$ are related to
-the Gaussian primes. For example $2 = (1+i)(1-i)$ so it is not a Guassian prime!
+<p>One thing you might wonder is how the familiar integer primes \(2,3,5,7,\dots\) are related to
+the Gaussian primes.</p>
+<p>For example \(2 = (1+i)(1-i)\) so it is not a Guassian prime!
 It turns out we can describe the relationship very simply:</p>
 <p><strong>Theorem</strong>:
-Let $p&gt;2$ be an integer prime.
-Then $p$ is a Gaussian prime if and only if $p \equiv 3 \pmod{4}$.</p>
-<p>This is closely related to the problem of representing an integer as the sum of two squares,
-since if we can factor $p = (a+bi)(a-bi)$ then $p = a^2 +b^2$. Moreover, if $q = (c+di)(c-di)$
-is also the sum of two squares, then so is $pq$ since</p>
-<p>$$pq = ((ac-bd)+i(ad+bc))((ac-bd)-i(ac+bd))$$</p>
+Let \(p&gt;2\) be an integer prime.
+Then \(p\) is a Gaussian prime if and only if \(p \equiv 3 \pmod{4}\).</p>
+<h2 id="sums-of-two-squares">Sums of Two Squares</h2>
+<p>Factoring an integer in Gaussian integers is closely related to representing that integer as the sum of two squares.</p>
+<p>If we can factor \(p = (a+bi)(a-bi)\) then \(p = a^2 +b^2\). <br>
+Moreover, if \(q = (c+di)(c-di)\) is also the sum of two squares, then so is \(pq\) since</p>
+<p>$$pq = ((ac-bd)+i(ad+bc))((ac-bd)-i(ac+bd)).$$</p>
 <p>From this we can determine all integers that can be represented as a sum of two squares
-by looking at the primes in its prime factorization (in regular integers).
-For example, $15 = 3\cdot 5$ is not the sum of squares because we can&rsquo;t factor the $3$ in Gaussian integers.</p>
-<h3 id="finding-sums-of-squares">Finding Sums of Squares</h3>
+by looking at the primes in its prime factorization (in regular integers).</p>
+<p>For example, \(15 = 3\cdot 5\) is not the sum of squares because we can&rsquo;t factor the \(3\) in Gaussian integers.</p>
+<h3 id="the-algorithm">The Algorithm</h3>
 <p>How can we efficiently factor primes in the Gaussian integers? Here is one
-very fast way due to Serret and Hermite. Let $p = 4k+1$ be prime.</p>
+very fast way due to Serret and Hermite. Let \(p = 4k+1\) be prime.</p>
 <ol>
-<li>Find a quadratic non-residue c mod p</li>
-<li>Let x = c<!-- raw HTML omitted -->(p-1)/4<!-- raw HTML omitted -->  mod p so that x<!-- raw HTML omitted -->2<!-- raw HTML omitted --> = -1 mod p (this follows from <a href="https://en.wikipedia.org/wiki/Euler%27s_criterion">Euler&rsquo;s criterion</a> )</li>
-<li>Use the Euclidean algorithm on p and x until we get two remainders s,r &lt; √p</li>
+<li>Find a quadratic non-residue \(c \mod{p}\)</li>
+<li>Let \(x = c^{(p-1)/4} \mod{p}\) so that \(x^2 \equiv -1 \mod{p}\) (by <a href="https://en.wikipedia.org/wiki/Euler%27s_criterion">Euler&rsquo;s criterion</a> )</li>
+<li>Use the Euclidean algorithm on \(p\) and \(x\) until we get two remainders \(s,r &lt; \sqrt{p}\) that satisfy \(p = r^2+s^2\).</li>
 </ol>
-<p>Then, magically $p = r^2+s^2$.</p>
-<p>The idea of the algorithm is to use a symmetry in the Euclidean algorithm.
-In the Euclidean algorithm, we have a sequence of remainders $r_0 = p, r_1 = x, r_2, \dots, r_n$ that end with the
-greatest common divisor $r_n = \gcd(p, x) = 1$. We compute these recursively:</p>
-<p>$$r_{i-1} = q_{i}r_{i}+ r_{i+1}$$</p>
-<p>where $q_i = \lfloor r_{i-1}/r_{i} \rfloor$ is the quotient. We can define another sequence $(t_i)$ by the
-same recurrence, but with initial values $t_0 = 0$, $t_1 = 1$. It turns out that this sequence is just the
-reverse of the sequence $(r_i)$, up to signs. Moreover, one can see using the recurrence that</p>
-<p>$$t_i x \equiv r_i \pmod{p}$$</p>
-<p>for all i. This is the key equation, because we can square this equation and use $x^2 \equiv -1 \pmod{p}$ to get</p>
-<p>$$t_i^2 + r_i^2 \equiv 0 \pmod{p}$$</p>
-<p>From here we just need to find the $t_i$ and $r_i$ that are the right size. I encourage you to work out the details.
-If you get stuck, most of the proof is in <a href="https://www.jstor.org/stable/2323912">this article</a>.</p>
+<p>Recall that a quadratic residue mod \(p\) is an integer a such that \(a \equiv b^2 \mod{p}\) for some integer b<sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup>.</p>
+<p>Why does the algorithm work? The idea is to use a symmetry in the Euclidean algorithm.
+In the Euclidean algorithm, we have a sequence of remainders \(r_0, r_1, r_2, \dots, r_n\) that end with the
+greatest common divisor \(r_n = \gcd(r_0, r_1)\).</p>
+<p>We compute these recursively with initial values \(r_0=p, r_1=x\):</p>
+<p>$$r_{i-1} = q_{i}r_{i}+ r_{i+1} \quad \text{ where } q_i = \lfloor r_{i-1}/r_{i} \rfloor.$$</p>
+<p>We can define another sequence \((t_i)\) by the
+same recurrence, but with initial values \(t_0 = 0\), \(t_1 = 1\):</p>
+<p>$$t_{i-1} = q_it_i + t{i+1} \quad \text{ where } q_i = \lfloor r_{i-1}/r_{i} \rfloor.$$</p>
+<p>It turns out that the \((t_i)\) sequence is just the reverse of the sequence \((r_i)\), up to signs.</p>
+<p>Moreover, one can see using the recurrence that \(t_i x \equiv r_i \pmod{p}\) for all i.<br>
+Square this equation and use \(x^2 \equiv -1 \pmod{p}\) to get \(t_i^2 + r_i^2 \equiv 0 \pmod{p}\). <br>
+From there we just need to find the \(t_i\) and \(r_i\) that are the right size so that \(t_i^2+r_i^2=p\).</p>
+<p>I encourage you to work out the details and try to prove it. (If you get stuck, most of the proof is in <a href="https://www.jstor.org/stable/2323912">this article</a>)</p>
+<h3 id="an-example">An Example</h3>
+<p>To see the algorithm at work, take \(p=157\), and \(x=28\) (so that \(x^2 \equiv -1 \mod{p}\)).</p>
+<p>The sequences \((r_i), (t_i), (q_i)\) are as follows:</p>
+<table>
+<thead>
+<tr>
+<th>index</th>
+<th>r</th>
+<th>t</th>
+<th>q</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>157</td>
+<td>0</td>
+<td>-</td>
+</tr>
+<tr>
+<td>1</td>
+<td>28</td>
+<td>1</td>
+<td>5</td>
+</tr>
+<tr>
+<td>2</td>
+<td>17</td>
+<td>-5</td>
+<td>1</td>
+</tr>
+<tr>
+<td>3</td>
+<td>11</td>
+<td>6</td>
+<td>1</td>
+</tr>
+<tr>
+<td>4</td>
+<td>6</td>
+<td>-11</td>
+<td>1</td>
+</tr>
+<tr>
+<td>5</td>
+<td>5</td>
+<td>17</td>
+<td>1</td>
+</tr>
+<tr>
+<td>6</td>
+<td>1</td>
+<td>-28</td>
+<td>5</td>
+</tr>
+<tr>
+<td>7</td>
+<td>0</td>
+<td>157</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<p>Notice the symmetry and the alternating sign of the t-sequence.<br>
+Going to the middle of the sequence at index 3 or 4 we find \(11^2 + 6^2 = 157\).</p>
+<h3 id="complexity-analysis">Complexity Analysis</h3>
+<p>How fast is this algorithm given a prime p ?</p>
+<p>Step 3 of the algorithm (The Euclidean algorithm) is \(O(\log(p))\) by a <a href="https://en.wikipedia.org/wiki/Euclidean_algorithm#Algorithmic_efficiency">standard inductive argument</a>.
+The matter of finding a non-residue \(c\) is trickier to analyze.</p>
 <p>Assuming the <a href="https://en.wikipedia.org/wiki/Generalized_Riemann_hypothesis#Extended_Riemann_hypothesis_(ERH)">Generalized Riemann Hypothesis</a> is true,
-we only have to check $O( \log^2(p))$ numbers to find the non-residue $x$. Empirically, we rarely have to search more than $\log(p)$.
-The Euclidean algorithm is the faster part and is around $O(\log(p))$.</p>
+the theoretical upper bound on the least non-residue is \(2\log^2(p)\). In practice we rarely have to search more than \(\log(p).\) Quadratic resiudes and non-residues modulo a prime are &ldquo;equally distributed,&rdquo; but making this precise and proving it will lead you deep into number theory<sup id="fnref:2"><a href="#fn:2" class="footnote-ref" role="doc-noteref">2</a></sup>.</p>
+<p>In any case, the total time complexity is \( O(\log^2(p)) \).</p>
 <h2 id="implementation">Implementation</h2>
-<p>As an example, let&rsquo;s sieve a bunch of primes then find their sum of two squares representation.
-To find c we loop through the primes q that we found.<br>
-Since $p \equiv 1 \pmod{4}$, <a href="https://en.wikipedia.org/wiki/Quadratic_reciprocity">quadratic reciprocity</a> implies that
-$q$ is a quadratic residue mod $p$ if and only if $p$ is a quadratic residue mod $q$, which is much easier to check.
-We can do this using Euler&rsquo;s criterion.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="kt">int</span> <span class="nf">non_res</span><span class="p">(</span> <span class="kt">int</span> <span class="n">p</span><span class="p">,</span> <span class="k">const</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">primes</span><span class="p">){</span>
-    <span class="c1">//find a quadratic non-residue mod p
-</span><span class="c1"></span>    <span class="kt">int</span> <span class="n">q</span><span class="p">;</span>
+<p>To illustrate the algorithm, let&rsquo;s sieve a bunch of primes then find their sum of two squares representation. Here&rsquo;s a (slightly optimized)
+<a href="https://en.wikipedia.org/wiki/Sieve_of_Eratosthenes">Sieve of Eratosthenes</a> for sieving primes.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="c1">// sieve of eratosthenes
+</span><span class="c1"></span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">sieve</span><span class="p">(</span><span class="kt">int</span> <span class="n">max</span><span class="p">){</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">primes</span><span class="p">{</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span> <span class="p">};</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">bool</span><span class="o">&gt;</span> <span class="n">not_prime</span><span class="p">(</span><span class="n">max</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">);</span>
+	<span class="kt">bool</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
+	<span class="kt">int</span> <span class="n">j</span><span class="p">,</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">5</span><span class="p">;</span>
+	<span class="k">while</span><span class="p">(</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">max</span><span class="p">){</span>
+		<span class="k">if</span><span class="p">(</span><span class="n">not_prime</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="nb">false</span><span class="p">){</span>
+			<span class="n">primes</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">i</span><span class="p">);</span>
+			<span class="n">a</span> <span class="o">=</span> <span class="n">b</span><span class="p">;</span>
+			<span class="n">j</span> <span class="o">=</span> <span class="n">i</span><span class="o">*</span><span class="n">i</span><span class="p">;</span>
+			<span class="k">while</span><span class="p">(</span><span class="n">j</span><span class="o">&lt;</span> <span class="n">max</span><span class="p">){</span>
+				<span class="n">not_prime</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
+				<span class="n">j</span> <span class="o">+=</span> <span class="n">i</span><span class="o">*</span><span class="p">(</span> <span class="n">a</span> <span class="o">?</span> <span class="mi">2</span><span class="o">:</span> <span class="mi">4</span><span class="p">);</span>
+				<span class="n">a</span> <span class="o">=</span> <span class="o">!</span><span class="n">a</span><span class="p">;</span>
+			<span class="p">}</span>
+		<span class="p">}</span>
+		<span class="n">i</span> <span class="o">+=</span> <span class="n">b</span> <span class="o">?</span> <span class="mi">2</span><span class="o">:</span> <span class="mi">4</span><span class="p">;</span>
+		<span class="n">b</span> <span class="o">=</span> <span class="o">!</span><span class="n">b</span><span class="p">;</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="n">primes</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div><p>To find c (the non-residue) we loop through the primes q that we found.<br>
+Since \(p \equiv 1 \pmod{4}\), <a href="https://en.wikipedia.org/wiki/Quadratic_reciprocity">quadratic reciprocity</a> implies that
+\(q\) is a quadratic residue mod \(p\) if and only if \(p\) is a quadratic residue mod \(q\), which is much easier to check.
+We can do this using Euler&rsquo;s criterion.
+<!-- raw HTML omitted --></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="c1">//find a quadratic non-residue mod p
+</span><span class="c1"></span><span class="kt">int</span> <span class="nf">non_residue</span><span class="p">(</span> <span class="kt">int</span> <span class="n">p</span><span class="p">,</span> <span class="k">const</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">primes</span><span class="p">){</span>
     <span class="k">for</span> <span class="p">(</span><span class="k">auto</span> <span class="n">it</span> <span class="o">=</span> <span class="n">primes</span><span class="p">.</span><span class="n">begin</span><span class="p">();</span> <span class="n">it</span> <span class="o">!=</span> <span class="n">primes</span><span class="p">.</span><span class="n">end</span><span class="p">();</span> <span class="o">++</span><span class="n">it</span><span class="p">){</span>
-        <span class="n">q</span> <span class="o">=</span> <span class="o">*</span><span class="n">it</span><span class="p">;</span>
+        <span class="kt">int</span> <span class="n">q</span> <span class="o">=</span> <span class="o">*</span><span class="n">it</span><span class="p">;</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">q</span> <span class="o">==</span> <span class="mi">2</span><span class="p">){</span> 
             <span class="c1">//2 is a quadratic residue iff p = 1 or -1 (mod 8)
 </span><span class="c1"></span>            <span class="k">if</span> <span class="p">(</span><span class="n">p</span><span class="o">%</span><span class="mi">8</span> <span class="o">!=</span> <span class="mi">7</span> <span class="o">&amp;&amp;</span> <span class="n">p</span><span class="o">%</span><span class="mi">8</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">)</span>  
@@ -432,13 +532,12 @@ We can do this using Euler&rsquo;s criterion.</p>
 <span class="p">}</span>
 </code></pre></div><p>I checked 2 and 3 separately but it&rsquo;s not necessary.</p>
 <p>After that, we just need a function to do the Euclidean algorithm part.
-(mod_pow is just fast mod p exponentiation)</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="n">pair</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="kt">int</span><span class="o">&gt;</span> <span class="n">gauss_factor</span><span class="p">(</span><span class="kt">int</span> <span class="n">p</span><span class="p">,</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">primes</span><span class="p">){</span>
-    <span class="c1">//factor prime p = 4k + 1 in Gaussian integers
-</span><span class="c1"></span>    <span class="kt">int</span> <span class="n">b</span> <span class="o">=</span> <span class="n">p</span><span class="p">;</span>
+(Note mod_pow is just fast mod p exponentiation)</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="c1">//factor prime p = 4k + 1 in Gaussian integers
+</span><span class="c1"></span><span class="n">std</span><span class="o">::</span><span class="n">pair</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="kt">int</span><span class="o">&gt;</span> <span class="n">gauss_factor</span><span class="p">(</span><span class="kt">int</span> <span class="n">p</span><span class="p">,</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">primes</span><span class="p">){</span>
+    <span class="kt">int</span> <span class="n">b</span> <span class="o">=</span> <span class="n">p</span><span class="p">;</span>
     <span class="kt">int</span> <span class="n">c</span> <span class="o">=</span> <span class="n">non_res</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">primes</span><span class="p">);</span>
     <span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="n">mod_pow</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="p">(</span><span class="n">p</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="mi">4</span><span class="p">,</span> <span class="n">p</span><span class="p">);</span>
-
     <span class="k">while</span> <span class="p">(</span> <span class="n">x</span><span class="o">*</span><span class="n">x</span> <span class="o">&gt;=</span> <span class="n">p</span> <span class="o">||</span> <span class="n">b</span><span class="o">*</span><span class="n">b</span> <span class="o">&gt;=</span> <span class="n">p</span><span class="p">){</span>
         <span class="k">if</span> <span class="p">(</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="n">b</span><span class="p">){</span>
             <span class="n">x</span> <span class="o">%=</span> <span class="n">b</span><span class="p">;</span>
@@ -446,10 +545,9 @@ We can do this using Euler&rsquo;s criterion.</p>
             <span class="n">b</span> <span class="o">%=</span> <span class="n">x</span><span class="p">;</span>
         <span class="p">}</span>
     <span class="p">}</span>
-    <span class="n">pair</span> <span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="kt">int</span><span class="o">&gt;</span> <span class="n">out</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">b</span><span class="p">);</span>
-    <span class="k">return</span> <span class="n">out</span><span class="p">;</span>
+    <span class="k">return</span> <span class="n">std</span><span class="o">::</span><span class="n">make_pair</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">b</span><span class="p">);</span>
 <span class="p">}</span>
-</code></pre></div><p>Testing on my junk laptop, it only took 2.07 seconds to factor all the primes below $10^8$!
+</code></pre></div><p>Testing on my junk laptop, it only took 2.07 seconds to factor all the primes below 1e8!
 The best part is now we can enjoy long lists of primes as sums of squares. Soothing&hellip;</p>
 <pre><code>	18413 = 118^2 + 67^2 
 	18433 = 127^2 + 48^2 
@@ -472,9 +570,20 @@ The best part is now we can enjoy long lists of primes as sums of squares. Sooth
 <ul>
 <li>Try to prove the Theorem (hint: the Norm is the key)! <a href="https://kconrad.math.uconn.edu/blurbs/ugradnumthy/Zinotes.pdf">Here</a> are some excellent notes if you get stuck.</li>
 <li>Write a program that outputs the prime factorization of any Gaussian integer</li>
-<li>Gaussian integers are also related to Pythagorean Triples. Can you characterize which integers $a$ satisfy $a^2 =b^2 +c^2$ for some integers b and c?</li>
+<li>Gaussian integers are also related to Pythagorean Triples. Can you characterize which integers \(a\) satisfy \(a^2 =b^2 +c^2\) for some integers b and c?</li>
 <li>Another cool ring is the <a href="https://en.wikipedia.org/wiki/Eisenstein_integer">Eisenstein Integers</a>. What are the Eisenstein integer primes? Can you factor Eisenstein integers efficiently?</li>
 </ul>
+<section class="footnotes" role="doc-endnotes">
+<hr>
+<ol>
+<li id="fn:1" role="doc-endnote">
+<p>. The terminology &ldquo;residue&rdquo; is a little funny (I&rsquo;m reminded of the <a href="https://www.math.purdue.edu/~eremenko/jokes.html">joke</a> about the dog Cauchy who leaves a residue at every pole). A better term would be &ldquo;square mod p.&rdquo;&#160;<a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:2" role="doc-endnote">
+<p>One such result is <a href="https://www.cs.umd.edu/~gasarch/TOPICS/res/resperalta.pdf">Peralta</a>. He gives a precise bound on the deviation of the distribution of residues from a Bernoulli distribution. To obtain a better complexity bound we could choose random integers until we get a quadratic residue, but this would not speed up the algorithm in practice.&#160;<a href="#fnref:2" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+</ol>
+</section>
 
     </div>
 

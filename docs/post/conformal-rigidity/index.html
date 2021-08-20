@@ -24,7 +24,7 @@
 
 <meta name="author" content="meiji163" />
   <meta name="description" content="In this post I summarize the content and proof of Liouville&amp;rsquo;s Theorem on Conformal Rigidity, which I learned in 2018 from Professor Alex Austin (now at RIT) in his class at UCLA.
-Conformal Maps A conformal transformation is one that preserves angles. In two dimensions, this is equivalent to being holomorphic and having a non-vanishing derivative. There are tons of these transformations (my personal favorites are Mobius transformations). In fact, the famous Riemann mapping Theorem asserts that any simply connected domain $U \subset \mathbb{C}$ admits a bijective conformal map $f: U \to \mathbb{D}$ to the unit disc." />
+Conformal Maps A conformal transformation is one that preserves angles. In two dimensions, this is equivalent to being holomorphic and having a non-vanishing derivative. There are tons of these transformations (my personal favorites are Mobius transformations). In fact, the famous Riemann mapping Theorem asserts that any simply connected domain \( U \subset \mathbb{C} \) admits a bijective conformal map \(f: U \to \mathbb{D}\) to the unit disc." />
 
   <meta name="keywords" content="Hugo, theme, jane" />
 
@@ -33,7 +33,7 @@ Conformal Maps A conformal transformation is one that preserves angles. In two d
 
 
 
-<meta name="generator" content="Hugo 0.87.0" />
+<meta name="generator" content="Hugo 0.86.0" />
 
 
 <link rel="canonical" href="https://meiji163.github.io/post/conformal-rigidity/" />
@@ -64,7 +64,7 @@ Conformal Maps A conformal transformation is one that preserves angles. In two d
 
 <meta property="og:title" content="Liouville&#39;s Theorem on Conformal Rigidity" />
 <meta property="og:description" content="In this post I summarize the content and proof of Liouville&rsquo;s Theorem on Conformal Rigidity, which I learned in 2018 from Professor Alex Austin (now at RIT) in his class at UCLA.
-Conformal Maps A conformal transformation is one that preserves angles. In two dimensions, this is equivalent to being holomorphic and having a non-vanishing derivative. There are tons of these transformations (my personal favorites are Mobius transformations). In fact, the famous Riemann mapping Theorem asserts that any simply connected domain $U \subset \mathbb{C}$ admits a bijective conformal map $f: U \to \mathbb{D}$ to the unit disc." />
+Conformal Maps A conformal transformation is one that preserves angles. In two dimensions, this is equivalent to being holomorphic and having a non-vanishing derivative. There are tons of these transformations (my personal favorites are Mobius transformations). In fact, the famous Riemann mapping Theorem asserts that any simply connected domain \( U \subset \mathbb{C} \) admits a bijective conformal map \(f: U \to \mathbb{D}\) to the unit disc." />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://meiji163.github.io/post/conformal-rigidity/" /><meta property="article:section" content="post" />
 <meta property="article:published_time" content="2021-01-23T00:00:00+00:00" />
@@ -72,13 +72,13 @@ Conformal Maps A conformal transformation is one that preserves angles. In two d
 
 <meta itemprop="name" content="Liouville&#39;s Theorem on Conformal Rigidity">
 <meta itemprop="description" content="In this post I summarize the content and proof of Liouville&rsquo;s Theorem on Conformal Rigidity, which I learned in 2018 from Professor Alex Austin (now at RIT) in his class at UCLA.
-Conformal Maps A conformal transformation is one that preserves angles. In two dimensions, this is equivalent to being holomorphic and having a non-vanishing derivative. There are tons of these transformations (my personal favorites are Mobius transformations). In fact, the famous Riemann mapping Theorem asserts that any simply connected domain $U \subset \mathbb{C}$ admits a bijective conformal map $f: U \to \mathbb{D}$ to the unit disc."><meta itemprop="datePublished" content="2021-01-23T00:00:00+00:00" />
+Conformal Maps A conformal transformation is one that preserves angles. In two dimensions, this is equivalent to being holomorphic and having a non-vanishing derivative. There are tons of these transformations (my personal favorites are Mobius transformations). In fact, the famous Riemann mapping Theorem asserts that any simply connected domain \( U \subset \mathbb{C} \) admits a bijective conformal map \(f: U \to \mathbb{D}\) to the unit disc."><meta itemprop="datePublished" content="2021-01-23T00:00:00+00:00" />
 <meta itemprop="dateModified" content="2021-01-23T00:00:00+00:00" />
-<meta itemprop="wordCount" content="1470">
+<meta itemprop="wordCount" content="1473">
 <meta itemprop="keywords" content="geometry,analysis,conformal,ODE,Liouville&#39;s Theorem," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Liouville&#39;s Theorem on Conformal Rigidity"/>
 <meta name="twitter:description" content="In this post I summarize the content and proof of Liouville&rsquo;s Theorem on Conformal Rigidity, which I learned in 2018 from Professor Alex Austin (now at RIT) in his class at UCLA.
-Conformal Maps A conformal transformation is one that preserves angles. In two dimensions, this is equivalent to being holomorphic and having a non-vanishing derivative. There are tons of these transformations (my personal favorites are Mobius transformations). In fact, the famous Riemann mapping Theorem asserts that any simply connected domain $U \subset \mathbb{C}$ admits a bijective conformal map $f: U \to \mathbb{D}$ to the unit disc."/>
+Conformal Maps A conformal transformation is one that preserves angles. In two dimensions, this is equivalent to being holomorphic and having a non-vanishing derivative. There are tons of these transformations (my personal favorites are Mobius transformations). In fact, the famous Riemann mapping Theorem asserts that any simply connected domain \( U \subset \mathbb{C} \) admits a bijective conformal map \(f: U \to \mathbb{D}\) to the unit disc."/>
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
@@ -339,7 +339,7 @@ Conformal Maps A conformal transformation is one that preserves angles. In two d
 <h2 id="conformal-maps">Conformal Maps</h2>
 <p>A conformal transformation is one that preserves angles. In two dimensions, this is equivalent to being holomorphic and having a non-vanishing derivative.
 There are tons of these transformations (my personal favorites are Mobius transformations).
-In fact, the famous <a href="https://en.wikipedia.org/wiki/Riemann_mapping_theorem">Riemann mapping Theorem</a> asserts that any simply connected domain $U \subset \mathbb{C}$ admits a bijective conformal map $f: U \to \mathbb{D}$ to the unit disc.</p>
+In fact, the famous <a href="https://en.wikipedia.org/wiki/Riemann_mapping_theorem">Riemann mapping Theorem</a> asserts that any simply connected domain \( U \subset \mathbb{C} \) admits a bijective conformal map \(f: U \to \mathbb{D}\) to the unit disc.</p>
 
 <link rel="stylesheet" href="/css/hugo-easy-gallery.css" />
 <div class="box">
@@ -355,112 +355,112 @@ In fact, the famous <a href="https://en.wikipedia.org/wiki/Riemann_mapping_theor
   </figure>
 </div>
 
-<p>In this note we will show that the only conformal maps in dimensions $n \ge 3$ are built from inversions and reflections. It turns out that 2 dimensions is the exception!</p>
+<p>In this note we will show that the only conformal maps in dimensions \(n \ge 3\) are built from inversions and reflections. It turns out that 2 dimensions is the exception!</p>
 <p>First, what exactly does &ldquo;preserve angles&rdquo; mean? The nicest way to talk about angles is via an inner product.
-Given a vector space $V$ with an inner product $\langle \cdot, \cdot \rangle$, the angle $\theta$ between two vectors $v,w \in V$ is defined by</p>
+Given a vector space \(V\) with an inner product \(\langle \cdot, \cdot \rangle\), the angle \(\theta\) between two vectors \(v,w \in V\) is defined by</p>
 <p>$$ \cos \theta = \dfrac{ \langle v, w \rangle}{\sqrt{ \langle v,v \rangle \langle w, w \rangle}}.$$</p>
-<p>In Euclidean space with the standard inner product, this matches the formula you know. Thus a linear transformation $A: V \to V$
-preserves angles if $\langle Av, Aw \rangle = \lambda^2 \langle v, w \rangle$ for all $v,w$ and some $\lambda &gt; 0$. Note that since $\lambda^2 &gt; 0$ we are requiring the orientation of the angle to be preserved as well.</p>
+<p>In Euclidean space with the standard inner product, this matches the formula you know. Thus a linear transformation \(A: V \to V\)
+preserves angles if \(\langle Av, Aw \rangle = \lambda^2 \langle v, w \rangle\) for all \(v,w\) and some \(\lambda &gt; 0\). Note that since \(\lambda^2 &gt; 0\) we are requiring the orientation of the angle to be preserved as well.</p>
 <p>Thus a conformal linear transformation is just an orientation and distance preserving map (called a special orthogonal matrix)
 followed by a dilation. Well, that&rsquo;s pretty boring. But now we can define more general conformal maps by requiring its derivative to
 be a conformal linear transformation!</p>
 <p><strong>Definition</strong>
-Let $U \subset \mathbb{R}^n$ be open. A $C^1$ map $f:U \to \mathbb{R}^n$. $f$ is said to be <strong>conformal</strong> if $D_x f:T_xU \to T_{f(x)}\mathbb{R}^n$ is conformal for all $x \in U$.</p>
+Let \(U \subset \mathbb{R}^n\) be open. A \(C^1\) map \(f:U \to \mathbb{R}^n\). \(f\) is said to be <strong>conformal</strong> if \(D_x f:T_xU \to T_{f(x)}\mathbb{R}^n\) is conformal for all \(x \in U\).</p>
 <h3 id="inversions-and-reflections">Inversions and Reflections</h3>
-<p>A nice example of a conformal map is spherical inversion. Denote the one-point compactification $\mathbb{R}^n \cup {\infty}$ of $\mathbb{R}^n$ by $\widehat{\mathbb{R}}^n$. Let $S(a,r) \subset \mathbb{R}^n$ be the sphere of radius $n$ with center $a$. The inversion about $S(a,r)$ is defined as</p>
+<p>A nice example of a conformal map is spherical inversion. Denote the one-point compactification \(\mathbb{R}^n \cup {\infty}\) of \(\mathbb{R}^n\) by \(\widehat{\mathbb{R}}^n\). Let \(S(a,r) \subset \mathbb{R}^n\) be the sphere of radius \(n\) with center \(a\). The inversion about \(S(a,r)\) is defined as</p>
 <p>$$\varphi_{a,r}(x) = a + r\frac{x-a}{|x-a|^2}, \quad x \ne a,\infty$$</p>
-<p>and $\varphi_{a,r}(a) = \infty$, $\varphi_{a,r}(\infty) = a.$</p>
-<p>$\varphi_{r,a}$ swaps the interior and exterior of the sphere and fixes $S(a,r)$. One can check that $\varphi_{a,r}$ is an involution, i.e. $\varphi_{a,r} \circ \varphi_{a,r} = \text{id}.$</p>
-<p>We can verify that $\varphi_{a,r}$ is conformal with direct computation.
-First consider $\varphi = \varphi_{0,1}$. We calculate that</p>
+<p>and \(\varphi_{a,r}(a) = \infty\), \(\varphi_{a,r}(\infty) = a.\)</p>
+<p>\(\varphi_{r,a}\) swaps the interior and exterior of the sphere and fixes \(S(a,r)\). One can check that \(\varphi_{a,r}\) is an involution, i.e. \(\varphi_{a,r} \circ \varphi_{a,r} = \text{id}.\)</p>
+<p>We can verify that \(\varphi_{a,r}\) is conformal with direct computation.
+First consider \(\varphi = \varphi_{0,1}\). We calculate that</p>
 <p>$$D_x \varphi = \frac{1}{|x|^2}( I - 2 Q_x )$$</p>
-<p>where $Q$ is the symmetric matrix with entries $\dfrac{x_i x_j}{|x|^2}$.
-Note that $Q$ satisfies $Q^2=Q$ since</p>
+<p>where \(Q\) is the symmetric matrix with entries \(\dfrac{x_i x_j}{|x|^2}\).
+Note that \(Q\) satisfies \(Q^2=Q\) since</p>
 <p>$$\begin{aligned}
 Q^2_{ij} &amp;= \sum_{k=1}^n \frac{x_k x_j}{|x|^2} \frac{x_i x_k}{|x|^2}\cr
 &amp;= \left( \sum_{k=1}^n\frac{x_k^2}{|x|^2}\right)\frac{x_i x_j}{|x|^2} = \frac{x_i x_j}{|x|^2}.
 \end{aligned}$$</p>
-<p>Hence we get $(D_x\varphi)^T D_x \varphi = \frac{1}{|x|^4}(I-4Q-x+4Q_x^2) = \frac{1}{|x|^4}I$ so $\varphi$ is conformal.
-For general $\varphi_{r,a}$, we use an affine transformation $\psi(x) = rx +a$, which is obviously conformal.
-Then $\varphi_{r,a}=\psi \circ \varphi \circ \psi^{-1}$ is also conformal.</p>
+<p>Hence we get \((D_x\varphi)^T D_x \varphi = \frac{1}{|x|^4}(I-4Q-x+4Q_x^2) = \frac{1}{|x|^4}I\) so \(\varphi\) is conformal.
+For general \(\varphi_{r,a}\), we use an affine transformation \(\psi(x) = rx +a\), which is obviously conformal.
+Then \(\varphi_{r,a}=\psi \circ \varphi \circ \psi^{-1}\) is also conformal.</p>
 <p>Another type of transformation we will need is reflections.
-Fix $a \in \mathbb{R}^n$ and $s&gt;0$ and let $P(a,s) = {x \in \mathbb{R}^n| a \cdot x =s} \cup {\infty}$ be the corresponding plane in $\widehat{\mathbb{R}}^n$. The reflection in $P(a,s)$ is defined as</p>
+Fix \(a \in \mathbb{R}^n\) and \(s&gt;0\) and let \(P(a,s) = \{x \in \mathbb{R}^n| a \cdot x =s\} \cup \{\infty\} \) be the corresponding plane in \(\widehat{\mathbb{R}}^n\). The reflection in \(P(a,s)\) is defined as</p>
 <p>$$r_{a,s}(x) = x-2(a \cdot x -s) \frac{a}{|a|^2}, \qquad x \in \mathbb{R}^n$$</p>
-<p>and $r_{a,s}(\infty) =\infty$. We define a Mobius transformation on $\widehat{\mathbb{R}}^n$ for $n\ge 3$
+<p>and \(r_{a,s}(\infty) =\infty\). We define a Mobius transformation on \(\widehat{\mathbb{R}}^n\) for \(n\ge 3\)
 as a finite composition of reflections in planes and inversions about spheres.</p>
 <h2 id="liouvilles-theorem">Liouville&rsquo;s Theorem</h2>
 <p>Now we can precisely state what we want to prove.</p>
-<p><strong>Liouville&rsquo;s Theorem<sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup></strong>: Let $U \subset \mathbb{R}^n$ be open with $0 \in U$ and $n \ge 3$. <br>
-If $f:U \to \mathbb{R}^n$ is $C^4$ and conformal, then $f$ is the restriction of a Mobius transformation.</p>
-<p>Actually, the theorem holds for much lower regularity, but we assume $C^4$ for simplicity. The strategy we will use is to
-study vector fields whose flow is conformal. The <strong>flow</strong> of a $v$ is a function $f_t$ parametrized by time that satisfies</p>
+<p><strong>Liouville&rsquo;s Theorem<sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup></strong>: Let \(U \subset \mathbb{R}^n\) be open with \(0 \in U\) and \(n \ge 3\). <br>
+If \(f:U \to \mathbb{R}^n\) is \(C^4\) and conformal, then \(f\) is the restriction of a Mobius transformation.</p>
+<p>Actually, the theorem holds for much lower regularity, but we assume \(C^4\) for simplicity. The strategy we will use is to
+study vector fields whose flow is conformal. The <strong>flow</strong> of a \(v\) is a function \(f_t\) parametrized by time that satisfies</p>
 <p>$$\begin{aligned}
 f_0(x) &amp;= x\cr
 \frac{d}{dt}f_t(x) &amp;= v(f_t(x))\end{aligned}$$</p>
-<p>for every $x$. The point $x$ is &ldquo;flowing down the river&rdquo; determined by the vector field (for this reason I&rsquo;ve heard the <a href="https://en.wikipedia.org/wiki/Lie_derivative">Lie derivative</a> called the &ldquo;fisherman&rsquo;s derivative&rdquo;!)
+<p>for every \(x\). The point \(x\) is &ldquo;flowing down the river&rdquo; determined by the vector field (for this reason I&rsquo;ve heard the <a href="https://en.wikipedia.org/wiki/Lie_derivative">Lie derivative</a> called the &ldquo;fisherman&rsquo;s derivative&rdquo;!)
 Therefore if we can transfer the problem of characterizing conformal maps into one about vector fields and differential equations.
 This tactic can be applied in many other problems!</p>
 <p><strong>Lemma</strong>
-Let $v:\mathbb{R}^n \to \mathbb{R}^n$ be a $C^1$ vector field. Then the flow of $v$ is conformal if and only if
+Let \(v:\mathbb{R}^n \to \mathbb{R}^n\) be a \(C^1\) vector field. Then the flow of \(v\) is conformal if and only if
 $$(Dv)^T+Dv = \frac{2}{n} \operatorname{tr}(Dv) I.$$</p>
-<p><em>Proof</em>: Let $f_t$ be the local flow of $v$ and $p \in \mathbb{R}^n$. For convenience set $A=D_p f_t$, $B=D_{f_t(p)}v$. We differentiate the relation<br>
+<p><em>Proof</em>: Let \(f_t\) be the local flow of \(v\) and \(p \in \mathbb{R}^n\). For convenience set \(A=D_p f_t\), \(B=D_{f_t(p)}v\). We differentiate the relation<br>
 $$A^T A = (\det A)^{2/n} ; I$$
-with respect to $t$ and use <a href="https://en.wikipedia.org/wiki/Jacobi%27s_formula">Jacobi&rsquo;s formula</a> to obtain</p>
+with respect to \(t\) and use <a href="https://en.wikipedia.org/wiki/Jacobi%27s_formula">Jacobi&rsquo;s formula</a> to obtain</p>
 <p>$$\begin{aligned} A^TB^TA+A^TBA &amp;= \frac{2}{n}(\det (A))^{2/n -1} \det A \operatorname{tr} \left(A^{-1} \frac{dA}{dt}\right)\cr
 &amp;=\frac{2}{n} (\det A)^{2/n} \operatorname{tr} (B) I.\end{aligned}$$</p>
-<p>Multiplying by $(A^T)^{-1}$ on the left and $A^{-1}$ on the right we&rsquo;re left with
+<p>Multiplying by \((A^T)^{-1}\) on the left and \(A^{-1}\) on the right we&rsquo;re left with
 $$\begin{aligned} B^T+B &amp;= \frac{2}{n}(\det A)^{2/n} \operatorname{tr} (B) \underbrace{(A^T)^{-1}A^{-1}}_{=(AA^T)^{-1}}\cr
 &amp;= \frac{2}{n} \operatorname{tr}(B) I\end{aligned}$$</p>
-<p>as desired. $\blacksquare$</p>
+<p>as desired. \(\blacksquare\)</p>
 <p><strong>Theorem</strong>
-If the flow of $v$ is conformal, then $v$ is of the form</p>
+If the flow of \(v\) is conformal, then \(v\) is of the form</p>
 <p>$$v(x) = a+Bx+2(c \cdot x)x-|x|^2 c$$</p>
-<p>for some $c\in \mathbb{R}^n$, where $B\in M_{n \times n}$ satisfies $B+B^T = \frac{2}{n} \operatorname{tr}(B) I_n$.</p>
-<p><em>Proof</em>: Using the lemma we get $\partial_i v_i = \partial_j v_j$  for all $i,j$
-and $\partial_i v_j = - \partial_j v_i$ for all $i \ne j$. By repeatedly using these facts we can deduce that all third order partial derivatives of $v$ vanish.
+<p>for some \(c\in \mathbb{R}^n\), where \(B\in M_{n \times n}\) satisfies \(B+B^T = \frac{2}{n} \operatorname{tr}(B) I_n\).</p>
+<p><em>Proof</em>: Using the lemma we get \(\partial_i v_i = \partial_j v_j\)  for all \(i,j\)
+and \(\partial_i v_j = - \partial_j v_i\) for all \(i \ne j\). By repeatedly using these facts we can deduce that all third order partial derivatives of \(v\) vanish.
 Therefore,</p>
 <p>$$v_i(x) = a_i + \sum_j b_{ij}x_j + \sum_{j,k} c_{ijk}x_jx_k$$</p>
-<p>for some coefficients $c_{ijk}$ such that $c_{ijk}=c_{ikj}$. Next we calculate</p>
+<p>for some coefficients \(c_{ijk}\) such that \(c_{ijk}=c_{ikj}\). Next we calculate</p>
 <p>$$\begin{aligned} \partial_i v_i(x) &amp;= b_j + 2 \sum_{k} c_{ijk}x_k\cr
 \partial_k \partial_j v_i(x)&amp; = 2c_{ijk}\end{aligned}$$</p>
-<p>We know $c_{iik}=c_{jjk}$ for all $i,j$ so set $c_k:=c_{iik}$ and $c = (c_1,\dots,c_n$). Using the symmetries again we get $c_{ikk} = -c_{kik} = -c_{kki}=-c_i$.
-Now we can rewrite $v_i$ as</p>
+<p>We know \(c_{iik}=c_{jjk}\) for all \(i,j\) so set \(c_k:=c_{iik}\) and \(c = (c_1,\dots,c_n\)). Using the symmetries again we get \(c_{ikk} = -c_{kik} = -c_{kki}=-c_i\).
+Now we can rewrite \(v_i\) as</p>
 <p>$$\begin{aligned}
 v_i(x) &amp;= a_i + \sum_{j}b_{ij} x_j + 2 \left(\sum_k c_k x_k \right)x_i -c_i \sum_{k}x^k \cr
 &amp;=a_i +\sum_{j} b_{ij}x_j + 2(c \cdot x) x_i -|x|^2 c_i\end{aligned}$$</p>
-<p>Combining the equations for $i=1,2,\dots,n$ we get what we want. $\blacksquare$</p>
-<p>Let $v(x) =e_j$ and $\varphi_t(x) = x+te_j$ its flow, where $e_j$ is the $j$th standard basis vector.
-Let $g=f^{-1}$ and consider $h_t=g \circ \varphi_t \circ f : V \to U$, with $V \subset U$ chosen so that $\varphi_t(f(V)) \subset f(U)$. Then we have</p>
+<p>Combining the equations for \(i=1,2,\dots,n\) we get what we want. \(\blacksquare\)</p>
+<p>Let \(v(x) =e_j\) and \(\varphi_t(x) = x+te_j\) its flow, where \(e_j\) is the \(j\)th standard basis vector.
+Let \(g=f^{-1}\) and consider \(h_t=g \circ \varphi_t \circ f : V \to U\), with \(V \subset U\) chosen so that \(\varphi_t(f(V)) \subset f(U)\). Then we have</p>
 <p>$$\frac{d}{dt}h_t(x) = D_{f(h_t(x))}g \cdot v(f(x)).$$</p>
-<p>We conclude $h_t$ is the flow of the vector field $w(x) =D_{f(x)}g \cdot v(f(x))$.
+<p>We conclude \(h_t\) is the flow of the vector field \(w(x) =D_{f(x)}g \cdot v(f(x))\).
 Now we can execute our plan to prove Liouville&rsquo;s theorem.</p>
 <p><em>Proof of Liouville</em>:
-By composing with an affine map we can assume $f(0)=0$ and  $D_0f =I$.
-Set $\varphi = \varphi_{0,1}$ as before and define $G = \varphi \circ f$, which is conformal on $U$. It suffices to show that $G$ is a M&quot;obius trasformation. We will embed $G$ in the flow of $v = (DG)^{-1}e_i.$ We get</p>
+By composing with an affine map we can assume \(f(0)=0\) and  \(D_0f =I\).
+Set \(\varphi = \varphi_{0,1}\) as before and define \(G = \varphi \circ f\), which is conformal on \(U\). It suffices to show that \(G\) is a M&quot;obius trasformation. We will embed \(G\) in the flow of \(v = (DG)^{-1}e_i.\) We get</p>
 <p>$$\begin{aligned}
 D_xG &amp;= D_{f(x)}\varphi D_x f\cr
 &amp;= \frac{1}{|f(x)|^2}(I-2Q_{f(x)})D_x f\end{aligned}$$</p>
-<p>We know $(I-2Q_x)^2 = I,$ so $(I-2Q_x)^{-1} = I-2Q_x$. With this we can calculate</p>
+<p>We know \((I-2Q_x)^2 = I,\) so \((I-2Q_x)^{-1} = I-2Q_x\). With this we can calculate</p>
 <p>$$\begin{aligned}
 (D_xG)^{-1}e_i &amp;= (D_x f)^{-1}(D_{f(x)}\varphi)^{-1}e_i\cr
 &amp;= (D_xf)^{-1} \cdot |f(x)|^2 (I -2Q_{f(x)})e_i\cr
 &amp;= |f(x)|^2 (D_xf)^{-1}e_i - 2(f(x) \cdot e_i)
 \end{aligned}$$</p>
 <p>Using the Theorem on conformal vector fields, we can write
-$(D_x G)^{-1}e_i = a+Bx +2(c\cdot x)x-|x|^2c.$</p>
-<p>$f(0)=0$ implies $(D_0G)^{-1}e_i = 0$, so $a=0$. We contend that $B \equiv 0$ as well.
-Let $u \in \mathbb{R}^n$ be unit length, and $\epsilon&gt;0$. We consider  $\epsilon B(u)$ as $\epsilon \to 0$:</p>
+\((D_x G)^{-1}e_i = a+Bx +2(c\cdot x)x-|x|^2c.\)</p>
+<p>\(f(0)=0\) implies \((D_0G)^{-1}e_i = 0\), so \(a=0\). We contend that \(B \equiv 0\) as well.
+Let \(u \in \mathbb{R}^n\) be unit length, and \(\epsilon&gt;0\). We consider  \(\epsilon B(u)\) as \(\epsilon \to 0\):</p>
 <p>$$\begin{aligned}
 B( \epsilon u) &amp;= (D_{\epsilon u}G)^{-1}e_i-2(c \cdot \epsilon u) \epsilon u - |\epsilon u|^2c\cr
 &amp;= |f(\epsilon u)|^2(D_{\epsilon u}f)^{-1}\left(I-2Q_{f(\epsilon u)}\right)e_i -\epsilon^2((c\cdot u)u -c)\cr
 &amp;= \epsilon^2 \left| u + \frac{o(\epsilon)}{\epsilon}\right| (D_{\epsilon u}f)^{-1}\left(I-2Q_{f(\epsilon u)}\right)e_i -\epsilon^2((c\cdot u)u -c)
 .\end{aligned}$$</p>
-<p>where we used linear approximation $f(x) = x+ o(|x|)$. Dividing through by $\epsilon$,
-the LHS is independent of $\epsilon$ while the RHS has a factor of $\epsilon$. As $\epsilon \to 0$, the RHS converges to $0$.
-Consequently, we must have $B \equiv 0$, which proves the contention. To find $c$ we use the same argument with $x = \epsilon c$ to get</p>
+<p>where we used linear approximation \(f(x) = x+ o(|x|)\). Dividing through by \(\epsilon\),
+the LHS is independent of \(\epsilon\) while the RHS has a factor of \(\epsilon\). As \(\epsilon \to 0\), the RHS converges to \(0\).
+Consequently, we must have \(B \equiv 0\), which proves the contention. To find \(c\) we use the same argument with \(x = \epsilon c\) to get</p>
 <p>$$|c|^2c = \left|c + \frac{o(|\epsilon c|)}{|\epsilon c|}|c| \right|^2(D_{\epsilon c}f)^{-1}(I-2Q_{c})e_i$$</p>
-<p>We can write $Q_{f(\epsilon c)}=Q_{\epsilon c} + E(s)$ where $E(s) \to 0$ as $s\to 0$ (in the space of matrices). Therefore $|c|^2c = |c|^2(I-2Q_{c})e_i$.
-Solving for $e_i$ we have</p>
+<p>We can write \(Q_{f(\epsilon c)}=Q_{\epsilon c} + E(s)\) where \(E(s) \to 0\) as \(s\to 0\) (in the space of matrices). Therefore \(|c|^2c = |c|^2(I-2Q_{c})e_i\).
+Solving for \(e_i\) we have</p>
 <p>$$e_i = (E-2Q_c)c = c-2\frac{c\cdot c}{|c|^2}c = -c.$$</p>
 <p>We have shown that
 $$\begin{aligned}
@@ -468,8 +468,8 @@ $$\begin{aligned}
 &amp;=|x|^2(I-2Q_x)e_i\cr
 &amp;= (D_x \varphi)^{-1}e_i
 \end{aligned}$$</p>
-<p>Thus we conclude that $D_x G = D_x \varphi.$ Hence $f(x) = \varphi(\varphi(x) +d)$ for some constant $d\in \mathbb{R}^n,$
-which is indeed a Mobius transformation. $\blacksquare$</p>
+<p>Thus we conclude that \(D_x G = D_x \varphi.\) Hence \(f(x) = \varphi(\varphi(x) +d)\) for some constant \(d\in \mathbb{R}^n,\)
+which is indeed a Mobius transformation. \(\blacksquare\)</p>
 <section class="footnotes" role="doc-endnotes">
 <hr>
 <ol>
