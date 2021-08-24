@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>metric geometry on meiji163</title>
+    <link>https://meiji163.github.io/tags/metric-geometry/</link>
+    <description>Recent content in metric geometry on meiji163</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <lastBuildDate>Tue, 24 Aug 2021 00:00:00 +0000</lastBuildDate><atom:link href="https://meiji163.github.io/tags/metric-geometry/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Combinatorial Hyperbolic Embeddings</title>
+      <link>https://meiji163.github.io/post/combo-hyperbolic-embedding/</link>
+      <pubDate>Tue, 24 Aug 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://meiji163.github.io/post/combo-hyperbolic-embedding/</guid>
+      <description>Introduction The manifold hypothesis says that most real-world datasets lie approximately on a low-dimensional manifold, but by some Kantian twist of fate we rarely have direct access to this manifold1. As a result, most machine learning techniques utilize only local structure (e.g. the &amp;ldquo;loss + SGD&amp;rdquo; machine).
+In contrast, Topological and Geometric Data Analysis (TGDA) is a burgeoning field that studies the global structure of data. This is exciting not only because of potential domain applications &amp;ndash; it also opens possibilities for porting a lot of powerful and beautiful math to the ML realm.</description>
+    </item>
+    
+  </channel>
+</rss>

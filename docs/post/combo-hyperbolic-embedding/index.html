@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="en" itemscope itemtype="http://schema.org/WebPage">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Combinatorial Hyperbolic Embeddings - meiji163</title>
+  
+
+<meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes"/>
+
+<meta name="MobileOptimized" content="width"/>
+<meta name="HandheldFriendly" content="true"/>
+
+
+<meta name="applicable-device" content="pc,mobile">
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+<meta name="mobile-web-app-capable" content="yes">
+
+<meta name="author" content="meiji163" />
+  <meta name="description" content="Introduction The manifold hypothesis says that most real-world datasets lie approximately on a low-dimensional manifold, but by some Kantian twist of fate we rarely have direct access to this manifold1. As a result, most machine learning techniques utilize only local structure (e.g. the &amp;ldquo;loss &#43; SGD&amp;rdquo; machine).
+In contrast, Topological and Geometric Data Analysis (TGDA) is a burgeoning field that studies the global structure of data. This is exciting not only because of potential domain applications &amp;ndash; it also opens possibilities for porting a lot of powerful and beautiful math to the ML realm." />
+
+  <meta name="keywords" content="meiji163, math, machine learning, programming" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.86.0" />
+
+
+<link rel="canonical" href="https://meiji163.github.io/post/combo-hyperbolic-embedding/" />
+
+
+
+
+
+<link rel="icon" href="/favicon.ico" />
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/sass/jane.min.fa4b2b9f31b5c6d0b683db81157a9226e17b06e61911791ab547242a4a0556f2.css" integrity="sha256-&#43;ksrnzG1xtC2g9uBFXqSJuF7BuYZEXkatUckKkoFVvI=" media="screen" crossorigin="anonymous">
+
+
+
+
+<link rel="stylesheet" href="/css/center.css">
+
+
+<meta property="og:title" content="Combinatorial Hyperbolic Embeddings" />
+<meta property="og:description" content="Introduction The manifold hypothesis says that most real-world datasets lie approximately on a low-dimensional manifold, but by some Kantian twist of fate we rarely have direct access to this manifold1. As a result, most machine learning techniques utilize only local structure (e.g. the &ldquo;loss &#43; SGD&rdquo; machine).
+In contrast, Topological and Geometric Data Analysis (TGDA) is a burgeoning field that studies the global structure of data. This is exciting not only because of potential domain applications &ndash; it also opens possibilities for porting a lot of powerful and beautiful math to the ML realm." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://meiji163.github.io/post/combo-hyperbolic-embedding/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2021-08-24T00:00:00+00:00" />
+<meta property="article:modified_time" content="2021-08-24T00:00:00+00:00" />
+
+<meta itemprop="name" content="Combinatorial Hyperbolic Embeddings">
+<meta itemprop="description" content="Introduction The manifold hypothesis says that most real-world datasets lie approximately on a low-dimensional manifold, but by some Kantian twist of fate we rarely have direct access to this manifold1. As a result, most machine learning techniques utilize only local structure (e.g. the &ldquo;loss &#43; SGD&rdquo; machine).
+In contrast, Topological and Geometric Data Analysis (TGDA) is a burgeoning field that studies the global structure of data. This is exciting not only because of potential domain applications &ndash; it also opens possibilities for porting a lot of powerful and beautiful math to the ML realm."><meta itemprop="datePublished" content="2021-08-24T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2021-08-24T00:00:00+00:00" />
+<meta itemprop="wordCount" content="2364">
+<meta itemprop="keywords" content="machine learning,hyperbolic,geometry,TGDA,metric geometry," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Combinatorial Hyperbolic Embeddings"/>
+<meta name="twitter:description" content="Introduction The manifold hypothesis says that most real-world datasets lie approximately on a low-dimensional manifold, but by some Kantian twist of fate we rarely have direct access to this manifold1. As a result, most machine learning techniques utilize only local structure (e.g. the &ldquo;loss &#43; SGD&rdquo; machine).
+In contrast, Topological and Geometric Data Analysis (TGDA) is a burgeoning field that studies the global structure of data. This is exciting not only because of potential domain applications &ndash; it also opens possibilities for porting a lot of powerful and beautiful math to the ML realm."/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+
+
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">明治</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <li class="mobile-menu-item">
+        
+          
+          
+            <a class="menu-item-link" href="https://meiji163.github.io/">Home</a>
+          
+        
+      </li><li class="mobile-menu-item">
+        
+          
+          
+            <a class="menu-item-link" href="https://meiji163.github.io/post/">Archives</a>
+          
+        
+      </li><li class="mobile-menu-item">
+        
+          
+          
+            <a class="menu-item-link" href="https://meiji163.github.io/tags/">Tags</a>
+          
+        
+      </li><li class="mobile-menu-item">
+        
+          
+          
+            <a class="menu-item-link" href="https://meiji163.github.io/categories/">Categories</a>
+          
+        
+      </li><li class="mobile-menu-item">
+        
+          
+          
+            <a class="menu-item-link" href="https://meiji163.github.io/about/">About</a>
+          
+        
+      </li>
+    
+
+    
+  </ul>
+</nav>
+
+
+  
+    
+
+
+
+
+
+
+  <link rel="stylesheet" href="/lib/photoswipe/photoswipe.min.css" />
+  <link rel="stylesheet" href="/lib/photoswipe/default-skin/default-skin.min.css" />
+
+
+
+
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+<div class="pswp__bg"></div>
+
+<div class="pswp__scroll-wrap">
+    
+    <div class="pswp__container">
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+    </div>
+    
+    <div class="pswp__ui pswp__ui--hidden">
+    <div class="pswp__top-bar">
+      
+      <div class="pswp__counter"></div>
+      <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+      <button class="pswp__button pswp__button--share" title="Share"></button>
+      <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+      <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+      
+      
+      <div class="pswp__preloader">
+        <div class="pswp__preloader__icn">
+          <div class="pswp__preloader__cut">
+            <div class="pswp__preloader__donut"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+      <div class="pswp__share-tooltip"></div>
+    </div>
+    <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+    </button>
+    <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+    </button>
+    <div class="pswp__caption">
+      <div class="pswp__caption__center"></div>
+    </div>
+    </div>
+    </div>
+</div>
+
+  
+
+  
+
+  
+
+  <header id="header" class="header container">
+    <div class="logo-wrapper">
+  <a href="/" class="logo">
+    
+      明治
+    
+  </a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    
+    
+        <li class="menu-item">
+        
+          
+          
+            <a class="menu-item-link" href="https://meiji163.github.io/">Home</a>
+          
+
+        
+
+      </li>
+    
+        <li class="menu-item">
+        
+          
+          
+            <a class="menu-item-link" href="https://meiji163.github.io/post/">Archives</a>
+          
+
+        
+
+      </li>
+    
+        <li class="menu-item">
+        
+          
+          
+            <a class="menu-item-link" href="https://meiji163.github.io/tags/">Tags</a>
+          
+
+        
+
+      </li>
+    
+        <li class="menu-item">
+        
+          
+          
+            <a class="menu-item-link" href="https://meiji163.github.io/categories/">Categories</a>
+          
+
+        
+
+      </li>
+    
+        <li class="menu-item">
+        
+          
+          
+            <a class="menu-item-link" href="https://meiji163.github.io/about/">About</a>
+          
+
+        
+
+      </li>
+    
+
+    
+    
+
+    
+  </ul>
+</nav>
+
+  </header>
+
+  <div id="mobile-panel">
+    <main id="main" class="main bg-llight">
+      <div class="content-wrapper">
+        <div id="content" class="content container">
+          <article class="post bg-white">
+    
+    <header class="post-header">
+      <h1 class="post-title">Combinatorial Hyperbolic Embeddings</h1>
+      
+      <div class="post-meta">
+        <time datetime="2021-08-24" class="post-time">
+          2021-08-24
+        </time>
+        <div class="post-category">
+            <a href="https://meiji163.github.io/categories/machine-learning/"> machine learning </a>
+            <a href="https://meiji163.github.io/categories/geometry/"> geometry </a>
+            <a href="https://meiji163.github.io/categories/hyperbolic/"> hyperbolic </a>
+            
+          </div>
+        
+
+        
+        
+
+        
+        
+      </div>
+    </header>
+
+    
+    
+<div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Table of Contents</h2>
+  <div class="post-toc-content">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#introduction">Introduction</a></li>
+    <li><a href="#hyperbolic-space">Hyperbolic Space</a>
+      <ul>
+        <li><a href="#delta-hyperbolicity">\(\delta\)-Hyperbolicity</a></li>
+        <li><a href="#poincaré-disk-model">Poincaré Disk Model</a></li>
+      </ul>
+    </li>
+    <li><a href="#hyperbolic-data">Hyperbolic Data</a>
+      <ul>
+        <li><a href="#the-embedding-problem">The Embedding Problem</a></li>
+        <li><a href="#get-in-the-tree">Get in the Tree!</a></li>
+        <li><a href="#examples-with-hyperlib">Examples with Hyperlib</a></li>
+      </ul>
+    </li>
+    <li><a href="#references">References</a></li>
+  </ul>
+</nav>
+  </div>
+</div>
+
+    
+    <div class="post-content">
+      <h2 id="introduction">Introduction</h2>
+<p>The <a href="http://colah.github.io/posts/2014-03-NN-Manifolds-Topology/#fnref1">manifold hypothesis</a> says that most real-world datasets lie approximately on a low-dimensional manifold,
+but by some Kantian twist of fate we rarely have direct access to this manifold<sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup>. As a result, most machine learning techniques utilize only <em>local</em> structure (e.g. the &ldquo;loss + SGD&rdquo; machine).</p>
+<p>In contrast, Topological and Geometric Data Analysis (TGDA) is a burgeoning field that studies the <em>global</em> structure of data.
+This is exciting not only because of potential domain applications &ndash; it also opens possibilities for porting a lot of powerful and beautiful math to the ML realm.</p>
+<p>One aspect of TGDA is non-Euclidean representation learning. In this post I discuss hyperbolic learning, a research area that has been very active in recent years.
+After introducing hyperbolic space and its connection to trees, I go over some developments in combinatorial methods for hyperbolic embeddings.
+At the end, I produce some example embeddings using <a href="https://github.com/nalexai/hyperlib">Hyperlib</a>.</p>
+<h2 id="hyperbolic-space">Hyperbolic Space</h2>
+<p>I usually find it difficult to explain hyperbolic space to the geometrically uninitiated (it generally involves me going on about Riemannian metrics and curvature tensors while gesturing wildly at Escher&rsquo;s <em>Circle Limit</em>).
+The geometry of a sphere or plane is easy to grasp, but negative curvature is unintuitive to our Euclidean brains.</p>
+
+<link rel="stylesheet" href="/css/hugo-easy-gallery.css" />
+<div class="box">
+<figure  itemprop="associatedMedia"
+  itemscope itemtype="http://schema.org/ImageObject" >
+    <div class="img">
+      <img itemprop="thumbnail" src="https://uploads5.wikiart.org/images/m-c-escher/circle-limit-iv.jpg" alt="M. C. Escher, Circle Limit IV"/>
+    </div>
+    <a href="https://uploads5.wikiart.org/images/m-c-escher/circle-limit-iv.jpg" itemprop="contentUrl"></a>
+      <figcaption>
+          <p>M. C. Escher, Circle Limit IV</p>
+      </figcaption>
+  </figure>
+</div>
+
+<p>Luckily, I can explain it simply if you know what a <a href="https://en.wikipedia.org/wiki/Tree_(graph_theory)">tree</a> is: hyperbolic space is a <em>continuous version of a tree</em>.</p>
+<p>To see what this means I have to introduce a notion of hyperbolicity invented by the great mathematician <a href="https://en.wikipedia.org/wiki/Mikhael_Gromov_(mathematician)">Gromov</a>, which he originally used in the context of geometric group theory.</p>
+<h3 id="delta-hyperbolicity">\(\delta\)-Hyperbolicity</h3>
+<p>Suppse \( X \) is a set of points and \(d(\cdot, \cdot)\) is a <a href="https://en.wikipedia.org/wiki/Metric_space">metric</a> on \(X\) (a symmetric distance function that satisfies the triangle inequality).</p>
+<p>Define the &ldquo;Gromov product&rdquo; as</p>
+<p>$$ (x | y)_z = \frac{1}{2}(d(x,z)+d(y,z)-d(x,y)) $$</p>
+<p>Roughly, the Gromov product measures the distance of \(z\) from the the shortest path connecting \(x\) and \(y\).</p>
+<p><strong>Definition</strong>:  A metric space \( (X, d)\) is \(\delta\)-hyperbolic ( \(\delta \ge 0\) ) if</p>
+<p>$$ (x | y)_w \ge \min( (x|z)_w, (y|z)_w)) - \delta \quad \text{for all } x,y,z,w \in X.$$</p>
+<p>This condition essentially says that no point in the triangle formed by \(x,y,z\) can be too far from one of the edges.
+In fact, it&rsquo;s equivalent to require all triangles in \(X\) to be &ldquo;slim&rdquo;<sup id="fnref:2"><a href="#fn:2" class="footnote-ref" role="doc-noteref">2</a></sup>, where \( \delta \) is the &ldquo;slimness&rdquo; parameter.</p>
+
+
+<div class="box">
+<figure  itemprop="associatedMedia"
+  itemscope itemtype="http://schema.org/ImageObject" >
+    <div class="img">
+      <img itemprop="thumbnail" src="/images/deltah.png" alt="The delta-hyperbolic condition in the Euclidean plane. The diagram shows incircles of the triangles xyw, xwz, and zyw. The length of the 3 red segments equal to the 3 Gromov products"/>
+    </div>
+    <a href="/images/deltah.png" itemprop="contentUrl"></a>
+      <figcaption>
+          <p>The delta-hyperbolic condition in the Euclidean plane. The diagram shows incircles of the triangles xyw, xwz, and zyw. The length of the 3 red segments equal to the 3 Gromov products</p>
+      </figcaption>
+  </figure>
+</div>
+
+<p>What kind of space has slim triangles (small \(\delta\))? A <em>tree</em>!<br>
+For example, take an unweighted tree with its shortest-path distance.<br>
+As a metric space it is 0-hyperbolic, i.e. \( (x|y)_w \ge \min( (y|z)_w, (z|x)_w ) \) <br>
+(Proof: Exercise).</p>
+
+
+<div class="box">
+<figure  itemprop="associatedMedia"
+  itemscope itemtype="http://schema.org/ImageObject" >
+    <div class="img">
+      <img itemprop="thumbnail" src="https://graphstream-project.org/media/img/generator_overview_banana_tree.png#center" />
+    </div>
+    <a href="https://graphstream-project.org/media/img/generator_overview_banana_tree.png#center" itemprop="contentUrl"></a>
+  </figure>
+</div>
+
+<p>A tree has no cycles, so every triangle is just a path &ndash; a degenerate triangle. Trees are therefore the <em>most</em> hyperbolic of spaces; 0-hyperbolic metrics are called <em>tree metrics</em> (note however not all tree metrics come from a <em>tree graph</em>).</p>
+<p>Now it&rsquo;s easy to imagine graphs with a small \(\delta\): they&rsquo;re the &ldquo;tree-like&rdquo; ones with few long cycles.</p>
+<h3 id="poincaré-disk-model">Poincaré Disk Model</h3>
+<p>Graphs are well and good for you discrete-ophiles, but we want continuous hyperbolic spaces with derivatives and stuff!</p>
+<p>There are many models of hyperbolic space<sup id="fnref:3"><a href="#fn:3" class="footnote-ref" role="doc-noteref">3</a></sup>, but one of the easiest to visualize is the Poincaré model.
+In 2 dimensions, it is the set of points in the Euclidean disk<br>
+\( \mathbb{H}^2 = \{ x\in \mathbb{R}^2 : |x| &lt; 1 \} \)  with the metric given by</p>
+<p>$$ d_H(x,y) = \cosh^{-1} \left(1 + 2\frac{|x-y|^2}{(1-|x|^2)(1-|y|^2)}\right).$$</p>
+<p>Nevermind where this crazy function comes from, just note that the distance gets huge near the boundary circle \( |x| \to 1 \) ( \( \cosh^{-1}(r) \sim \log(r) \) grows logarithmically ). <br>
+Geodesics (shortest paths) in this model are arcs of circles that intersect the boundary circle at right angles. As a result, triangles look like this:</p>
+
+
+<div class="box">
+<figure  itemprop="associatedMedia"
+  itemscope itemtype="http://schema.org/ImageObject" >
+    <div class="img">
+      <img itemprop="thumbnail" src="https://pointatinfinityblog.files.wordpress.com/2018/02/triangle5.png?w=480&amp;h=480#center" />
+    </div>
+    <a href="https://pointatinfinityblog.files.wordpress.com/2018/02/triangle5.png?w=480&amp;h=480#center" itemprop="contentUrl"></a>
+  </figure>
+</div>
+
+<p>To our Euclidean eyes, the triangles get smaller and more distorted towards the boundary, but all of these triangles are acutally the same size when measured with the Poincaré metric.</p>
+<p>As you might suspect, triangles in the Poincaré disk are &ldquo;slim,&rdquo; and it turns out this metric space is \(\delta\)-hyperbolic with \(\delta = \log(1+\sqrt{2}) \approx 0.881 \).
+This model can be generalized easily to higher dimensions, and lower or higher \(\delta\). Other common models of hyperbolic space are the Lorentz (or hyperboloid) model and the upper-halfspace model.</p>
+<p>I could go on for pages about hyperbolic space and its strange properties &ndash; I refer the interested reader to one of the many good <a href="http://library.msri.org/books/Book31/files/cannon.pdf">introductory articles</a>.</p>
+<h2 id="hyperbolic-data">Hyperbolic Data</h2>
+<p>Now that we&rsquo;ve established a correspondence &ldquo;hyperbolic&rdquo; ⟷   &ldquo;treelike,&rdquo; you may be wondering what type of data is hyperbolic.</p>
+<p>The answer is: <em>anything with a hierarchical structure</em>. Words, social networks, the Internet, knowledge graphs, genomic data, images, even financial data &ndash; and that&rsquo;s only the tip of the iceberg (see <a href="#references">[5,6,8,9,10,11]</a> and the references therein).</p>
+<p>One way to understand the hyperbolic structure of these data is in terms of categorization (or <a href="https://en.wikipedia.org/wiki/Hierarchical_clustering">hierarchical clustering</a> for you ML people). Often there is a hierarchy of categories that gives rise to an underlying tree (Henri is a human; a human is a primate). However, we may get something that is only approximately a tree due to heterogenous or overlapping categories (Henri is a human; Henri is a mathematician; a mathematician is a human).</p>
+<p>We therefore might expect many datasets to have a \( \delta \)-hyperbolic metric (this is indeed the case, and we can measure \( \delta \) directly).
+This leads to the idea of embedding data in hyperbolic space.</p>
+<h3 id="the-embedding-problem">The Embedding Problem</h3>
+<p>The problem is now an algorithmic one: given data, compute a hyperbolic representation. A large portion of hyperbolic learning research focuses on this problem.</p>
+<p>For data with a natural metric, it can be formulated as follows:
+<em>given data \(X \) with a metric \( d \) find an embedding \(f: (X,d) \to (\mathbb{H}, d_H) \)</em> where \( (\mathbb{H}, d_H ) \) is a model of hyperbolic space.
+The embedding should have &ldquo;low distortion&rdquo; by some measure; a common choice is the <em>average distortion</em>, defined by</p>
+<p>$$D_{avg} = \frac{1}{\binom{n}{2}} \sum_{x,y\in X} \frac{|d_H(f(x),f(y)) - d(x,y)|}{d(x,y)}$$</p>
+<p>where the sum is over distinct pairs \( \{x,y\} \) and \(n\) is the number of points in \(X\).</p>
+<p>There are two main strategies:</p>
+<ol>
+<li>(<strong>SGD</strong>) Use a loss function and gradient descent to learn the embedding</li>
+<li>(<strong>Combinatorial</strong>) Embed the data into a (weighted) tree, then embed the tree in hyperbolic space</li>
+</ol>
+<p>The SGD strategy for hyperbolic embeddings was pioneered by Nickel &amp; Kiela <a href="#references">[3,4]</a>, who demonstrated that datasets like <a href="https://wordnet.princeton.edu/">WordNet</a> can be embedded in hyperbolic space with low distortion <em>and</em> in low dimensions. The drawback of the SGD stategy is the computational cost and numerical instability of doing gradient descent with the Riemannian gradient (this is a problem for hyperbolic deep learning in general).</p>
+<p>For the remainder of this post I&rsquo;ll primarily talk about the combinatorial strategy.</p>
+<h3 id="get-in-the-tree">Get in the Tree!</h3>
+<p>The second part of combinatorial strategy (embed a tree in hyperbolic space) is easy. An algorithm by Sarkar <a href="#references">[2]</a> embeds a tree with \(n\) nodes in the Poincaré disk in \( O(n) \) time. It guarantees that the distortion is at most \( 1+\epsilon \) if the edge weights are scaled appropriately (by contrast, a tree with constant branching factor &ndash; or more generally an <a href="https://en.wikipedia.org/wiki/Expander_graph">expander graph</a> &ndash; cannot be embedded with constant distortion in Euclidean space <em>of any dimension</em>).</p>
+<p>The idea of Sarkar&rsquo;s algorithm is simple: place a node at the origin and place all its children equally spaced in a circle around it. Then move one of the children to the origin (by a hyperbolic <a href="https://en.wikipedia.org/wiki/Hyperbolic_motion">reflection</a>) and repeat.</p>
+<p>Here&rsquo;s an example of an embedding of a complete binary tree in the Poincaré disk that achieves an average distortion of 0.153:</p>
+
+
+<div class="box">
+<figure  itemprop="associatedMedia"
+  itemscope itemtype="http://schema.org/ImageObject" >
+    <div class="img">
+      <img itemprop="thumbnail" src="/images/hyp-bin-tree.png" />
+    </div>
+    <a href="/images/hyp-bin-tree.png" itemprop="contentUrl"></a>
+  </figure>
+</div>
+
+<p>The authors of <a href="#references">[1]</a> provided a generalization of Sarkar&rsquo;s algorithm to higher dimensions. The only downside of Sarkar&rsquo;s algorithm is it requires high precision float arithmetic (as the points tend to the boundary).</p>
+<p>Now we can address the first part of the combinatorial strategy (embed the data into a tree), which is the more interesting problem.</p>
+<p>Many of the algorithms start from the following construction:</p>
+<p>For three points \(x,y,z \in X\) form a tree by adding a new point \(t\) and edges \( ( t,x), (t,y), (t,z)\).
+In order to stay consistent with the original metric on \(X\), you&rsquo;ll find that the edge weights have to be</p>
+<p>$$
+\begin{aligned}
+d(t,x) &amp;= (y|z)_x\cr
+d(t,y) &amp;= (x|z)_y\cr
+d(t,z) &amp;= (x|y)_z.
+\end{aligned}
+$$</p>
+<p>\(t\) is called a <em>Steiner node</em> and the 4-node tree is sometimes called a <em>Steiner tree</em>. Following the previous discussion, it may be interpreted as a category or cluster, depending on the data.</p>
+<p>To illustrate this, suppose \(d(x,y) = d(y,z) = d(z,x) = 1 \). To form the Steiner tree we add a Steiner node at a distance 1/2 from \(x,y,\) and \(z\).</p>
+
+
+<div class="box">
+<figure  itemprop="associatedMedia"
+  itemscope itemtype="http://schema.org/ImageObject" >
+    <div class="img">
+      <img itemprop="thumbnail" src="/images/steiner.png#center" alt="Forming a tree from a cycle by adding a Steiner node"/>
+    </div>
+    <a href="/images/steiner.png#center" itemprop="contentUrl"></a>
+      <figcaption>
+          <p>Forming a tree from a cycle by adding a Steiner node</p>
+      </figcaption>
+  </figure>
+</div>
+
+<p>A relatively old algorithm that uses this idea is <a href="https://en.wikipedia.org/wiki/Neighbor_joining">Neighbor Joining</a>, which is typically used in bioinformatics for constructing phylogenetic trees from some measure of genetic distance between species. Abraham et al. <a href="#references">[12]</a> improved the construction and obtained precise distortion bounds for tree-like metric spaces<sup id="fnref:4"><a href="#fn:4" class="footnote-ref" role="doc-noteref">4</a></sup>.</p>
+<p>Recently, Sonthalia &amp; Gilbert <a href="#references">[7]</a> introduced an algorithm called TreeRep to construct a tree from a \(\delta\)-hyperbolic metric. The idea is to start with the Steiner tree on \(x,y,z,t\) as above, sort the remaining points into zones based on their distance to the Steiner tree, then recursively add them to the tree.</p>
+<p>TreeRep reconstructs 0-hyperbolic metrics perfectly, but there is unfortunately no distortion bound for \(\delta &gt; 0\). However, empirically TreeRep outperforms other combinatorial methods (as well SGD methods) on both speed and distortion.</p>
+<p>Variations on these ideas are still stimulating new algorithms for hyperbolic embeddings (particularly interesting is <a href="#references">[14]</a> ).</p>
+<h3 id="examples-with-hyperlib">Examples with Hyperlib</h3>
+<p>Finally, here are a couple examples of combinatorial embeddings using <a href="https://github.com/nalexai/hyperlib">Hyperlib</a>,
+a library for hyperbolic learning I&rsquo;m contributing to.</p>
+<p>As I mentioned before, a classic application of tree embedding is the construction of phylogenetic trees.
+Sarich <a href="#references">[14]</a> measured the &ldquo;immunological distance&rdquo; between 8 species of mammals. Let&rsquo;s embed them in hyperbolic space with TreeRep<sup id="fnref:5"><a href="#fn:5" class="footnote-ref" role="doc-noteref">5</a></sup>.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">networkx</span> <span class="k">as</span> <span class="nn">nx</span>
+<span class="kn">from</span> <span class="nn">hyperlib.embedding.graph</span> <span class="kn">import</span> <span class="o">*</span> 
+
+<span class="n">labels</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span><span class="s2">&#34;dog&#34;</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span><span class="s2">&#34;bear&#34;</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span><span class="s2">&#34;raccoon&#34;</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span><span class="s2">&#34;weasel&#34;</span><span class="p">,</span>
+          <span class="mi">4</span><span class="p">:</span><span class="s2">&#34;seal&#34;</span><span class="p">,</span> <span class="mi">5</span><span class="p">:</span><span class="s2">&#34;sea lion&#34;</span><span class="p">,</span> <span class="mi">6</span><span class="p">:</span><span class="s2">&#34;cat&#34;</span><span class="p">,</span> <span class="mi">7</span><span class="p">:</span><span class="s2">&#34;monkey&#34;</span><span class="p">}</span>
+<span class="n">metric</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span> 
+        <span class="mf">32.</span><span class="p">,</span>  <span class="mf">48.</span><span class="p">,</span>  <span class="mf">51.</span><span class="p">,</span>  <span class="mf">50.</span><span class="p">,</span>  <span class="mf">48.</span><span class="p">,</span>  <span class="mf">98.</span><span class="p">,</span> <span class="mf">148.</span><span class="p">,</span>  
+        <span class="mf">26.</span><span class="p">,</span>  <span class="mf">34.</span><span class="p">,</span>  <span class="mf">29.</span><span class="p">,</span>  <span class="mf">33.</span><span class="p">,</span> <span class="mf">84.</span><span class="p">,</span> <span class="mf">136.</span><span class="p">,</span>  
+        <span class="mf">42.</span><span class="p">,</span>  <span class="mf">44.</span><span class="p">,</span>  <span class="mf">44.</span><span class="p">,</span>  <span class="mf">92.</span><span class="p">,</span> <span class="mf">152.</span><span class="p">,</span>  
+        <span class="mf">44.</span><span class="p">,</span>  <span class="mf">38.</span><span class="p">,</span>  <span class="mf">86.</span><span class="p">,</span> <span class="mf">142.</span><span class="p">,</span>
+        <span class="mf">24.</span><span class="p">,</span>  <span class="mf">89.</span><span class="p">,</span> <span class="mf">142.</span><span class="p">,</span>  
+        <span class="mf">90.</span><span class="p">,</span> <span class="mf">142.</span><span class="p">,</span> 
+        <span class="mf">148.</span><span class="p">])</span>
+
+<span class="n">T</span> <span class="o">=</span> <span class="n">treerep</span><span class="p">(</span><span class="n">metric</span><span class="p">)</span> 
+<span class="n">G</span> <span class="o">=</span> <span class="n">to_networkx</span><span class="p">(</span><span class="n">T</span><span class="p">)</span> <span class="c1">#convert to a nx.Graph</span>
+<span class="n">embed</span> <span class="o">=</span> <span class="n">sarkar_embedding</span><span class="p">(</span><span class="n">G</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="n">tau</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="mi">80</span><span class="p">)</span>
+<span class="n">plot_embedding</span><span class="p">(</span><span class="n">G</span><span class="p">,</span> <span class="n">emb</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="n">labels</span><span class="p">)</span>
+</code></pre></div><p>Here&rsquo;s the resulting tree:</p>
+
+
+<div class="box">
+<figure  itemprop="associatedMedia"
+  itemscope itemtype="http://schema.org/ImageObject" >
+    <div class="img">
+      <img itemprop="thumbnail" src="/images/sarich.png" />
+    </div>
+    <a href="/images/sarich.png" itemprop="contentUrl"></a>
+  </figure>
+</div>
+
+<p>The real evolutionary tree looks like <a href="https://en.wikipedia.org/wiki/Evolution_of_mammals#Evolution_of_major_groups_of_living_mammals">this</a>.</p>
+<p>For a bigger dataset, let&rsquo;s look at the hyperlink graph for .edu sites, available <a href="https://networkrepository.com/web-edu.php">here</a>.
+Let&rsquo;s also measure the \(\delta\) constant for the data and the average distortion of the embedding.
+Note that TreeRep is a randomized algorithm, so you can generate multiple trees and take the best one.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">scipy.sparse.csgraph</span> <span class="kn">import</span> <span class="n">shortest_path</span>
+<span class="kn">from</span> <span class="nn">scipy.spatial.distance</span> <span class="kn">import</span> <span class="n">squareform</span>
+<span class="kn">from</span> <span class="nn">hyperlib.embedding.metric</span> <span class="kn">import</span> <span class="n">delta_rel</span>
+
+<span class="k">def</span> <span class="nf">distortion</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">metric</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+	<span class="s1">&#39;&#39;&#39;Find the average distortion of the tree embedding for n points&#39;&#39;&#39;</span>
+	<span class="n">M</span> <span class="o">=</span> <span class="n">to_sparse</span><span class="p">(</span><span class="n">tree</span><span class="p">)</span>
+	<span class="n">tree_metric</span> <span class="o">=</span> <span class="n">squareform</span><span class="p">(</span> <span class="n">shortest_path</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">directed</span><span class="o">=</span><span class="kc">False</span><span class="p">)[:</span><span class="n">n</span><span class="p">,:</span><span class="n">n</span><span class="p">]</span> <span class="p">)</span>
+	<span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">tree_metric</span> <span class="o">-</span> <span class="n">metric</span><span class="p">)</span> <span class="o">/</span> <span class="n">metric</span> <span class="p">)</span>
+
+<span class="n">adj_mat</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">mmread</span><span class="p">(</span><span class="s2">&#34;web-edu.mtx&#34;</span><span class="p">)</span> <span class="c1"># load adjacency matrix</span>
+<span class="n">metric</span> <span class="o">=</span> <span class="n">shortest_path</span><span class="p">(</span><span class="n">adj_mat</span><span class="p">)</span> <span class="c1"># compute the graph metric</span>
+<span class="n">delta_r</span> <span class="o">=</span> <span class="n">delta_rel</span><span class="p">(</span><span class="n">metric</span><span class="p">[:</span><span class="mi">1000</span><span class="p">,:</span><span class="mi">1000</span><span class="p">])</span> <span class="c1"># estimate the relative delta constant</span>
+<span class="n">metric</span> <span class="o">=</span> <span class="n">squareform</span><span class="p">(</span><span class="n">metric</span><span class="p">)</span>
+
+<span class="c1"># generate 10 embeddings</span>
+<span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">):</span>
+	<span class="n">T</span> <span class="o">=</span> <span class="n">treerep</span><span class="p">(</span><span class="n">metric</span><span class="p">)</span>
+	<span class="nb">print</span><span class="p">(</span> <span class="n">distortion</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">metric</span><span class="p">,</span> <span class="n">adj_mat</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="p">)</span>
+</code></pre></div><p>The best average distortion I got out of the 10 tries was 0.0492. The relative \(\delta\) (i.e. normalized by the maximum distance) is approximately 0.2.</p>
+<hr>
+<p><em>Thanks for reading, stay tuned for more!</em></p>
+<p>Interested in hyperbolic deep learning or want to contribute to Hyperlib? <br>
+Join us at <a href="https://www.nalex.ai/">nalex.ai</a>! You can contact Nathan at <a href="mailto:nathan.francis@nalex.ai">nathan.francis@nalex.ai</a> and Alex at <a href="mailto:alexander.joseph@nalex.ai">alexander.joseph@nalex.ai</a>.</p>
+<h2 id="references">References</h2>
+<p><a href="https://arxiv.org/abs/1804.03329">[1]</a> C. De Sa, A. Gu, C. Ré, F. Sala, <em>Representation Tradeoffs for Hyperbolic Embeddings</em>
+<a href="https://homepages.inf.ed.ac.uk/rsarkar/papers/HyperbolicDelaunayFull.pdf">[2]</a> R. Sarkar, <em>Low Distortion Delaunay Embedding of Trees in
+Hyperbolic Plane</em>  <br>
+<a href="https://arxiv.org/abs/1705.08039">[3]</a> M. Nickel &amp; D. Kiela, <em>Poincaré Embeddings for Learning Hierarchical Representations</em>  <br>
+<a href="https://arxiv.org/abs/1806.03417">[4]</a> M. Nickel &amp; D. Kiela, <em>Learning Continuous Hierarchies in the Lorentz Model of Hyperbolic Geometry</em>  <br>
+<a href="https://arxiv.org/abs/2005.00545v1">[5]</a> I. Chami, A. Wolf, D. Juan, F. Sala, S. Ravi, C. Ré, <em>Low-Dimensional Hyperbolic Knowledge Graph Embeddings</em>  <br>
+<a href="https://arxiv.org/abs/1904.02239">[6]</a> V. Khrulkov, L. Mirvakhabova, E. Ustinova, I. Oseledets, V. Lempitsky, <em>Hyperbolic Image Embeddings</em>  <br>
+<a href="https://arxiv.org/abs/2005.03847">[7]</a> R. Sonthalia, A. C. Gilbert, <em>Tree! I am no Tree! I am a Low Dimensional Hyperbolic Embedding</em>  <br>
+<a href="https://arxiv.org/abs/1810.06546">[8]</a> A. Tifrea, G. Bécigneul, O. Ganea, <em>Poincaré GloVe: Hyperbolic Word Embeddings</em> <br>
+<a href="https://arxiv.org/abs/1804.01882">[9]</a> O. Ganea, G. Bécigneul, T. Hofmann, <em>Hyperbolic Entailment Cones for Learning Hierarchical Embeddings</em> <br>
+<a href="https://arxiv.org/abs/1006.5169">[10]</a> D. Krioukov, F. Papadopoulos, M. Kitsak, A. Vahdat, M. Boguna, <em>Hyperbolic Geometry of Complex Networks</em><br>
+<a href="https://dl.acm.org/doi/10.1145/3442381.3450095">[11]</a> R. Sawhney, S. Agarwal, A. Wadhwa, R. R. Shah, <em>Exploring the Scale-Free Nature of Stock Markets: Hyperbolic Graph Learning for Algorithmic Trading</em> <br>
+<a href="http://www.cs.yale.edu/homes/mahesh/papers/approx-tree.pdf">[12]</a> I. Abraham, M. Balakrishnan, F. Kuhn et al., <em>Reconstructing Approximate Tree Metrics</em>
+<a href="https://arxiv.org/abs/2010.00402">[13]</a> I. Chami, A. Gu, A. Chatziafratis, C. Ré, <em>From Trees to Continuous Embeddings and Back: Hyperbolic Hierarchical Clustering</em>
+<a href="https://www.jstor.org/stable/2412185">[14]</a> V. Sarich, <em>Pinniped Phylogeny</em></p>
+<section class="footnotes" role="doc-endnotes">
+<hr>
+<ol>
+<li id="fn:1" role="doc-endnote">
+<p>In some low-dimensional cases it is tractable. A notable experiment by Carlsson showed that 3x3 pixel patches on a dataset of black and white photos lay on a <a href="https://en.wikipedia.org/wiki/Klein_bottle">Klein bottle</a> in \( \mathbb{R}^9 \)&#160;<a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:2" role="doc-endnote">
+<p>The definition of \(\delta\)-hyperbolic works for any metric space (which is a very general notion). For simplicity we can assume \(X\) has nice enough properties,
+like being a <a href="https://en.wikipedia.org/wiki/Intrinsic_metric">geodesic space</a>. In that case, the &ldquo;slimness&rdquo; of geodesic triangles is indeed an equivalent definition (called the Rips condition).&#160;<a href="#fnref:2" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:3" role="doc-endnote">
+<p>More specifically, by &ldquo;hyperbolic space&rdquo; I mean the (unique) complete \(n\)-dimensional Riemannian manifold with constant negative scalar curvature -1.
+Note that &ldquo;hyperbolicity&rdquo; as defined here can apply to any metric space, but most people will be thinking of the Riemannian manifold if you say &ldquo;hyperbolic space.&rdquo;&#160;<a href="#fnref:3" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:4" role="doc-endnote">
+<p>They actually use a slightly different condition from \(\delta\)-hyperbolicity which they call the &ldquo;\(\epsilon\) &ndash; 4 points condition.&rdquo; This allows them to bound multiplicative distortion rather than additive distortion. The conditions coincide for \(\delta=\epsilon=0\).&#160;<a href="#fnref:4" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:5" role="doc-endnote">
+<p>At the time of writing <code>sarkar_embedding</code> is only on <a href="https://github.com/meiji163/hyperlib">this fork</a> of Hyperlib.&#160;<a href="#fnref:5" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+</ol>
+</section>
+
+    </div>
+
+    
+    
+<div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content">meiji163</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+      2021-08-24
+      
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">License</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+
+
+    
+    
+
+    <footer class="post-footer">
+      <div class="post-tags">
+          <a href="https://meiji163.github.io/tags/machine-learning/">machine learning</a>
+          <a href="https://meiji163.github.io/tags/hyperbolic/">hyperbolic</a>
+          <a href="https://meiji163.github.io/tags/geometry/">geometry</a>
+          <a href="https://meiji163.github.io/tags/tgda/">TGDA</a>
+          <a href="https://meiji163.github.io/tags/metric-geometry/">metric geometry</a>
+          
+        </div>
+
+      
+      <nav class="post-nav">
+        
+        
+          <a class="next" href="/post/context-tree-weighting/">
+            <span class="next-text nav-default">Context Tree Weighting and Compression</span>
+            <span class="prev-text nav-mobile">Next</span>
+            
+            <i class="iconfont">
+              <svg class="icon" viewBox="0 0 1024 1024" version="1.1"
+  xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+  width="18" height="18">
+  <path d="M332.091514 74.487481l-75.369571 89.491197c-10.963703 12.998035-10.285251 32.864502 1.499144 44.378743l286.278095 300.375162L266.565125 819.058374c-11.338233 12.190647-11.035334 32.285311 0.638543 44.850487l80.46666 86.564541c11.680017 12.583596 30.356378 12.893658 41.662889 0.716314l377.434212-421.426145c11.332093-12.183484 11.041474-32.266891-0.657986-44.844348l-80.46666-86.564541c-1.772366-1.910513-3.706415-3.533476-5.750981-4.877077L373.270379 71.774697C361.493148 60.273758 343.054193 61.470003 332.091514 74.487481z"></path>
+</svg>
+
+            </i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+
+  
+  
+
+  
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+    
+
+  
+
+        </div>
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="icon-links">
+  
+  
+    <a href="mailto:mysatellite99@gmail.com" rel="me noopener" class="iconfont"
+      title="email" >
+      <svg class="icon" viewBox="0 0 1451 1024" version="1.1"
+  xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+  width="36" height="36">
+  <path d="M664.781909 681.472759 0 97.881301C0 3.997201 71.046997 0 71.046997 0L474.477909 0 961.649408 0 1361.641813 0C1361.641813 0 1432.688811 3.997201 1432.688811 97.881301L771.345323 681.472759C771.345323 681.472759 764.482731 685.154773 753.594283 688.65053L753.594283 688.664858C741.602731 693.493018 729.424896 695.068979 718.077952 694.839748 706.731093 695.068979 694.553173 693.493018 682.561621 688.664858L682.561621 688.65053C671.644501 685.140446 664.781909 681.472759 664.781909 681.472759L664.781909 681.472759ZM718.063616 811.603883C693.779541 811.016482 658.879232 802.205449 619.10784 767.734955 542.989056 701.759633 0 212.052267 0 212.052267L0 942.809523C0 942.809523 0 1024 83.726336 1024L682.532949 1024 753.579947 1024 1348.948139 1024C1432.688811 1024 1432.688811 942.809523 1432.688811 942.809523L1432.688811 212.052267C1432.688811 212.052267 893.138176 701.759633 817.019477 767.734955 777.248 802.205449 742.347691 811.03081 718.063616 811.603883L718.063616 811.603883Z"></path>
+</svg>
+
+    </a>
+  
+    <a href="https://math.stackexchange.com/users/201018/mysatellite" rel="me noopener" class="iconfont"
+      title="stack-overflow"  target="_blank"
+      >
+      <svg class="icon" viewBox="0 0 1024 1024" version="1.1"
+  xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+  width="36" height="36">
+  <path d="M809.714286 932.571429l-638.857143 0 0-274.285714-91.428571 0 0 365.714286 821.714286 0 0-365.714286-91.428571 0 0 274.285714zm-538.285714-299.428571l18.857143-89.714286 447.428571 94.285714-18.857143 89.142857zm58.857143-213.714286l38.285714-83.428571 414.285714 193.714286-38.285714 82.857143zm114.857143-203.428571l58.285714-70.285714 350.857143 293.142857-58.285714 70.285714zm226.857143-216l272.571429 366.285714-73.142857 54.857143-272.571429-366.285714zm-410.285714 840.571429l0-90.857143 457.142857 0 0 90.857143-457.142857 0z"></path>
+</svg>
+
+    </a>
+  
+    <a href="https://github.com/meiji163" rel="me noopener" class="iconfont"
+      title="github"  target="_blank"
+      >
+      <svg class="icon" style="" viewBox="0 0 1024 1024" version="1.1"
+  xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+  width="36" height="36">
+  <path d="M512 12.672c-282.88 0-512 229.248-512 512 0 226.261333 146.688 418.133333 350.08 485.76 25.6 4.821333 34.986667-11.008 34.986667-24.618667 0-12.16-0.426667-44.373333-0.64-87.04-142.421333 30.890667-172.458667-68.693333-172.458667-68.693333C188.672 770.986667 155.008 755.2 155.008 755.2c-46.378667-31.744 3.584-31.104 3.584-31.104 51.413333 3.584 78.421333 52.736 78.421333 52.736 45.653333 78.293333 119.850667 55.68 149.12 42.581333 4.608-33.109333 17.792-55.68 32.426667-68.48-113.706667-12.8-233.216-56.832-233.216-253.013333 0-55.893333 19.84-101.546667 52.693333-137.386667-5.76-12.928-23.04-64.981333 4.48-135.509333 0 0 42.88-13.738667 140.8 52.48 40.96-11.392 84.48-17.024 128-17.28 43.52 0.256 87.04 5.888 128 17.28 97.28-66.218667 140.16-52.48 140.16-52.48 27.52 70.528 10.24 122.581333 5.12 135.509333 32.64 35.84 52.48 81.493333 52.48 137.386667 0 196.693333-119.68 240-233.6 252.586667 17.92 15.36 34.56 46.762667 34.56 94.72 0 68.522667-0.64 123.562667-0.64 140.202666 0 13.44 8.96 29.44 35.2 24.32C877.44 942.592 1024 750.592 1024 524.672c0-282.752-229.248-512-512-512"></path>
+</svg>
+
+    </a>
+  
+    <a href="https://codeforces.com/profile/meiji163" rel="me noopener" class="iconfont"
+      title="codeforces"  target="_blank"
+      >
+      <svg width="36" height="36" class="icon" style="" version="1.1" viewBox="0 0 1024 1024">
+<path d="M 192 334.2 C 227.3 334.2 256 369.2 256 412.4 v 547.5 C 256 1003.2 227.3 1038.2 192 1038.2 H 64 C 28.7 1038.2 0 1003.2 0 960 V 412.4 C 0 369.2 28.7 334.2 64 334.2 h 128 z m 384 -234.7 C 611.3 99.6 640 134.5 640 177.8 v 782.2 C 640 1003.2 611.3 1038.2 576 1038.2 H 448 C 412.7 1038.2 384 1003.2 384 960 V 177.8 C 384 134.5 412.7 99.6 448 99.6 h 128 z m 384 391.1 C 995.3 490.6 1024 525.7 1024 568.9 v 391.1 C 1024 1003.2 995.3 1038.2 960 1038.2 h -128 C 796.7 1038.2 768 1003.2 768 960 V 568.9 C 768 525.7 796.7 490.6 832 490.6 h 128 z" />
+</svg>
+
+    </a>
+  
+    <a href="https://qoto.org/@meiji163" rel="me noopener" class="iconfont"
+      title="mastodon"  target="_blank"
+      >
+      <svg class="icon" style="" viewBox="0 0 448 512" version="1.1"
+  xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+  width="36" height="36"><path fill="currentColor" d="M433 179.11c0-97.2-63.71-125.7-63.71-125.7-62.52-28.7-228.56-28.4-290.48 0 0 0-63.72 28.5-63.72 125.7 0 115.7-6.6 259.4 105.63 289.1 40.51 10.7 75.32 13 103.33 11.4 50.81-2.8 79.32-18.1 79.32-18.1l-1.7-36.9s-36.31 11.4-77.12 10.1c-40.41-1.4-83-4.4-89.63-54a102.54 102.54 0 0 1-.9-13.9c85.63 20.9 158.65 9.1 178.75 6.7 56.12-6.7 105-41.3 111.23-72.9 9.8-49.8 9-121.5 9-121.5zm-75.12 125.2h-46.63v-114.2c0-49.7-64-51.6-64 6.9v62.5h-46.33V197c0-58.5-64-56.6-64-6.9v114.2H90.19c0-122.1-5.2-147.9 18.41-175 25.9-28.9 79.82-30.8 103.83 6.1l11.6 19.5 11.6-19.5c24.11-37.1 78.12-34.8 103.83-6.1 23.71 27.3 18.4 53 18.4 175z"></path></svg>
+    </a>
+
+
+<a href="https://meiji163.github.io/index.xml" rel="noopener alternate" type="application/rss&#43;xml"
+    class="iconfont" title="rss" target="_blank">
+    <svg class="icon" viewBox="0 0 1024 1024" version="1.1"
+  xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+  width="30" height="30">
+  <path d="M819.157333 1024C819.157333 574.592 449.408 204.8 0 204.8V0c561.706667 0 1024 462.293333 1024 1024h-204.842667zM140.416 743.04a140.8 140.8 0 0 1 140.501333 140.586667A140.928 140.928 0 0 1 140.074667 1024C62.72 1024 0 961.109333 0 883.626667s62.933333-140.544 140.416-140.586667zM678.784 1024h-199.04c0-263.210667-216.533333-479.786667-479.744-479.786667V345.173333c372.352 0 678.784 306.517333 678.784 678.826667z"></path>
+</svg>
+
+  </a>
+   
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - <a class="theme-link" href="https://github.com/xianmin/hugo-theme-jane">Jane</a>
+  </span>
+
+  <span class="copyright-year">
+    &copy;
+    2021
+    <span class="heart">
+      
+      <i class="iconfont">
+        <svg class="icon" viewBox="0 0 1025 1024" version="1.1"
+  xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+  width="14" height="14">
+  <path d="M1000.1 247.9c-15.5-37.3-37.6-70.6-65.7-98.9-54.4-54.8-125.8-85-201-85-85.7 0-166 39-221.4 107.4C456.6 103 376.3 64 290.6 64c-75.1 0-146.5 30.4-201.1 85.6-28.2 28.5-50.4 61.9-65.8 99.3-16 38.8-24 79.9-23.6 122.2 0.7 91.7 40.1 177.2 108.1 234.8 3.1 2.6 6 5.1 8.9 7.8 14.9 13.4 58 52.8 112.6 102.7 93.5 85.5 209.9 191.9 257.5 234.2 7 6.1 15.8 9.5 24.9 9.5 9.2 0 18.1-3.4 24.9-9.5 34.5-30.7 105.8-95.9 181.4-165 74.2-67.8 150.9-138 195.8-178.2 69.5-57.9 109.6-144.4 109.9-237.3 0.1-42.5-8-83.6-24-122.2z"
+   fill="#8a8a8a"></path>
+</svg>
+
+      </i>
+    </span><span class="author">
+        meiji163
+        
+      </span></span>
+
+  
+  
+
+  
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont">
+        
+        <svg class="icon" viewBox="0 0 1024 1024" version="1.1"
+  xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+  width="35" height="35">
+  <path d="M510.866688 227.694839 95.449397 629.218702l235.761562 0-2.057869 328.796468 362.40389 0L691.55698 628.188232l241.942331-3.089361L510.866688 227.694839zM63.840492 63.962777l894.052392 0 0 131.813095L63.840492 195.775872 63.840492 63.962777 63.840492 63.962777zM63.840492 63.962777"></path>
+</svg>
+
+      </i>
+    </div>
+  </div>
+  
+<script type="text/javascript" src="/lib/jquery/jquery-3.2.1.min.js"></script>
+  <script type="text/javascript" src="/lib/slideout/slideout-1.0.1.min.js"></script>
+
+
+
+
+<script type="text/javascript" src="/js/main.638251f4230630f0335d8c6748e53a96f94b72670920b60c09a56fdc8bece214.js" integrity="sha256-Y4JR9CMGMPAzXYxnSOU6lvlLcmcJILYMCaVv3Ivs4hQ=" crossorigin="anonymous"></script>
+
+
+
+
+
+
+  <link rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/katex@0.11.0/dist/katex.min.css"
+    integrity="sha384-BdGj8xC2eZkQaxoQ8nSLefg4AV4/AwB3Fj+8SUSo7pnKP6Eoy18liIKTPn9oBYNG"
+    crossorigin="anonymous">
+
+  
+  <script defer
+    src="https://cdn.jsdelivr.net/npm/katex@0.11.0/dist/katex.min.js"
+    integrity="sha384-JiKN5O8x9Hhs/UE5cT5AAJqieYlOZbGT3CHws/y97o3ty4R7/O5poG9F3JoiOYw1"
+    crossorigin="anonymous"></script>
+
+  
+  <script defer
+    src="https://cdn.jsdelivr.net/npm/katex@0.11.0/dist/contrib/auto-render.min.js"
+    integrity="sha384-kWPLUVMOks5AQFrykwIup5lo0m3iMkkHrD0uJ4H5cjeGihAutqP0yW0J6dpFiVkI"
+    crossorigin="anonymous" onload="renderMathInElement(document.body);">
+  </script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      renderMathInElement(document.body, {
+        
+      });
+    });
+  </script>
+
+
+
+
+
+
+  
+    <script type="text/javascript" src="/js/load-photoswipe.js"></script>
+    <script type="text/javascript" src="/lib/photoswipe/photoswipe.min.js"></script>
+    <script type="text/javascript" src="/lib/photoswipe/photoswipe-ui-default.min.js"></script>
+  
+
+
+
+
+
+
+
+
+
+  <script id="dsq-count-scr" src="//.disqus.com/count.js" async></script>
+
+
+
+
+
+
+
+</body>
+</html>

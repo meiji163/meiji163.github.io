@@ -6,7 +6,52 @@
     <description>Recent content in Tags on meiji163</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
-    <lastBuildDate>Fri, 23 Apr 2021 00:00:00 +0000</lastBuildDate><atom:link href="https://meiji163.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Tue, 24 Aug 2021 00:00:00 +0000</lastBuildDate><atom:link href="https://meiji163.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>geometry</title>
+      <link>https://meiji163.github.io/tags/geometry/</link>
+      <pubDate>Tue, 24 Aug 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://meiji163.github.io/tags/geometry/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>hyperbolic</title>
+      <link>https://meiji163.github.io/tags/hyperbolic/</link>
+      <pubDate>Tue, 24 Aug 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://meiji163.github.io/tags/hyperbolic/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>machine learning</title>
+      <link>https://meiji163.github.io/tags/machine-learning/</link>
+      <pubDate>Tue, 24 Aug 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://meiji163.github.io/tags/machine-learning/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>metric geometry</title>
+      <link>https://meiji163.github.io/tags/metric-geometry/</link>
+      <pubDate>Tue, 24 Aug 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://meiji163.github.io/tags/metric-geometry/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>TGDA</title>
+      <link>https://meiji163.github.io/tags/tgda/</link>
+      <pubDate>Tue, 24 Aug 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://meiji163.github.io/tags/tgda/</guid>
+      <description></description>
+    </item>
+    
     <item>
       <title>algorithms</title>
       <link>https://meiji163.github.io/tags/algorithms/</link>
@@ -58,15 +103,6 @@
       <pubDate>Sat, 23 Jan 2021 00:00:00 +0000</pubDate>
       
       <guid>https://meiji163.github.io/tags/gaussian-integers/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>geometry</title>
-      <link>https://meiji163.github.io/tags/geometry/</link>
-      <pubDate>Sat, 23 Jan 2021 00:00:00 +0000</pubDate>
-      
-      <guid>https://meiji163.github.io/tags/geometry/</guid>
       <description></description>
     </item>
     
