@@ -37,7 +37,7 @@ Define the "Gromov product" as
 
 $$ (x | y)_z = \frac{1}{2}(d(x,z)+d(y,z)-d(x,y)) $$
 
-Roughly, the Gromov product measures the distance of \\(z\\) from the the shortest path connecting \\(x\\) and \\(y\\).
+Roughly, the Gromov product measures the distance of \\(z\\) from the shortest path (the geodesic) connecting \\(x\\) and \\(y\\).
 
 **Definition**:  A metric space \\( (X, d)\\) is \\(\delta\\)-hyperbolic ( \\(\delta \ge 0\\) ) if 
 
@@ -82,7 +82,7 @@ Geodesics (shortest paths) in this model are arcs of circles that intersect the 
 To our Euclidean eyes, the triangles get smaller and more distorted towards the boundary, but all of these triangles are acutally the same size when measured with the Poincaré metric.
 
 As you might suspect, triangles in the Poincaré disk are "slim," and it turns out this metric space is \\(\delta\\)-hyperbolic with \\(\delta = \log(1+\sqrt{2}) \approx 0.881 \\).
-This model can be generalized easily to higher dimensions, and lower or higher \\(\delta\\). Other common models of hyperbolic space are the Lorentz (or hyperboloid) model and the upper-halfspace model.   
+This model can be generalized easily to higher dimensions, and lower or higher \\(\delta\\). Other common models of hyperbolic space are the [Lorentz model](https://en.wikipedia.org/wiki/Hyperboloid_model) (or hyperboloid model) and the [upper-halfspace model](https://en.wikipedia.org/wiki/Poincar%C3%A9_half-plane_model).   
 
 I could go on for pages about hyperbolic space and its strange properties -- I refer the interested reader to one of the many good [introductory articles](http://library.msri.org/books/Book31/files/cannon.pdf). 
 
@@ -200,6 +200,34 @@ Here's the resulting tree:
 
 The real evolutionary tree looks like [this](https://en.wikipedia.org/wiki/Evolution_of_mammals#Evolution_of_major_groups_of_living_mammals).
 
+Here's the code to plot the embedding:
+
+```python
+def plot_embedding(G, embedding, **kwargs):
+    pts = np.array(list(map(float, embedding))).reshape(-1,2)
+    size = kwargs.get("figsize", (15,15))
+    plt.figure(figsize=size)
+    labels = kwargs.get("labels", None)
+    if labels:
+        for i in labels:
+            plt.annotate(labels[i], pts[i],
+                         size=14,
+                         bbox=dict(facecolor='grey',alpha=0.1))
+
+    lines = [(pts[e[0]],pts[e[1]]) for e in G.edges]
+    lc = LineCollection(lines,linewidths=0.7)
+    circle = plt.Circle((0, 0), r, fill=False, color="b")
+    plt.gca().add_artist(circle)
+    plt.gca().set_aspect("equal")
+    plt.xlim(-1.1, 1.1)
+    plt.ylim(-1.1, 1.1)
+    size = kwargs.get("node_size", 10)
+    plt.scatter(pts[:,0],pts[:,1], s=size)
+    plt.gca().add_collection(lc)
+    plt.axis("off")
+    plt.show()
+```
+
 For a bigger dataset, let's look at the hyperlink graph for .edu sites, available [here](https://networkrepository.com/web-edu.php).
 Let's also measure the \\(\delta\\) constant for the data and the average distortion of the embedding.
 Note that TreeRep is a randomized algorithm, so you can generate multiple trees and take the best one. 
@@ -249,5 +277,5 @@ Hyperbolic Plane_
 [[10]](https://arxiv.org/abs/1006.5169) D. Krioukov, F. Papadopoulos, M. Kitsak, A. Vahdat, M. Boguna, _Hyperbolic Geometry of Complex Networks_   
 [[11]](https://dl.acm.org/doi/10.1145/3442381.3450095) R. Sawhney, S. Agarwal, A. Wadhwa, R. R. Shah, _Exploring the Scale-Free Nature of Stock Markets: Hyperbolic Graph Learning for Algorithmic Trading_    
 [[12]](http://www.cs.yale.edu/homes/mahesh/papers/approx-tree.pdf) I. Abraham, M. Balakrishnan, F. Kuhn et al., _Reconstructing Approximate Tree Metrics_
-[[13]](https://arxiv.org/abs/2010.00402) I. Chami, A. Gu, A. Chatziafratis, C. Ré, _From Trees to Continuous Embeddings and Back: Hyperbolic Hierarchical Clustering_
+[[13]](https://arxiv.org/abs/2010.00402) I. Chami, A. Gu, A. Chatziafratis, C. Ré, _From Trees to Continuous Embeddings and Back: Hyperbolic Hierarchical Clustering_    
 [[14]](https://www.jstor.org/stable/2412185) V. Sarich, _Pinniped Phylogeny_   
