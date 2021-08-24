@@ -511,7 +511,7 @@ $$</p>
 <p>A relatively old algorithm that uses this idea is <a href="https://en.wikipedia.org/wiki/Neighbor_joining">Neighbor Joining</a>, which is typically used in bioinformatics for constructing phylogenetic trees from some measure of genetic distance between species. Abraham et al. <a href="#references">[12]</a> improved the construction and obtained precise distortion bounds for tree-like metric spaces<sup id="fnref:4"><a href="#fn:4" class="footnote-ref" role="doc-noteref">4</a></sup>.</p>
 <p>Recently, Sonthalia &amp; Gilbert <a href="#references">[7]</a> introduced an algorithm called TreeRep to construct a tree from a \(\delta\)-hyperbolic metric. The idea is to start with the Steiner tree on \(x,y,z,t\) as above, sort the remaining points into zones based on their distance to the Steiner tree, then recursively add them to the tree.</p>
 <p>TreeRep reconstructs 0-hyperbolic metrics perfectly, but there is unfortunately no distortion bound for \(\delta &gt; 0\). However, empirically TreeRep outperforms other combinatorial methods (as well SGD methods) on both speed and distortion.</p>
-<p>Variations on these ideas are still stimulating new algorithms for hyperbolic embeddings (particularly interesting is <a href="#references">[14]</a> ).</p>
+<p>Variations on these ideas are still inspiring new algorithms for hyperbolic embeddings (particularly interesting is <a href="#references">[13]</a> ).</p>
 <h3 id="examples-with-hyperlib">Examples with Hyperlib</h3>
 <p>Finally, here are a couple examples of combinatorial embeddings using <a href="https://github.com/nalexai/hyperlib">Hyperlib</a>,
 a library for hyperbolic learning I&rsquo;m contributing to.</p>

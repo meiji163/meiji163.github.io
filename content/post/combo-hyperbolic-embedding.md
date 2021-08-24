@@ -160,7 +160,7 @@ Recently, Sonthalia & Gilbert [[7]](#references) introduced an algorithm called 
 
 TreeRep reconstructs 0-hyperbolic metrics perfectly, but there is unfortunately no distortion bound for \\(\delta > 0\\). However, empirically TreeRep outperforms other combinatorial methods (as well SGD methods) on both speed and distortion.
 
-Variations on these ideas are still stimulating new algorithms for hyperbolic embeddings (particularly interesting is [[14]](#references) ).
+Variations on these ideas are still inspiring new algorithms for hyperbolic embeddings (particularly interesting is [[13]](#references) ).
 
 ### Examples with Hyperlib
 
