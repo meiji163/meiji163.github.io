@@ -74,7 +74,7 @@ In contrast, Topological and Geometric Data Analysis (TGDA) is a burgeoning fiel
 <meta itemprop="description" content="Introduction The manifold hypothesis says that most real-world datasets lie approximately on a low-dimensional manifold, but by some Kantian twist of fate we rarely have direct access to this manifold1. As a result, most machine learning techniques utilize only local structure (e.g. the &ldquo;loss &#43; SGD&rdquo; machine).
 In contrast, Topological and Geometric Data Analysis (TGDA) is a burgeoning field that studies the global structure of data. This is exciting not only because of potential domain applications &ndash; it also opens possibilities for porting a lot of powerful and beautiful math to the ML realm."><meta itemprop="datePublished" content="2021-08-24T00:00:00+00:00" />
 <meta itemprop="dateModified" content="2021-08-26T00:00:00+00:00" />
-<meta itemprop="wordCount" content="2486">
+<meta itemprop="wordCount" content="2511">
 <meta itemprop="keywords" content="machine learning,hyperbolic,geometry,TGDA,metric geometry," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Combinatorial Hyperbolic Embeddings"/>
 <meta name="twitter:description" content="Introduction The manifold hypothesis says that most real-world datasets lie approximately on a low-dimensional manifold, but by some Kantian twist of fate we rarely have direct access to this manifold1. As a result, most machine learning techniques utilize only local structure (e.g. the &ldquo;loss &#43; SGD&rdquo; machine).
@@ -383,7 +383,7 @@ The geometry of a sphere or plane is easy to grasp, but negative curvature is un
 <p>$$ (x | y)_z = \frac{1}{2}(d(x,z)+d(y,z)-d(x,y)) $$</p>
 <p>Roughly, the Gromov product measures the distance of \(z\) from the shortest path (the geodesic) connecting \(x\) and \(y\).</p>
 <p><strong>Definition</strong>:  A metric space \( (X, d)\) is \(\delta\)-hyperbolic ( \(\delta \ge 0\) ) if</p>
-<p>$$ (x | y)_w \ge \min( (x|z)_w, (y|z)_w)) - \delta \quad \text{for all } x,y,z,w \in X.$$</p>
+<p>$$ (x | y)_w \ge \min( (x|z)_w, (y|z)_w) - \delta \quad \text{for all } x,y,z,w \in X.$$</p>
 <p>This condition essentially says that no point in the triangle formed by \(x,y,z\) can be too far from one of the edges.
 In fact, it&rsquo;s equivalent to require all triangles in \(X\) to be &ldquo;slim&rdquo;<sup id="fnref:2"><a href="#fn:2" class="footnote-ref" role="doc-noteref">2</a></sup>, where \( \delta \) is the &ldquo;slimness&rdquo; parameter.</p>
 
@@ -457,8 +457,9 @@ This leads to the idea of embedding data in hyperbolic space.</p>
 The embedding should have &ldquo;low distortion&rdquo; by some measure; a common choice is the <em>average distortion</em>, defined by</p>
 <p>$$D_{avg} = \frac{1}{\binom{n}{2}} \sum_{x,y\in X} \frac{|d_H(f(x),f(y)) - d(x,y)|}{d(x,y)}$$</p>
 <p>where the sum is over distinct pairs \( \{x,y\} \) and \(n\) is the number of points in \(X\).
-Another measure is the worst-case distortion, defined by ratio of the maximum &ldquo;stretch&rdquo; $d_H(f(u),f(v)) / d(u,v)$ to the minimum stretch.</p>
-<p>There are two main strategies:</p>
+Another measure is the worst-case distortion, defined by ratio of the maximum &ldquo;stretch&rdquo; \(d_H(f(u),f(v)) / d(u,v)\) to the minimum stretch.
+If one only cares about preserving neighborhoods (i.e. <a href="https://en.wikipedia.org/wiki/Voronoi_diagram">Voronoi cells</a>) then a different measure called the mean average precision is used.</p>
+<p>There are two main strategies to find an embedding:</p>
 <ol>
 <li>(<strong>SGD</strong>) Use a loss function and gradient descent to learn the embedding</li>
 <li>(<strong>Combinatorial</strong>) Embed the data into a (weighted) tree, then embed the tree in hyperbolic space</li>
