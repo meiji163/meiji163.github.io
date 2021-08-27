@@ -1,6 +1,7 @@
 ---
 title: "Combinatorial Hyperbolic Embeddings"
 date: 2021-08-24
+lastmod: 2021-08-26
 tags: ["machine learning", "hyperbolic", "geometry", "TGDA", "metric geometry"]
 categories: ["machine learning", "geometry", "hyperbolic"]
 katex: true
@@ -80,6 +81,7 @@ Geodesics (shortest paths) in this model are arcs of circles that intersect the 
 {{< figure src="https://pointatinfinityblog.files.wordpress.com/2018/02/triangle5.png?w=480&h=480#center" >}}
 
 To our Euclidean eyes, the triangles get smaller and more distorted towards the boundary, but all of these triangles are acutally the same size when measured with the Poincaré metric.
+Space expands exponentially near the boundary unlike Euclidean space, which may give you an idea of why it is like a tree.
 
 As you might suspect, triangles in the Poincaré disk are "slim," and it turns out this metric space is \\(\delta\\)-hyperbolic with \\(\delta = \log(1+\sqrt{2}) \approx 0.881 \\).
 This model can be generalized easily to higher dimensions, and lower or higher \\(\delta\\). Other common models of hyperbolic space are the [Lorentz model](https://en.wikipedia.org/wiki/Hyperboloid_model) (or hyperboloid model) and the [upper-halfspace model](https://en.wikipedia.org/wiki/Poincar%C3%A9_half-plane_model).   
@@ -108,7 +110,8 @@ The embedding should have "low distortion" by some measure; a common choice is t
 
 $$D_{avg} = \frac{1}{\binom{n}{2}} \sum_{x,y\in X} \frac{|d_H(f(x),f(y)) - d(x,y)|}{d(x,y)}$$
 
-where the sum is over distinct pairs \\( \\{x,y\\} \\) and \\(n\\) is the number of points in \\(X\\).
+where the sum is over distinct pairs \\( \\{x,y\\} \\) and \\(n\\) is the number of points in \\(X\\). 
+Another measure is the worst-case distortion, defined by ratio of the maximum "stretch" $d_H(f(u),f(v)) / d(u,v)$ to the minimum stretch. 
 
 There are two main strategies:
 
@@ -120,7 +123,7 @@ The SGD strategy for hyperbolic embeddings was pioneered by Nickel & Kiela [[3,4
 For the remainder of this post I'll primarily talk about the combinatorial strategy. 
 
 ### Get in the Tree!
-The second part of combinatorial strategy (embed a tree in hyperbolic space) is easy. An algorithm by Sarkar [[2]](#references) embeds a tree with \\(n\\) nodes in the Poincaré disk in \\( O(n) \\) time. It guarantees that the distortion is at most \\( 1+\epsilon \\) if the edge weights are scaled appropriately (by contrast, a tree with constant branching factor -- or more generally an [expander graph](https://en.wikipedia.org/wiki/Expander_graph) -- cannot be embedded with constant distortion in Euclidean space _of any dimension_).
+The second part of combinatorial strategy (embed a tree in hyperbolic space) is easy. An algorithm by Sarkar [[2]](#references) embeds a tree with \\(n\\) nodes in the Poincaré disk in \\( O(n) \\) time. It guarantees that the worst-case distortion is at most \\( 1+\epsilon \\) if the edge weights are scaled appropriately (by contrast, a tree with constant branching factor -- or more generally an [expander graph](https://en.wikipedia.org/wiki/Expander_graph) -- cannot be embedded with constant distortion in Euclidean space _of any dimension_).
 
 The idea of Sarkar's algorithm is simple: place a node at the origin and place all its children equally spaced in a circle around it. Then move one of the children to the origin (by a hyperbolic [reflection](https://en.wikipedia.org/wiki/Hyperbolic_motion)) and repeat.
 
@@ -151,9 +154,9 @@ To illustrate this, suppose \\(d(x,y) = d(y,z) = d(z,x) = 1 \\). To form the Ste
 
 {{< figure src="/images/steiner.png#center" caption="Forming a tree from a cycle by adding a Steiner node">}}
 
-A relatively old algorithm that uses this idea is [Neighbor Joining](https://en.wikipedia.org/wiki/Neighbor_joining), which is typically used in bioinformatics for constructing phylogenetic trees from some measure of genetic distance between species. Abraham et al. [[12]](#references) improved the construction and obtained precise distortion bounds for tree-like metric spaces[^4pc]. 
+A relatively old algorithm that uses this idea is [Neighbor Joining](https://en.wikipedia.org/wiki/Neighbor_joining), which is typically used in bioinformatics for constructing phylogenetic trees from some measure of genetic distance between species. Abraham et al. [[12]](#references) improved the construction and obtained precise bounds on the worst-case distortion for tree-like metric spaces[^4pc]. 
 
-[^4pc]: They actually use a slightly different condition from \\(\delta\\)-hyperbolicity which they call the "\\(\epsilon\\) -- 4 points condition." This allows them to bound multiplicative distortion rather than additive distortion. The conditions coincide for \\(\delta=\epsilon=0\\).
+[^4pc]: They actually use a slightly different condition from \\(\delta\\)-hyperbolicity which they call the "\\(\epsilon\\) -- 4 points condition." This condition is invariant under scaling unlike \\(\delta\\)-hyperbolicity. The conditions coincide for \\(\delta=\epsilon=0\\).
 
 
 Recently, Sonthalia & Gilbert [[7]](#references) introduced an algorithm called TreeRep to construct a tree from a \\(\delta\\)-hyperbolic metric. The idea is to start with the Steiner tree on \\(x,y,z,t\\) as above, sort the remaining points into zones based on their distance to the Steiner tree, then recursively add them to the tree. 
@@ -169,7 +172,7 @@ a library for hyperbolic learning I'm contributing to.
 
 
 As I mentioned before, a classic application of tree embedding is the construction of phylogenetic trees. 
-Sarich [[14]](#references) measured the "immunological distance" between 8 species of mammals. Let's embed them in hyperbolic space with TreeRep[^dev].
+Sarich [[14]](#references) measured the "immunological distance" between 8 species of mammals. Let's embed them in hyperbolic space with TreeRep and Sarkar's algorithm[^dev].
 
 [^dev]: At the time of writing ``sarkar_embedding`` is only on [this fork](https://github.com/meiji163/hyperlib) of Hyperlib.
 
@@ -203,6 +206,9 @@ The real evolutionary tree looks like [this](https://en.wikipedia.org/wiki/Evolu
 Here's the code to plot the embedding:
 
 ```python
+import matplotlib.pyplot as plt
+from matplot.collections import LineCollection
+
 def plot_embedding(G, embedding, **kwargs):
     pts = np.array(list(map(float, embedding))).reshape(-1,2)
     size = kwargs.get("figsize", (15,15))
