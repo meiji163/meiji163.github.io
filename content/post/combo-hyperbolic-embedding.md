@@ -111,7 +111,7 @@ The embedding should have "low distortion" by some measure; a common choice is t
 $$D_{avg} = \frac{1}{\binom{n}{2}} \sum_{x,y\in X} \frac{|d_H(f(x),f(y)) - d(x,y)|}{d(x,y)}$$
 
 where the sum is over distinct pairs \\( \\{x,y\\} \\) and \\(n\\) is the number of points in \\(X\\). 
-Another measure is the worst-case distortion, defined by ratio of the maximum "stretch" \\(d_H(f(u),f(v)) / d(u,v)\\) to the minimum stretch. 
+Another measure is the worst-case distortion, defined by ratio of the maximum "stretch" \\(d_H(f(x),f(y)) / d(x,y)\\) to the minimum stretch. 
 If one only cares about preserving neighborhoods (i.e. [Voronoi cells](https://en.wikipedia.org/wiki/Voronoi_diagram)) then a different measure called the mean average precision is used.
 
 There are two main strategies to find an embedding:

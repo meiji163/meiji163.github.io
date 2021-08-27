@@ -145,7 +145,7 @@ This leads to the idea of embedding data in hyperbolic space.&lt;/p&gt;
 The embedding should have &amp;ldquo;low distortion&amp;rdquo; by some measure; a common choice is the &lt;em&gt;average distortion&lt;/em&gt;, defined by&lt;/p&gt;
 &lt;p&gt;$$D_{avg} = \frac{1}{\binom{n}{2}} \sum_{x,y\in X} \frac{|d_H(f(x),f(y)) - d(x,y)|}{d(x,y)}$$&lt;/p&gt;
 &lt;p&gt;where the sum is over distinct pairs \( \{x,y\} \) and \(n\) is the number of points in \(X\).
-Another measure is the worst-case distortion, defined by ratio of the maximum &amp;ldquo;stretch&amp;rdquo; \(d_H(f(u),f(v)) / d(u,v)\) to the minimum stretch.
+Another measure is the worst-case distortion, defined by ratio of the maximum &amp;ldquo;stretch&amp;rdquo; \(d_H(f(x),f(y)) / d(x,y)\) to the minimum stretch.
 If one only cares about preserving neighborhoods (i.e. &lt;a href=&#34;https://en.wikipedia.org/wiki/Voronoi_diagram&#34;&gt;Voronoi cells&lt;/a&gt;) then a different measure called the mean average precision is used.&lt;/p&gt;
 &lt;p&gt;There are two main strategies to find an embedding:&lt;/p&gt;
 &lt;ol&gt;
