@@ -74,7 +74,7 @@ Conformal Maps A conformal transformation is one that preserves angles. In two d
 <meta itemprop="description" content="In this post I summarize the content and proof of Liouville&rsquo;s Theorem on Conformal Rigidity, which I learned in 2018 from Professor Alex Austin (now at RIT) in his class at UCLA.
 Conformal Maps A conformal transformation is one that preserves angles. In two dimensions, this is equivalent to being holomorphic and having a non-vanishing derivative. There are tons of these transformations (my personal favorites are Mobius transformations). In fact, the famous Riemann mapping Theorem asserts that any simply connected domain \( U \subset \mathbb{C} \) admits a bijective conformal map \(f: U \to \mathbb{D}\) to the unit disc."><meta itemprop="datePublished" content="2021-01-23T00:00:00+00:00" />
 <meta itemprop="dateModified" content="2021-01-23T00:00:00+00:00" />
-<meta itemprop="wordCount" content="1473">
+<meta itemprop="wordCount" content="1483">
 <meta itemprop="keywords" content="geometry,analysis,conformal,ODE,Liouville&#39;s Theorem," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Liouville&#39;s Theorem on Conformal Rigidity"/>
 <meta name="twitter:description" content="In this post I summarize the content and proof of Liouville&rsquo;s Theorem on Conformal Rigidity, which I learned in 2018 from Professor Alex Austin (now at RIT) in his class at UCLA.
@@ -366,8 +366,9 @@ followed by a dilation. Well, that&rsquo;s pretty boring. But now we can define 
 be a conformal linear transformation!</p>
 <p><strong>Definition</strong>
 Let \(U \subset \mathbb{R}^n\) be open. A \(C^1\) map \(f:U \to \mathbb{R}^n\). \(f\) is said to be <strong>conformal</strong> if \(D_x f:T_xU \to T_{f(x)}\mathbb{R}^n\) is conformal for all \(x \in U\).</p>
+<p>(\(T_x)\) denotes the tangent space (plane) at \(x\) ).</p>
 <h3 id="inversions-and-reflections">Inversions and Reflections</h3>
-<p>A nice example of a conformal map is spherical inversion. Denote the one-point compactification \(\mathbb{R}^n \cup {\infty}\) of \(\mathbb{R}^n\) by \(\widehat{\mathbb{R}}^n\). Let \(S(a,r) \subset \mathbb{R}^n\) be the sphere of radius \(n\) with center \(a\). The inversion about \(S(a,r)\) is defined as</p>
+<p>A nice example of a conformal map is spherical inversion. Denote the one-point compactification \(\mathbb{R}^n \cup {\infty}\) of \(\mathbb{R}^n\) by \(\widehat{\mathbb{R}}^n\). Let \(S(a,r) \subset \mathbb{R}^n\) be the sphere of radius \(r\) with center \(a\). The inversion about \(S(a,r)\) is defined as</p>
 <p>$$\varphi_{a,r}(x) = a + r\frac{x-a}{|x-a|^2}, \quad x \ne a,\infty$$</p>
 <p>and \(\varphi_{a,r}(a) = \infty\), \(\varphi_{a,r}(\infty) = a.\)</p>
 <p>\(\varphi_{r,a}\) swaps the interior and exterior of the sphere and fixes \(S(a,r)\). One can check that \(\varphi_{a,r}\) is an involution, i.e. \(\varphi_{a,r} \circ \varphi_{a,r} = \text{id}.\)</p>
@@ -398,7 +399,7 @@ study vector fields whose flow is conformal. The <strong>flow</strong> of a \(v\
 f_0(x) &amp;= x\cr
 \frac{d}{dt}f_t(x) &amp;= v(f_t(x))\end{aligned}$$</p>
 <p>for every \(x\). The point \(x\) is &ldquo;flowing down the river&rdquo; determined by the vector field (for this reason I&rsquo;ve heard the <a href="https://en.wikipedia.org/wiki/Lie_derivative">Lie derivative</a> called the &ldquo;fisherman&rsquo;s derivative&rdquo;!)
-Therefore if we can transfer the problem of characterizing conformal maps into one about vector fields and differential equations.
+The idea is to transfer the problem of characterizing conformal maps into  a problem about vector fields and differential equations.
 This tactic can be applied in many other problems!</p>
 <p><strong>Lemma</strong>
 Let \(v:\mathbb{R}^n \to \mathbb{R}^n\) be a \(C^1\) vector field. Then the flow of \(v\) is conformal if and only if

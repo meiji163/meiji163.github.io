@@ -809,7 +809,7 @@ The best part is now we can enjoy long lists of primes as sums of squares. Sooth
 &lt;p&gt;. The terminology &amp;ldquo;residue&amp;rdquo; is a little funny (I&amp;rsquo;m reminded of the &lt;a href=&#34;https://www.math.purdue.edu/~eremenko/jokes.html&#34;&gt;joke&lt;/a&gt; about the dog Cauchy who leaves a residue at every pole). A better term would be &amp;ldquo;square mod p.&amp;rdquo;&amp;#160;&lt;a href=&#34;#fnref:1&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;li id=&#34;fn:2&#34; role=&#34;doc-endnote&#34;&gt;
-&lt;p&gt;One such result is &lt;a href=&#34;https://www.cs.umd.edu/~gasarch/TOPICS/res/resperalta.pdf&#34;&gt;Peralta&lt;/a&gt;. He gives a precise bound on the deviation of the distribution of residues from a Bernoulli distribution. To obtain a better complexity bound we could choose random integers until we get a quadratic residue, but this would not speed up the algorithm in practice.&amp;#160;&lt;a href=&#34;#fnref:2&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;One such result is by &lt;a href=&#34;https://www.cs.umd.edu/~gasarch/TOPICS/res/resperalta.pdf&#34;&gt;Peralta&lt;/a&gt;. He gives a precise bound on the deviation of the distribution of residues from a Bernoulli distribution. To obtain a better complexity bound we could choose random integers until we get a quadratic residue, but this would not speed up the algorithm in practice.&amp;#160;&lt;a href=&#34;#fnref:2&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ol&gt;
 &lt;/section&gt;
@@ -855,8 +855,9 @@ followed by a dilation. Well, that&amp;rsquo;s pretty boring. But now we can def
 be a conformal linear transformation!&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Definition&lt;/strong&gt;
 Let \(U \subset \mathbb{R}^n\) be open. A \(C^1\) map \(f:U \to \mathbb{R}^n\). \(f\) is said to be &lt;strong&gt;conformal&lt;/strong&gt; if \(D_x f:T_xU \to T_{f(x)}\mathbb{R}^n\) is conformal for all \(x \in U\).&lt;/p&gt;
+&lt;p&gt;(\(T_x)\) denotes the tangent space (plane) at \(x\) ).&lt;/p&gt;
 &lt;h3 id=&#34;inversions-and-reflections&#34;&gt;Inversions and Reflections&lt;/h3&gt;
-&lt;p&gt;A nice example of a conformal map is spherical inversion. Denote the one-point compactification \(\mathbb{R}^n \cup {\infty}\) of \(\mathbb{R}^n\) by \(\widehat{\mathbb{R}}^n\). Let \(S(a,r) \subset \mathbb{R}^n\) be the sphere of radius \(n\) with center \(a\). The inversion about \(S(a,r)\) is defined as&lt;/p&gt;
+&lt;p&gt;A nice example of a conformal map is spherical inversion. Denote the one-point compactification \(\mathbb{R}^n \cup {\infty}\) of \(\mathbb{R}^n\) by \(\widehat{\mathbb{R}}^n\). Let \(S(a,r) \subset \mathbb{R}^n\) be the sphere of radius \(r\) with center \(a\). The inversion about \(S(a,r)\) is defined as&lt;/p&gt;
 &lt;p&gt;$$\varphi_{a,r}(x) = a + r\frac{x-a}{|x-a|^2}, \quad x \ne a,\infty$$&lt;/p&gt;
 &lt;p&gt;and \(\varphi_{a,r}(a) = \infty\), \(\varphi_{a,r}(\infty) = a.\)&lt;/p&gt;
 &lt;p&gt;\(\varphi_{r,a}\) swaps the interior and exterior of the sphere and fixes \(S(a,r)\). One can check that \(\varphi_{a,r}\) is an involution, i.e. \(\varphi_{a,r} \circ \varphi_{a,r} = \text{id}.\)&lt;/p&gt;
@@ -887,7 +888,7 @@ study vector fields whose flow is conformal. The &lt;strong&gt;flow&lt;/strong&g
 f_0(x) &amp;amp;= x\cr
 \frac{d}{dt}f_t(x) &amp;amp;= v(f_t(x))\end{aligned}$$&lt;/p&gt;
 &lt;p&gt;for every \(x\). The point \(x\) is &amp;ldquo;flowing down the river&amp;rdquo; determined by the vector field (for this reason I&amp;rsquo;ve heard the &lt;a href=&#34;https://en.wikipedia.org/wiki/Lie_derivative&#34;&gt;Lie derivative&lt;/a&gt; called the &amp;ldquo;fisherman&amp;rsquo;s derivative&amp;rdquo;!)
-Therefore if we can transfer the problem of characterizing conformal maps into one about vector fields and differential equations.
+The idea is to transfer the problem of characterizing conformal maps into  a problem about vector fields and differential equations.
 This tactic can be applied in many other problems!&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Lemma&lt;/strong&gt;
 Let \(v:\mathbb{R}^n \to \mathbb{R}^n\) be a \(C^1\) vector field. Then the flow of \(v\) is conformal if and only if

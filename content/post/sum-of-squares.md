@@ -122,7 +122,7 @@ the theoretical upper bound on the least non-residue is \\(2\log^2(p)\\). In pra
 
 In any case, the total time complexity is \\( O(\log^2(p)) \\).
 
-[^residue]: One such result is [Peralta](https://www.cs.umd.edu/~gasarch/TOPICS/res/resperalta.pdf). He gives a precise bound on the deviation of the distribution of residues from a Bernoulli distribution. To obtain a better complexity bound we could choose random integers until we get a quadratic residue, but this would not speed up the algorithm in practice.
+[^residue]: One such result is by [Peralta](https://www.cs.umd.edu/~gasarch/TOPICS/res/resperalta.pdf). He gives a precise bound on the deviation of the distribution of residues from a Bernoulli distribution. To obtain a better complexity bound we could choose random integers until we get a quadratic residue, but this would not speed up the algorithm in practice.
 
 ## Implementation
 

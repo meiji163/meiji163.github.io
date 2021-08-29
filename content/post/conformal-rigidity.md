@@ -33,8 +33,9 @@ be a conformal linear transformation!
 **Definition** 
 Let \\(U \subset \mathbb{R}^n\\) be open. A \\(C^1\\) map \\(f:U \to \mathbb{R}^n\\). \\(f\\) is said to be **conformal** if \\(D_x f:T_xU \to T_{f(x)}\mathbb{R}^n\\) is conformal for all \\(x \in U\\).
 
+(\\(T_x)\\) denotes the tangent space (plane) at \\(x\\) ).
 ### Inversions and Reflections
-A nice example of a conformal map is spherical inversion. Denote the one-point compactification \\(\mathbb{R}^n \cup \{\infty\}\\) of \\(\mathbb{R}^n\\) by \\(\widehat{\mathbb{R}}^n\\). Let \\(S(a,r) \subset \mathbb{R}^n\\) be the sphere of radius \\(n\\) with center \\(a\\). The inversion about \\(S(a,r)\\) is defined as 
+A nice example of a conformal map is spherical inversion. Denote the one-point compactification \\(\mathbb{R}^n \cup \{\infty\}\\) of \\(\mathbb{R}^n\\) by \\(\widehat{\mathbb{R}}^n\\). Let \\(S(a,r) \subset \mathbb{R}^n\\) be the sphere of radius \\(r\\) with center \\(a\\). The inversion about \\(S(a,r)\\) is defined as 
 
 $$\varphi_{a,r}(x) = a + r\frac{x-a}{|x-a|^2}, \quad x \ne a,\infty$$
 
@@ -83,7 +84,7 @@ f_0(x) &= x\cr
 \frac{d}{dt}f_t(x) &= v(f_t(x))\end{aligned}$$
 
 for every \\(x\\). The point \\(x\\) is "flowing down the river" determined by the vector field (for this reason I've heard the [Lie derivative](https://en.wikipedia.org/wiki/Lie_derivative) called the "fisherman's derivative"!)
-Therefore if we can transfer the problem of characterizing conformal maps into one about vector fields and differential equations.
+The idea is to transfer the problem of characterizing conformal maps into  a problem about vector fields and differential equations.
 This tactic can be applied in many other problems!
 
 **Lemma**
