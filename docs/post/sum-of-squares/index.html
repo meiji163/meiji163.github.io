@@ -74,7 +74,7 @@ Gaussian Integers I have a special penchant for Gaussian integers because they a
 <meta itemprop="description" content="In this post I show how writing primes as the sum of two squares is related to factoring Gaussian integers. I then describe an algorithm to compute the sum of two squares representation.
 Gaussian Integers I have a special penchant for Gaussian integers because they are the first ring I learned about (besides the regular integers of course). Mathematically, they are the set of complex numbers \(a&#43;bi\) with \(a,b\) integers, and they are denoted as \(\mathbb{Z}[i]\)."><meta itemprop="datePublished" content="2021-01-23T00:00:00+00:00" />
 <meta itemprop="dateModified" content="2021-01-23T00:00:00+00:00" />
-<meta itemprop="wordCount" content="1521">
+<meta itemprop="wordCount" content="1514">
 <meta itemprop="keywords" content="Gaussian integers,number theory,algorithms," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Fast Sum of Two Squares Algorithm"/>
 <meta name="twitter:description" content="In this post I show how writing primes as the sum of two squares is related to factoring Gaussian integers. I then describe an algorithm to compute the sum of two squares representation.
@@ -580,7 +580,8 @@ The best part is now we can enjoy long lists of primes as sums of squares. Sooth
 <p>. The terminology &ldquo;residue&rdquo; is a little funny (I&rsquo;m reminded of the <a href="https://www.math.purdue.edu/~eremenko/jokes.html">joke</a> about the dog Cauchy who leaves a residue at every pole). A better term would be &ldquo;square mod p.&rdquo;&#160;<a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
 </li>
 <li id="fn:2" role="doc-endnote">
-<p>One such result is by <a href="https://www.cs.umd.edu/~gasarch/TOPICS/res/resperalta.pdf">Peralta</a>. He gives a precise bound on the deviation of the distribution of residues from a Bernoulli distribution. To obtain a better complexity bound we could choose random integers until we get a quadratic residue, but this would not speed up the algorithm in practice.&#160;<a href="#fnref:2" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+<p>A classical result in this direction says that the <a href="https://en.wikipedia.org/wiki/Dirichlet_density">analytic density</a> of squares mod p is \(1/2\).
+A more recent and tighter result is by <a href="https://www.cs.umd.edu/~gasarch/TOPICS/res/resperalta.pdf">Peralta</a>. He gives a precise bound on the deviation of the distribution of residues from a Bernoulli distribution.&#160;<a href="#fnref:2" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
 </li>
 </ol>
 </section>

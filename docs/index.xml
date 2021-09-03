@@ -12,25 +12,6 @@
     
     
     <item>
-      <title>About</title>
-      <link>https://meiji163.github.io/about/</link>
-      <pubDate>Fri, 20 Aug 2021 21:38:52 +0800</pubDate>
-      
-      <guid>https://meiji163.github.io/about/</guid>
-      
-        <description>&lt;p&gt;Welcome! I&amp;rsquo;m a mathematician, programmer, and aspiring mad scientist. I write about my projects, things I learn, and all things strange and fascinating.&lt;/p&gt;
-&lt;p&gt;Find me on &lt;a href=&#34;https://github.com/meiji163&#34;&gt;github&lt;/a&gt; or contact me &lt;a href=&#34;mailto:mysatellite99@gmail.com&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;If anyone needs me I&amp;rsquo;ll be in &lt;em&gt;the Chamber of Understanding&lt;/em&gt;!&lt;/p&gt;
-
-&lt;div style=&#34;position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;&#34;&gt;
-  &lt;iframe src=&#34;https://www.youtube.com/embed/78kn2YBfHFw&#34; style=&#34;position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;&#34; allowfullscreen title=&#34;YouTube Video&#34;&gt;&lt;/iframe&gt;
-&lt;/div&gt;
-
-</description>
-      
-    </item>
-    
-    <item>
       <title>Combinatorial Hyperbolic Embeddings</title>
       <link>https://meiji163.github.io/post/combo-hyperbolic-embedding/</link>
       <pubDate>Tue, 24 Aug 2021 00:00:00 +0000</pubDate>
@@ -333,6 +314,25 @@ Note that &amp;ldquo;hyperbolicity&amp;rdquo; as defined here can apply to any m
 &lt;/li&gt;
 &lt;/ol&gt;
 &lt;/section&gt;
+</description>
+      
+    </item>
+    
+    <item>
+      <title>About</title>
+      <link>https://meiji163.github.io/about/</link>
+      <pubDate>Fri, 20 Aug 2021 21:38:52 +0800</pubDate>
+      
+      <guid>https://meiji163.github.io/about/</guid>
+      
+        <description>&lt;p&gt;Welcome! I&amp;rsquo;m a mathematician, programmer, and aspiring mad scientist. I write about my projects, things I learn, and all things strange and fascinating.&lt;/p&gt;
+&lt;p&gt;Find me on &lt;a href=&#34;https://github.com/meiji163&#34;&gt;github&lt;/a&gt; or contact me &lt;a href=&#34;mailto:mysatellite99@gmail.com&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;If anyone needs me I&amp;rsquo;ll be in &lt;em&gt;the Chamber of Understanding&lt;/em&gt;!&lt;/p&gt;
+
+&lt;div style=&#34;position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;&#34;&gt;
+  &lt;iframe src=&#34;https://www.youtube.com/embed/78kn2YBfHFw&#34; style=&#34;position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;&#34; allowfullscreen title=&#34;YouTube Video&#34;&gt;&lt;/iframe&gt;
+&lt;/div&gt;
+
 </description>
       
     </item>
@@ -809,7 +809,8 @@ The best part is now we can enjoy long lists of primes as sums of squares. Sooth
 &lt;p&gt;. The terminology &amp;ldquo;residue&amp;rdquo; is a little funny (I&amp;rsquo;m reminded of the &lt;a href=&#34;https://www.math.purdue.edu/~eremenko/jokes.html&#34;&gt;joke&lt;/a&gt; about the dog Cauchy who leaves a residue at every pole). A better term would be &amp;ldquo;square mod p.&amp;rdquo;&amp;#160;&lt;a href=&#34;#fnref:1&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;li id=&#34;fn:2&#34; role=&#34;doc-endnote&#34;&gt;
-&lt;p&gt;One such result is by &lt;a href=&#34;https://www.cs.umd.edu/~gasarch/TOPICS/res/resperalta.pdf&#34;&gt;Peralta&lt;/a&gt;. He gives a precise bound on the deviation of the distribution of residues from a Bernoulli distribution. To obtain a better complexity bound we could choose random integers until we get a quadratic residue, but this would not speed up the algorithm in practice.&amp;#160;&lt;a href=&#34;#fnref:2&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;A classical result in this direction says that the &lt;a href=&#34;https://en.wikipedia.org/wiki/Dirichlet_density&#34;&gt;analytic density&lt;/a&gt; of squares mod p is \(1/2\).
+A more recent and tighter result is by &lt;a href=&#34;https://www.cs.umd.edu/~gasarch/TOPICS/res/resperalta.pdf&#34;&gt;Peralta&lt;/a&gt;. He gives a precise bound on the deviation of the distribution of residues from a Bernoulli distribution.&amp;#160;&lt;a href=&#34;#fnref:2&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ol&gt;
 &lt;/section&gt;

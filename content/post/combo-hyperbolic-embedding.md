@@ -6,6 +6,7 @@ tags: ["machine learning", "hyperbolic", "geometry", "TGDA", "metric geometry"]
 categories: ["machine learning", "geometry", "hyperbolic"]
 katex: true
 comment: true
+weight: 1
 ---
 
 ## Introduction
