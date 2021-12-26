@@ -17,7 +17,84 @@
   
   <url>
     <loc>https://meiji163.github.io/categories/</loc>
-    <lastmod>2021-08-26T00:00:00+00:00</lastmod>
+    <lastmod>2021-12-25T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://meiji163.github.io/post/gh-extension/</loc>
+    <lastmod>2021-12-25T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://meiji163.github.io/tags/gh-extensions/</loc>
+    <lastmod>2021-12-25T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://meiji163.github.io/tags/github/</loc>
+    <lastmod>2021-12-25T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://meiji163.github.io/categories/github/</loc>
+    <lastmod>2021-12-25T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://meiji163.github.io/tags/golang/</loc>
+    <lastmod>2021-12-25T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://meiji163.github.io/categories/golang/</loc>
+    <lastmod>2021-12-25T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://meiji163.github.io/tags/machine-learning/</loc>
+    <lastmod>2021-12-25T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://meiji163.github.io/</loc>
+    <lastmod>2021-12-25T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://meiji163.github.io/post/</loc>
+    <lastmod>2021-12-25T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://meiji163.github.io/categories/programming/</loc>
+    <lastmod>2021-12-25T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://meiji163.github.io/tags/</loc>
+    <lastmod>2021-12-25T00:00:00+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
@@ -51,13 +128,6 @@
   </url>
   
   <url>
-    <loc>https://meiji163.github.io/tags/machine-learning/</loc>
-    <lastmod>2021-08-26T00:00:00+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  
-  <url>
     <loc>https://meiji163.github.io/categories/machine-learning/</loc>
     <lastmod>2021-08-26T00:00:00+00:00</lastmod>
     <changefreq>weekly</changefreq>
@@ -65,28 +135,7 @@
   </url>
   
   <url>
-    <loc>https://meiji163.github.io/</loc>
-    <lastmod>2021-08-26T00:00:00+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  
-  <url>
     <loc>https://meiji163.github.io/tags/metric-geometry/</loc>
-    <lastmod>2021-08-26T00:00:00+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  
-  <url>
-    <loc>https://meiji163.github.io/post/</loc>
-    <lastmod>2021-08-26T00:00:00+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  
-  <url>
-    <loc>https://meiji163.github.io/tags/</loc>
     <lastmod>2021-08-26T00:00:00+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>

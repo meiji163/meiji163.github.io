@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="en" itemscope itemtype="http://schema.org/WebPage">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Fun With GitHub CLI Extensions - meiji163</title>
+  
+
+<meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes"/>
+
+<meta name="MobileOptimized" content="width"/>
+<meta name="HandheldFriendly" content="true"/>
+
+
+<meta name="applicable-device" content="pc,mobile">
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+<meta name="mobile-web-app-capable" content="yes">
+
+<meta name="author" content="meiji163" />
+  <meta name="description" content="And everything else which can be attributed to body presupposes extension, and is only a mode of that which is extended.
+&amp;ndash; Descartes, Principles of Philosophy
+ Introduction gh is the official GitHub CLI, maintained in the public cli/cli repository.
+Like its predecessor hub1, gh wraps common git commands. But gh does much more, ultimately aiming to be a general GitHub interface for your terminal. You can for example run actions with gh workflow, publish gists with gh gist, or access your codespaces with gh cs." />
+
+  <meta name="keywords" content="meiji163, math, machine learning, programming" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.89.4" />
+
+
+<link rel="canonical" href="https://meiji163.github.io/post/gh-extension/" />
+
+
+
+
+
+<link rel="icon" href="/favicon.ico" />
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/sass/jane.min.fa4b2b9f31b5c6d0b683db81157a9226e17b06e61911791ab547242a4a0556f2.css" integrity="sha256-&#43;ksrnzG1xtC2g9uBFXqSJuF7BuYZEXkatUckKkoFVvI=" media="screen" crossorigin="anonymous">
+
+
+
+
+<link rel="stylesheet" href="/css/center.css">
+
+
+<meta property="og:title" content="Fun With GitHub CLI Extensions" />
+<meta property="og:description" content="And everything else which can be attributed to body presupposes extension, and is only a mode of that which is extended.
+&ndash; Descartes, Principles of Philosophy
+ Introduction gh is the official GitHub CLI, maintained in the public cli/cli repository.
+Like its predecessor hub1, gh wraps common git commands. But gh does much more, ultimately aiming to be a general GitHub interface for your terminal. You can for example run actions with gh workflow, publish gists with gh gist, or access your codespaces with gh cs." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://meiji163.github.io/post/gh-extension/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2021-12-25T00:00:00+00:00" />
+<meta property="article:modified_time" content="2021-12-25T00:00:00+00:00" />
+
+<meta itemprop="name" content="Fun With GitHub CLI Extensions">
+<meta itemprop="description" content="And everything else which can be attributed to body presupposes extension, and is only a mode of that which is extended.
+&ndash; Descartes, Principles of Philosophy
+ Introduction gh is the official GitHub CLI, maintained in the public cli/cli repository.
+Like its predecessor hub1, gh wraps common git commands. But gh does much more, ultimately aiming to be a general GitHub interface for your terminal. You can for example run actions with gh workflow, publish gists with gh gist, or access your codespaces with gh cs."><meta itemprop="datePublished" content="2021-12-25T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2021-12-25T00:00:00+00:00" />
+<meta itemprop="wordCount" content="1533">
+<meta itemprop="keywords" content="github,golang,gh extensions,machine learning," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Fun With GitHub CLI Extensions"/>
+<meta name="twitter:description" content="And everything else which can be attributed to body presupposes extension, and is only a mode of that which is extended.
+&ndash; Descartes, Principles of Philosophy
+ Introduction gh is the official GitHub CLI, maintained in the public cli/cli repository.
+Like its predecessor hub1, gh wraps common git commands. But gh does much more, ultimately aiming to be a general GitHub interface for your terminal. You can for example run actions with gh workflow, publish gists with gh gist, or access your codespaces with gh cs."/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+
+
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">明治</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <li class="mobile-menu-item">
+        
+          
+          
+            <a class="menu-item-link" href="https://meiji163.github.io/">Home</a>
+          
+        
+      </li><li class="mobile-menu-item">
+        
+          
+          
+            <a class="menu-item-link" href="https://meiji163.github.io/post/">Archives</a>
+          
+        
+      </li><li class="mobile-menu-item">
+        
+          
+          
+            <a class="menu-item-link" href="https://meiji163.github.io/tags/">Tags</a>
+          
+        
+      </li><li class="mobile-menu-item">
+        
+          
+          
+            <a class="menu-item-link" href="https://meiji163.github.io/categories/">Categories</a>
+          
+        
+      </li><li class="mobile-menu-item">
+        
+          
+          
+            <a class="menu-item-link" href="https://meiji163.github.io/about/">About</a>
+          
+        
+      </li>
+    
+
+    
+  </ul>
+</nav>
+
+
+  
+    
+
+
+
+
+
+
+  <link rel="stylesheet" href="/lib/photoswipe/photoswipe.min.css" />
+  <link rel="stylesheet" href="/lib/photoswipe/default-skin/default-skin.min.css" />
+
+
+
+
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+<div class="pswp__bg"></div>
+
+<div class="pswp__scroll-wrap">
+    
+    <div class="pswp__container">
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+    </div>
+    
+    <div class="pswp__ui pswp__ui--hidden">
+    <div class="pswp__top-bar">
+      
+      <div class="pswp__counter"></div>
+      <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+      <button class="pswp__button pswp__button--share" title="Share"></button>
+      <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+      <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+      
+      
+      <div class="pswp__preloader">
+        <div class="pswp__preloader__icn">
+          <div class="pswp__preloader__cut">
+            <div class="pswp__preloader__donut"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+      <div class="pswp__share-tooltip"></div>
+    </div>
+    <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+    </button>
+    <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+    </button>
+    <div class="pswp__caption">
+      <div class="pswp__caption__center"></div>
+    </div>
+    </div>
+    </div>
+</div>
+
+  
+
+  
+
+  
+
+  <header id="header" class="header container">
+    <div class="logo-wrapper">
+  <a href="/" class="logo">
+    
+      明治
+    
+  </a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    
+    
+        <li class="menu-item">
+        
+          
+          
+            <a class="menu-item-link" href="https://meiji163.github.io/">Home</a>
+          
+
+        
+
+      </li>
+    
+        <li class="menu-item">
+        
+          
+          
+            <a class="menu-item-link" href="https://meiji163.github.io/post/">Archives</a>
+          
+
+        
+
+      </li>
+    
+        <li class="menu-item">
+        
+          
+          
+            <a class="menu-item-link" href="https://meiji163.github.io/tags/">Tags</a>
+          
+
+        
+
+      </li>
+    
+        <li class="menu-item">
+        
+          
+          
+            <a class="menu-item-link" href="https://meiji163.github.io/categories/">Categories</a>
+          
+
+        
+
+      </li>
+    
+        <li class="menu-item">
+        
+          
+          
+            <a class="menu-item-link" href="https://meiji163.github.io/about/">About</a>
+          
+
+        
+
+      </li>
+    
+
+    
+    
+
+    
+  </ul>
+</nav>
+
+  </header>
+
+  <div id="mobile-panel">
+    <main id="main" class="main bg-llight">
+      <div class="content-wrapper">
+        <div id="content" class="content container">
+          <article class="post bg-white">
+    
+    <header class="post-header">
+      <h1 class="post-title">Fun With GitHub CLI Extensions</h1>
+      
+      <div class="post-meta">
+        <time datetime="2021-12-25" class="post-time">
+          2021-12-25
+        </time>
+        <div class="post-category">
+            <a href="https://meiji163.github.io/categories/github/"> github </a>
+            <a href="https://meiji163.github.io/categories/programming/"> programming </a>
+            <a href="https://meiji163.github.io/categories/golang/"> golang </a>
+            
+          </div>
+        
+
+        
+        
+
+        
+        
+      </div>
+    </header>
+
+    
+    
+<div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Table of Contents</h2>
+  <div class="post-toc-content">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#introduction">Introduction</a></li>
+    <li><a href="#using-extensions">Using extensions</a></li>
+    <li><a href="#writing-extensions">Writing extensions</a>
+      <ul>
+        <li><a href="#github-apis">GitHub APIs</a></li>
+        <li><a href="#three-more-extensions">Three more extensions</a></li>
+      </ul>
+    </li>
+    <li><a href="#further-resources">Further Resources</a></li>
+  </ul>
+</nav>
+  </div>
+</div>
+
+    
+    <div class="post-content">
+      <blockquote>
+<p>And everything else which can be attributed to body presupposes extension, and is only a mode of that which is extended.<br>
+&ndash; Descartes, <em>Principles of Philosophy</em></p>
+</blockquote>
+<h2 id="introduction">Introduction</h2>
+<p><code>gh</code> is the official GitHub CLI, maintained in the public <a href="https://github.com/cli/cli">cli/cli</a> repository.<br>
+Like its predecessor hub<sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup>, <code>gh</code> wraps common git commands. But <code>gh</code> does much more, ultimately aiming to be a general GitHub interface for your terminal.
+You can for example run actions with <code>gh workflow</code>, publish gists with <code>gh gist</code>, or access your codespaces with <code>gh cs</code>. If you don&rsquo;t already have it, check out <a href="https://cli.github.com/">here</a> to get started!</p>
+<p>Recently, I interned for the GitHub CLI team via the MLH Fellowship<sup id="fnref:2"><a href="#fn:2" class="footnote-ref" role="doc-noteref">2</a></sup>.
+I learned a great deal about software and golang from the senior devs (<a href="https://github.com/vilmibm">@vilmbim</a>, <a href="https://github.com/mislav">@mislav</a>, and <a href="https://github.com/samcoe">@samcoe</a>).
+I was also pleasantly surprised at how easy it was to use and contribute to the CLI. It has great user experience and a ton of features for using GitHub programmatically.</p>
+<p>However my favorite part of <code>gh</code> is <strong>extensions</strong>, which launched in v2.0. Extensions are programs that you can install, execute, and upgrade &ndash; just like a mini package-manager!
+If there&rsquo;s any functionality you want that falls outside the scope of the core commands, you can find or make an extension that does just that.</p>
+<h2 id="using-extensions">Using extensions</h2>
+<p><code>gh</code> installs extensions from GitHub repositories with a &ldquo;gh-&rdquo; prefix (e.g. meiji163/gh-coolextension). All that&rsquo;s required is a top-level executable with the same name as the repo. Once you install an extension, it creates a new top-level <code>gh</code> command under that name aliased to that executable. Here is an example:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="c1"># install an extension by repo name </span>
+$ gh extension install vilmibm/gh-screensaver  
+
+<span class="c1"># execute the extension</span>
+$ gh screensaver 
+
+<span class="c1"># upgrade the extension</span>
+$ gh extensions upgrade screensaver
+</code></pre></div><p>There is already a quickly growing ecosystem of extensions to choose from; when I started in mid-September there were less than 100, and at the time of writing there are <a href="https://github.com/topics/gh-extension">145</a>.</p>
+<p>I love not only how useful, but also how creative and fun they are. Here&rsquo;s a few of my favorites:</p>
+<ul>
+<li><a href="https://github.com/dlvhdr/gh-prs">dlvhdr/gh-prs</a>: A slick dashboard of all your pull requests, with lots of configurability!</li>
+</ul>
+<p><img src="https://github.com/dlvhdr/gh-prs/blob/8621183574c573e4077360b5027ffea70999b921/demo.gif?raw=true" alt="gh-prs"></p>
+<ul>
+<li>
+<p><a href="https://github.com/vilmibm/gh-screensaver">vilmibm/gh-screensaver</a>: Cool and colorful terminal animations (I added the game of life one)
+<img src="https://user-images.githubusercontent.com/98482/134737341-701d0e7d-476f-4a29-8309-d34b4935c6a3.gif" alt="gh-screensaver">
+<img src="https://user-images.githubusercontent.com/98482/134737299-aa306b69-ceb4-49c1-95c8-3582d195250c.gif" alt="gh firework"></p>
+</li>
+<li>
+<p><a href="https://github.com/yusukebe/gh-markdown-preview">yusukebe/gh-markdown-preview</a>: Renders your local md files with GitHub-flavored markdown in your browser. Super useful for writing readmes.
+<img src="https://user-images.githubusercontent.com/10682/138411417-dd12a831-bacc-4b05-a33d-47d3f6b45483.png" alt="gh-markdown"></p>
+</li>
+<li>
+<p><a href="https://github.com/kawarimidoll/gh-graph">kawarimidoll/gh-graph</a>: View your contribution graph in the terminal
+<img src="https://user-images.githubusercontent.com/8146876/131276560-9b97596f-2f21-48ed-a946-498c47d9faf1.png" alt="gh-grpah"></p>
+</li>
+</ul>
+<h2 id="writing-extensions">Writing extensions</h2>
+<p>The CLI team made some tools to help write extensions (nice guys, eh?). Use the <code>gh extension create</code> command and you&rsquo;ll be prompted for the name and what kind of extension you want to make. A local git repository will then be created for you with some boilerplate.</p>
+<p>Extensions can be written in any language, but for our purpose languages are split into three categories: interpreted, Golang, and other compiled language. Here are a few key differences between them when writing extensions.</p>
+<p><strong>Interpreted</strong>:
+This requires the user to have the interpreter for the language (and any dependencies) installed. For that reason, most are written in bash, but it could be python, ruby, etc.</p>
+<p><strong>Compiled (not golang)</strong>:
+This allows you to distribute binaries from your extension repo.
+Precompiled binary extensions are fully supported since gh version 2.3.0. That means if you publish a release with binary assets from your extension repo, <code>gh extension install</code> will download the appropriate binary (instead of looking for a top-level executable).</p>
+<p>The binary assets have to be named as &ldquo;platform-architecture&rdquo; (e.g. darwin-arm64). Luckily @vilmibm recently made <a href="https://github.com/cli/gh-extension-precompile">gh-extension-precompile</a>, a GitHub action that automates the building and releasing for you. Modify the build script for your language as needed.</p>
+<p><strong>Golang</strong>: The stuff for compiled languages also applies here, but there&rsquo;s even <em>more</em> tools for golang! The CLI team recently open-sourced <a href="https://github.com/cli/go-gh">go-gh</a>, a module for golang that exposes a small subset of cli/cli internals. This includes an HTTP client for both the REST and GraphQL API for GitHub. It also has an <code>Exec</code> function that safely shells out to <code>gh</code>, and a <code>CurrentRepository</code> function. It&rsquo;s still in beta, so there will likely be more functionality to come. See below for an example usage.</p>
+<h3 id="github-apis">GitHub APIs</h3>
+<p>One of the main reasons to write gh extensions is that you can easily make authenticated GitHub API calls (although your extension can be completely unrelated to GitHub) since the user will presumably have an auth token for <code>gh</code>.</p>
+<p>A typical way would be to use the <code>gh api</code> command. This command wraps both the REST and GraphQL GitHub API.
+You can select format the response using jquery syntax with the <code>--jq</code> flag, or (even better) with <a href="https://golangdocs.com/templates-in-golang">golang templates</a> using the <code>--template</code> flag.
+Templates are quite powerful for text formatting. See <code>gh formatting help</code> for more details on built-in functions and examples.</p>
+<p>For example, here is a script to print a table of a user&rsquo;s starred repos:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="cp">#!/usr/bin/bash
+</span><span class="cp"></span>gh api /users/<span class="s2">&#34;</span><span class="nv">$USERNAME</span><span class="s2">&#34;</span>/starred <span class="se">\
+</span><span class="se"></span>    --template <span class="s1">&#39;
+</span><span class="s1">    {{- tablerow &#34;NAME&#34; &#34;DESCRIPTION&#34; -}}
+</span><span class="s1">    {{- range .}}{{- tablerow .name .description -}}{{- end -}}&#39;</span>
+</code></pre></div><p>A little polishing, and this would be a fine bash gh-extension!</p>
+<p>If you&rsquo;re using golang, you can use the clients from <code>go-gh</code>. Here is how to get the same data as above:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="nx">opts</span> <span class="o">:=</span> <span class="o">&amp;</span><span class="nx">api</span><span class="p">.</span><span class="nx">ClientOptions</span><span class="p">{</span><span class="nx">EnableCache</span><span class="p">:</span> <span class="kc">true</span><span class="p">}</span>
+<span class="nx">client</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">gh</span><span class="p">.</span><span class="nf">RESTClient</span><span class="p">(</span><span class="nx">opts</span><span class="p">)</span>
+<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+    <span class="nx">log</span><span class="p">.</span><span class="nf">Fatal</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+<span class="p">}</span>
+<span class="nx">response</span> <span class="o">:=</span> <span class="p">[]</span><span class="kd">struct</span><span class="p">{</span> 
+    <span class="nx">Name</span> <span class="kt">string</span> 
+    <span class="nx">Description</span> <span class="kt">string</span>
+<span class="p">}{}</span>
+<span class="nx">err</span> <span class="p">=</span> <span class="nx">client</span><span class="p">.</span><span class="nf">Get</span><span class="p">(</span><span class="nx">fmt</span><span class="p">.</span><span class="nf">Sprintf</span><span class="p">(</span><span class="s">&#34;users/%s/starred&#34;</span><span class="p">,</span><span class="nx">username</span><span class="p">),</span> <span class="o">&amp;</span><span class="nx">response</span><span class="p">)</span>
+</code></pre></div><p>You can also use the GraphQL API (somewhat annoyingly, there are features not available in the REST API available in GraphQL and vice versa). Here is a query to get the same data once again:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-graphql" data-lang="graphql"><span class="kd">query</span><span class="w"> </span><span class="nc">GetStarredRepos</span><span class="p">(</span><span class="nv">$username</span><span class="p">:</span><span class="w"> </span><span class="nc">String</span><span class="p">!)</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span><span class="w">  </span><span class="py">user</span><span class="p">(</span><span class="py">login</span><span class="p">:</span><span class="w"> </span><span class="nv">$username</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span><span class="w">    </span><span class="nc">starredRepositories</span><span class="p">(</span><span class="py">first</span><span class="p">:</span><span class="w"> </span><span class="nc">100</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span><span class="w">      </span><span class="py">nodes</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span><span class="w">        </span><span class="py">name</span><span class="w">
+</span><span class="w">        </span><span class="py">description</span><span class="w">
+</span><span class="w">      </span><span class="p">}</span><span class="w">
+</span><span class="w">    </span><span class="p">}</span><span class="w">
+</span><span class="w">  </span><span class="p">}</span><span class="w">
+</span><span class="w"></span><span class="p">}</span><span class="w">
+</span></code></pre></div><p>GitHub has a <a href="https://docs.github.com/en/graphql/overview/explorer">great tool</a> for exploring their GraphQL schema.
+There is also a <a href="https://github.com/shurcooL/githubv4">GitHub GraphQL library</a> for golang that provides a more concise interface.</p>
+<h3 id="three-more-extensions">Three more extensions</h3>
+<p>To conclude, I want to go over three extensions I wrote during my time on the CLI team.
+They certainly aren&rsquo;t the best quality since I wrote them while learning golang and gh, but hopefully they will serve as examples and perhaps give you ideas for your own extension &ndash; <em>I&rsquo;m eager to see what you make!</em></p>
+<p><strong><a href="https://github.com/meiji163/gh-notify">gh-notify</a>:</strong><br>
+This one is pretty simple. It&rsquo;s a bash script that fetches notifications and pipes it into <a href="https://github.com/junegunn/fzf">fzf</a>.
+If you select a notification linked to a pull request or issue, it will show it with the appropriate <code>gh</code> command.
+I wrote it for a hackday.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="c1"># show unread notifs</span>
+$ gh notify 
+
+<span class="c1"># show first 10 of all notifs  </span>
+$ gh notify -a -n <span class="m">10</span> 
+</code></pre></div><p><strong><a href="https://github.com/meiji163/gh-search">gh-search</a>:</strong><br>
+This extension provides access to the search API for repositories. It was a personal tool, as I&rsquo;m frequently looking for great new projects on GitHub.</p>
+<p>It allows you to filter with <code>--lang</code> or <code>--topic</code> flags, or simply enter the raw search query in <a href="https://docs.github.com/en/search-github/getting-started-with-searching-on-github/understanding-the-search-syntax">GitHub syntax</a> with the <code>-q</code> flag.
+It then shows you the results in a searchable scrolling menu.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="c1"># search for cli repos with hacktoberfest topic</span>
+$ gh search cli --topic<span class="o">=</span>hacktoberfest
+
+<span class="c1"># custom search with GitHub syntax</span>
+$ gh search -q<span class="o">=</span><span class="s2">&#34;org:cli created:&gt;2019-01-01&#34;</span>
+</code></pre></div><p>I wrote it in golang using go-gh and <a href="https://github.com/spf13/cobra/">cobra</a>, a nice library for CLI apps (and the same one used in gh).</p>
+<p>Note that this extension will probably be obsolete&rsquo;d once <code>gh</code> adds search to the core commands (ref: <a href="https://github.com/cli/cli/issues/4834">cli#4834</a>).</p>
+<p><strong><a href="https://github.com/meiji163/gh-spam">gh-spam</a>:</strong><br>
+This extension is a simple classifier for spam issues (again in golang). I wrote it on the last hackday (they have a lot of hackdays at GitHub, which is great). During the internship I noticed a fairly large volume of spam issues on the cli/cli repo that had to be closed manually.
+As an ML-inclined fellow, I thought I would take a crack at automating this.</p>
+<p>To use it, you first download a labeled dataset of issues from a target repo (this only really works if you have a large repo). Then you train a classifier on it, which by default is a <a href="https://en.wikipedia.org/wiki/Random_forest">random forest</a>.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="c1"># download data from cli/cli repo </span>
+$ gh-spam download -R cli/cli
+
+<span class="c1"># classify an issue </span>
+$ gh-spam classify -R cli/cli <span class="m">4894</span>
+<span class="c1">#4894: spam</span>
+
+<span class="c1"># classify multiple issues</span>
+$ gh-spam classify -R cli/cli <span class="m">4913</span> <span class="m">4907</span> <span class="m">4906</span> <span class="m">4894</span>
+<span class="c1">#4913: not spam</span>
+<span class="c1">#4907: not spam</span>
+<span class="c1">#4906: not spam</span>
+<span class="c1">#4894: spam</span>
+</code></pre></div><p>Rather than do any fancy NLP on the issue content, the classifier inputs (aka features) are based primarily on the &ldquo;reputation&rdquo; of the author, i.e. number of contributions, association with the target repo, age of account, etc.
+I also took into account issues which just post one of the issue templates without substantive change by using a string-matching score.
+This approach turns out to be sufficiently accurate (at least for the cli/cli repo).</p>
+<p>Making this extension was particularly interesting, because I previously only used python for machine learning. I looked around for ML libraries in golang, and ended up using <a href="https://github.com/sjwhitworth/golearn">golearn</a>. It has a nice API similar to scikit-learn, but in comparison it is pretty awkward for handling data, and has less clear documentation<sup id="fnref:3"><a href="#fn:3" class="footnote-ref" role="doc-noteref">3</a></sup>.</p>
+<h2 id="further-resources">Further Resources</h2>
+<p>Here are a few more resources you may find useful.</p>
+<ul>
+<li><a href="https://docs.github.com/en/github-cli/github-cli/creating-github-cli-extensions">official GitHub guide</a> for extensions</li>
+<li><a href="https://www.youtube.com/watch?v=tzK3ZuiEjcA&amp;feature=youtu.be&amp;ab_channel=vilmibm">precompiled extension demo</a> by @vilmibm</li>
+<li><a href="https://github.blog/2021-08-24-github-cli-2-0-includes-extensions/">GitHub blogpost</a> on extensions launch</li>
+<li><a href="https://cli.github.com/manual/">manual</a> for gh</li>
+</ul>
+<section class="footnotes" role="doc-endnotes">
+<hr>
+<ol>
+<li id="fn:1" role="doc-endnote">
+<p><a href="https://github.com/github/hub">https://github.com/github/hub</a>&#160;<a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:2" role="doc-endnote">
+<p>The MLH Fellowship is basically an internship done in small groups called pods. I thought it was fantastic! Learn more at <a href="https://fellowship.mlh.io/">https://fellowship.mlh.io/</a>&#160;<a href="#fnref:2" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:3" role="doc-endnote">
+<p>The documentation complaint is a &ldquo;golang vs. python&rdquo; complaint more than a &ldquo;golearn vs. sklearn&rdquo; complaint.&#160;<a href="#fnref:3" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+</ol>
+</section>
+
+    </div>
+
+    
+    
+<div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content">meiji163</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+      2021-12-25
+      
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">License</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+
+
+    
+    
+
+    <footer class="post-footer">
+      <div class="post-tags">
+          <a href="https://meiji163.github.io/tags/github/">github</a>
+          <a href="https://meiji163.github.io/tags/golang/">golang</a>
+          <a href="https://meiji163.github.io/tags/gh-extensions/">gh extensions</a>
+          <a href="https://meiji163.github.io/tags/machine-learning/">machine learning</a>
+          
+        </div>
+
+      
+      <nav class="post-nav">
+        
+          <a class="prev" href="/post/combo-hyperbolic-embedding/">
+            
+            <i class="iconfont">
+              <svg  class="icon" viewBox="0 0 1024 1024" version="1.1"
+  xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+  width="18" height="18">
+  <path d="M691.908486 949.511495l75.369571-89.491197c10.963703-12.998035 10.285251-32.864502-1.499144-44.378743L479.499795 515.267417 757.434875 204.940602c11.338233-12.190647 11.035334-32.285311-0.638543-44.850487l-80.46666-86.564541c-11.680017-12.583596-30.356378-12.893658-41.662889-0.716314L257.233596 494.235404c-11.332093 12.183484-11.041474 32.266891 0.657986 44.844348l80.46666 86.564541c1.772366 1.910513 3.706415 3.533476 5.750981 4.877077l306.620399 321.703933C662.505829 963.726242 680.945807 962.528973 691.908486 949.511495z"></path>
+</svg>
+
+            </i>
+            <span class="prev-text nav-default">Combinatorial Hyperbolic Embeddings</span>
+            <span class="prev-text nav-mobile">Prev</span>
+          </a>
+        
+          <a class="next" href="/post/context-tree-weighting/">
+            <span class="next-text nav-default">Context Tree Weighting and Compression</span>
+            <span class="prev-text nav-mobile">Next</span>
+            
+            <i class="iconfont">
+              <svg class="icon" viewBox="0 0 1024 1024" version="1.1"
+  xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+  width="18" height="18">
+  <path d="M332.091514 74.487481l-75.369571 89.491197c-10.963703 12.998035-10.285251 32.864502 1.499144 44.378743l286.278095 300.375162L266.565125 819.058374c-11.338233 12.190647-11.035334 32.285311 0.638543 44.850487l80.46666 86.564541c11.680017 12.583596 30.356378 12.893658 41.662889 0.716314l377.434212-421.426145c11.332093-12.183484 11.041474-32.266891-0.657986-44.844348l-80.46666-86.564541c-1.772366-1.910513-3.706415-3.533476-5.750981-4.877077L373.270379 71.774697C361.493148 60.273758 343.054193 61.470003 332.091514 74.487481z"></path>
+</svg>
+
+            </i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+
+  
+  
+
+  
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+    
+
+  
+
+        </div>
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="icon-links">
+  
+  
+    <a href="mailto:mysatellite99@gmail.com" rel="me noopener" class="iconfont"
+      title="email" >
+      <svg class="icon" viewBox="0 0 1451 1024" version="1.1"
+  xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+  width="36" height="36">
+  <path d="M664.781909 681.472759 0 97.881301C0 3.997201 71.046997 0 71.046997 0L474.477909 0 961.649408 0 1361.641813 0C1361.641813 0 1432.688811 3.997201 1432.688811 97.881301L771.345323 681.472759C771.345323 681.472759 764.482731 685.154773 753.594283 688.65053L753.594283 688.664858C741.602731 693.493018 729.424896 695.068979 718.077952 694.839748 706.731093 695.068979 694.553173 693.493018 682.561621 688.664858L682.561621 688.65053C671.644501 685.140446 664.781909 681.472759 664.781909 681.472759L664.781909 681.472759ZM718.063616 811.603883C693.779541 811.016482 658.879232 802.205449 619.10784 767.734955 542.989056 701.759633 0 212.052267 0 212.052267L0 942.809523C0 942.809523 0 1024 83.726336 1024L682.532949 1024 753.579947 1024 1348.948139 1024C1432.688811 1024 1432.688811 942.809523 1432.688811 942.809523L1432.688811 212.052267C1432.688811 212.052267 893.138176 701.759633 817.019477 767.734955 777.248 802.205449 742.347691 811.03081 718.063616 811.603883L718.063616 811.603883Z"></path>
+</svg>
+
+    </a>
+  
+    <a href="https://math.stackexchange.com/users/201018/mysatellite" rel="me noopener" class="iconfont"
+      title="stack-overflow"  target="_blank"
+      >
+      <svg class="icon" viewBox="0 0 1024 1024" version="1.1"
+  xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+  width="36" height="36">
+  <path d="M809.714286 932.571429l-638.857143 0 0-274.285714-91.428571 0 0 365.714286 821.714286 0 0-365.714286-91.428571 0 0 274.285714zm-538.285714-299.428571l18.857143-89.714286 447.428571 94.285714-18.857143 89.142857zm58.857143-213.714286l38.285714-83.428571 414.285714 193.714286-38.285714 82.857143zm114.857143-203.428571l58.285714-70.285714 350.857143 293.142857-58.285714 70.285714zm226.857143-216l272.571429 366.285714-73.142857 54.857143-272.571429-366.285714zm-410.285714 840.571429l0-90.857143 457.142857 0 0 90.857143-457.142857 0z"></path>
+</svg>
+
+    </a>
+  
+    <a href="https://github.com/meiji163" rel="me noopener" class="iconfont"
+      title="github"  target="_blank"
+      >
+      <svg class="icon" style="" viewBox="0 0 1024 1024" version="1.1"
+  xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+  width="36" height="36">
+  <path d="M512 12.672c-282.88 0-512 229.248-512 512 0 226.261333 146.688 418.133333 350.08 485.76 25.6 4.821333 34.986667-11.008 34.986667-24.618667 0-12.16-0.426667-44.373333-0.64-87.04-142.421333 30.890667-172.458667-68.693333-172.458667-68.693333C188.672 770.986667 155.008 755.2 155.008 755.2c-46.378667-31.744 3.584-31.104 3.584-31.104 51.413333 3.584 78.421333 52.736 78.421333 52.736 45.653333 78.293333 119.850667 55.68 149.12 42.581333 4.608-33.109333 17.792-55.68 32.426667-68.48-113.706667-12.8-233.216-56.832-233.216-253.013333 0-55.893333 19.84-101.546667 52.693333-137.386667-5.76-12.928-23.04-64.981333 4.48-135.509333 0 0 42.88-13.738667 140.8 52.48 40.96-11.392 84.48-17.024 128-17.28 43.52 0.256 87.04 5.888 128 17.28 97.28-66.218667 140.16-52.48 140.16-52.48 27.52 70.528 10.24 122.581333 5.12 135.509333 32.64 35.84 52.48 81.493333 52.48 137.386667 0 196.693333-119.68 240-233.6 252.586667 17.92 15.36 34.56 46.762667 34.56 94.72 0 68.522667-0.64 123.562667-0.64 140.202666 0 13.44 8.96 29.44 35.2 24.32C877.44 942.592 1024 750.592 1024 524.672c0-282.752-229.248-512-512-512"></path>
+</svg>
+
+    </a>
+  
+    <a href="https://codeforces.com/profile/meiji163" rel="me noopener" class="iconfont"
+      title="codeforces"  target="_blank"
+      >
+      <svg width="36" height="36" class="icon" style="" version="1.1" viewBox="0 0 1024 1024">
+<path d="M 192 334.2 C 227.3 334.2 256 369.2 256 412.4 v 547.5 C 256 1003.2 227.3 1038.2 192 1038.2 H 64 C 28.7 1038.2 0 1003.2 0 960 V 412.4 C 0 369.2 28.7 334.2 64 334.2 h 128 z m 384 -234.7 C 611.3 99.6 640 134.5 640 177.8 v 782.2 C 640 1003.2 611.3 1038.2 576 1038.2 H 448 C 412.7 1038.2 384 1003.2 384 960 V 177.8 C 384 134.5 412.7 99.6 448 99.6 h 128 z m 384 391.1 C 995.3 490.6 1024 525.7 1024 568.9 v 391.1 C 1024 1003.2 995.3 1038.2 960 1038.2 h -128 C 796.7 1038.2 768 1003.2 768 960 V 568.9 C 768 525.7 796.7 490.6 832 490.6 h 128 z" />
+</svg>
+
+    </a>
+  
+    <a href="https://qoto.org/@meiji163" rel="me noopener" class="iconfont"
+      title="mastodon"  target="_blank"
+      >
+      <svg class="icon" style="" viewBox="0 0 448 512" version="1.1"
+  xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+  width="36" height="36"><path fill="currentColor" d="M433 179.11c0-97.2-63.71-125.7-63.71-125.7-62.52-28.7-228.56-28.4-290.48 0 0 0-63.72 28.5-63.72 125.7 0 115.7-6.6 259.4 105.63 289.1 40.51 10.7 75.32 13 103.33 11.4 50.81-2.8 79.32-18.1 79.32-18.1l-1.7-36.9s-36.31 11.4-77.12 10.1c-40.41-1.4-83-4.4-89.63-54a102.54 102.54 0 0 1-.9-13.9c85.63 20.9 158.65 9.1 178.75 6.7 56.12-6.7 105-41.3 111.23-72.9 9.8-49.8 9-121.5 9-121.5zm-75.12 125.2h-46.63v-114.2c0-49.7-64-51.6-64 6.9v62.5h-46.33V197c0-58.5-64-56.6-64-6.9v114.2H90.19c0-122.1-5.2-147.9 18.41-175 25.9-28.9 79.82-30.8 103.83 6.1l11.6 19.5 11.6-19.5c24.11-37.1 78.12-34.8 103.83-6.1 23.71 27.3 18.4 53 18.4 175z"></path></svg>
+    </a>
+
+
+<a href="https://meiji163.github.io/index.xml" rel="noopener alternate" type="application/rss&#43;xml"
+    class="iconfont" title="rss" target="_blank">
+    <svg class="icon" viewBox="0 0 1024 1024" version="1.1"
+  xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+  width="30" height="30">
+  <path d="M819.157333 1024C819.157333 574.592 449.408 204.8 0 204.8V0c561.706667 0 1024 462.293333 1024 1024h-204.842667zM140.416 743.04a140.8 140.8 0 0 1 140.501333 140.586667A140.928 140.928 0 0 1 140.074667 1024C62.72 1024 0 961.109333 0 883.626667s62.933333-140.544 140.416-140.586667zM678.784 1024h-199.04c0-263.210667-216.533333-479.786667-479.744-479.786667V345.173333c372.352 0 678.784 306.517333 678.784 678.826667z"></path>
+</svg>
+
+  </a>
+   
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - <a class="theme-link" href="https://github.com/xianmin/hugo-theme-jane">Jane</a>
+  </span>
+
+  <span class="copyright-year">
+    &copy;
+    2021
+    <span class="heart">
+      
+      <i class="iconfont">
+        <svg class="icon" viewBox="0 0 1025 1024" version="1.1"
+  xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+  width="14" height="14">
+  <path d="M1000.1 247.9c-15.5-37.3-37.6-70.6-65.7-98.9-54.4-54.8-125.8-85-201-85-85.7 0-166 39-221.4 107.4C456.6 103 376.3 64 290.6 64c-75.1 0-146.5 30.4-201.1 85.6-28.2 28.5-50.4 61.9-65.8 99.3-16 38.8-24 79.9-23.6 122.2 0.7 91.7 40.1 177.2 108.1 234.8 3.1 2.6 6 5.1 8.9 7.8 14.9 13.4 58 52.8 112.6 102.7 93.5 85.5 209.9 191.9 257.5 234.2 7 6.1 15.8 9.5 24.9 9.5 9.2 0 18.1-3.4 24.9-9.5 34.5-30.7 105.8-95.9 181.4-165 74.2-67.8 150.9-138 195.8-178.2 69.5-57.9 109.6-144.4 109.9-237.3 0.1-42.5-8-83.6-24-122.2z"
+   fill="#8a8a8a"></path>
+</svg>
+
+      </i>
+    </span><span class="author">
+        meiji163
+        
+      </span></span>
+
+  
+  
+
+  
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont">
+        
+        <svg class="icon" viewBox="0 0 1024 1024" version="1.1"
+  xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+  width="35" height="35">
+  <path d="M510.866688 227.694839 95.449397 629.218702l235.761562 0-2.057869 328.796468 362.40389 0L691.55698 628.188232l241.942331-3.089361L510.866688 227.694839zM63.840492 63.962777l894.052392 0 0 131.813095L63.840492 195.775872 63.840492 63.962777 63.840492 63.962777zM63.840492 63.962777"></path>
+</svg>
+
+      </i>
+    </div>
+  </div>
+  
+<script type="text/javascript" src="/lib/jquery/jquery-3.2.1.min.js"></script>
+  <script type="text/javascript" src="/lib/slideout/slideout-1.0.1.min.js"></script>
+
+
+
+
+<script type="text/javascript" src="/js/main.638251f4230630f0335d8c6748e53a96f94b72670920b60c09a56fdc8bece214.js" integrity="sha256-Y4JR9CMGMPAzXYxnSOU6lvlLcmcJILYMCaVv3Ivs4hQ=" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+    <script type="text/javascript" src="/js/load-photoswipe.js"></script>
+    <script type="text/javascript" src="/lib/photoswipe/photoswipe.min.js"></script>
+    <script type="text/javascript" src="/lib/photoswipe/photoswipe-ui-default.min.js"></script>
+  
+
+
+
+
+
+
+
+
+
+  <script id="dsq-count-scr" src="//.disqus.com/count.js" async></script>
+
+
+
+
+
+
+
+</body>
+</html>

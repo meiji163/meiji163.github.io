@@ -33,7 +33,7 @@ Information Theory Review First a quick review of information theory. Suppose th
 
 
 
-<meta name="generator" content="Hugo 0.86.0" />
+<meta name="generator" content="Hugo 0.89.4" />
 
 
 <link rel="canonical" href="https://meiji163.github.io/post/context-tree-weighting/" />
@@ -397,7 +397,7 @@ endfor
 <p>Assuming arithmetic coding can be implemented efficiently (see <a href="#implementation-and-experiments">below</a>), we have reduced compression to finding a good model of the data. Of course, the model will depend a lot on what type of data you&rsquo;re compressing and your speed/memory goals.</p>
 <p>The simplest model could just use frequency counts of the different symbols to make predictions. If you wanted to go all out you could train a neural net like an RNN or <a href="https://en.wikipedia.org/wiki/Transformer_(machine_learning_model)">transformer</a> on your data to make the predictions. However you&rsquo;d have to account for the size of the weights, which have to be sent the decoder. It would also be too slow for most purposes (although lightweight NN&rsquo;s <a href="http://mattmahoney.net/dc/mmahoney00.pdf">achieve reasonable speed</a>). Clearly there is a tradeoff between the complexity of the model and the compression ratio.</p>
 <p>A simpler option is a <em>tree model</em>. We assume that \(P(x_n)\) depends on at most \(D\) of the previous symbols (in probability lingo, a \(D\)-Markov model).</p>
-<p>The main idea is to build a suffix tree (or trie) from the source. Given past symbols \(x_{n-D},&hellip;,x_{n-1}\) (also known as the _context_) we take the last \(k \le D\) as the suffix. We are free to choose \(k\), and it can vary between contexts.   We then record the frequencies of each symbol we observe after seeing a suffix.</p>
+<p>The main idea is to build a suffix tree (or trie) from the source. Given past symbols \(x_{n-D},&hellip;,x_{n-1}\) (also known as the <em>context</em>) we take the last \(k \le D\) as the suffix. We are free to choose \(k\), and it can vary between contexts.   We then record the frequencies of each symbol we observe after seeing a suffix.</p>
 <p>For example if the alphabet is \(\mathcal{A} = \text{ \{a ,b ,n\}}\) and the sequence &ldquo;\(\text{bananan}\)&rdquo; here is one possible depth \(D=2\) tree (suffixes are read from bottom up)</p>
 
 
@@ -602,7 +602,7 @@ For example, here is a possible decomposition tree for \(\mathcal{A} = \text{ \{
       
       <nav class="post-nav">
         
-          <a class="prev" href="/post/combo-hyperbolic-embedding/">
+          <a class="prev" href="/post/gh-extension/">
             
             <i class="iconfont">
               <svg  class="icon" viewBox="0 0 1024 1024" version="1.1"
@@ -612,7 +612,7 @@ For example, here is a possible decomposition tree for \(\mathcal{A} = \text{ \{
 </svg>
 
             </i>
-            <span class="prev-text nav-default">Combinatorial Hyperbolic Embeddings</span>
+            <span class="prev-text nav-default">Fun With GitHub CLI Extensions</span>
             <span class="prev-text nav-mobile">Prev</span>
           </a>
         

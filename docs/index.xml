@@ -6,7 +6,7 @@
     <description>Recent content on meiji163</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
-    <lastBuildDate>Tue, 24 Aug 2021 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sat, 25 Dec 2021 00:00:00 +0000</lastBuildDate>
     
         <atom:link href="https://meiji163.github.io/index.xml" rel="self" type="application/rss+xml" />
     
@@ -338,6 +338,173 @@ Note that &amp;ldquo;hyperbolicity&amp;rdquo; as defined here can apply to any m
     </item>
     
     <item>
+      <title>Fun With GitHub CLI Extensions</title>
+      <link>https://meiji163.github.io/post/gh-extension/</link>
+      <pubDate>Sat, 25 Dec 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://meiji163.github.io/post/gh-extension/</guid>
+      
+        <description>&lt;blockquote&gt;
+&lt;p&gt;And everything else which can be attributed to body presupposes extension, and is only a mode of that which is extended.&lt;br&gt;
+&amp;ndash; Descartes, &lt;em&gt;Principles of Philosophy&lt;/em&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2 id=&#34;introduction&#34;&gt;Introduction&lt;/h2&gt;
+&lt;p&gt;&lt;code&gt;gh&lt;/code&gt; is the official GitHub CLI, maintained in the public &lt;a href=&#34;https://github.com/cli/cli&#34;&gt;cli/cli&lt;/a&gt; repository.&lt;br&gt;
+Like its predecessor hub&lt;sup id=&#34;fnref:1&#34;&gt;&lt;a href=&#34;#fn:1&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;1&lt;/a&gt;&lt;/sup&gt;, &lt;code&gt;gh&lt;/code&gt; wraps common git commands. But &lt;code&gt;gh&lt;/code&gt; does much more, ultimately aiming to be a general GitHub interface for your terminal.
+You can for example run actions with &lt;code&gt;gh workflow&lt;/code&gt;, publish gists with &lt;code&gt;gh gist&lt;/code&gt;, or access your codespaces with &lt;code&gt;gh cs&lt;/code&gt;. If you don&amp;rsquo;t already have it, check out &lt;a href=&#34;https://cli.github.com/&#34;&gt;here&lt;/a&gt; to get started!&lt;/p&gt;
+&lt;p&gt;Recently, I interned for the GitHub CLI team via the MLH Fellowship&lt;sup id=&#34;fnref:2&#34;&gt;&lt;a href=&#34;#fn:2&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;2&lt;/a&gt;&lt;/sup&gt;.
+I learned a great deal about software and golang from the senior devs (&lt;a href=&#34;https://github.com/vilmibm&#34;&gt;@vilmbim&lt;/a&gt;, &lt;a href=&#34;https://github.com/mislav&#34;&gt;@mislav&lt;/a&gt;, and &lt;a href=&#34;https://github.com/samcoe&#34;&gt;@samcoe&lt;/a&gt;).
+I was also pleasantly surprised at how easy it was to use and contribute to the CLI. It has great user experience and a ton of features for using GitHub programmatically.&lt;/p&gt;
+&lt;p&gt;However my favorite part of &lt;code&gt;gh&lt;/code&gt; is &lt;strong&gt;extensions&lt;/strong&gt;, which launched in v2.0. Extensions are programs that you can install, execute, and upgrade &amp;ndash; just like a mini package-manager!
+If there&amp;rsquo;s any functionality you want that falls outside the scope of the core commands, you can find or make an extension that does just that.&lt;/p&gt;
+&lt;h2 id=&#34;using-extensions&#34;&gt;Using extensions&lt;/h2&gt;
+&lt;p&gt;&lt;code&gt;gh&lt;/code&gt; installs extensions from GitHub repositories with a &amp;ldquo;gh-&amp;rdquo; prefix (e.g. meiji163/gh-coolextension). All that&amp;rsquo;s required is a top-level executable with the same name as the repo. Once you install an extension, it creates a new top-level &lt;code&gt;gh&lt;/code&gt; command under that name aliased to that executable. Here is an example:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# install an extension by repo name &lt;/span&gt;
+$ gh extension install vilmibm/gh-screensaver  
+
+&lt;span class=&#34;c1&#34;&gt;# execute the extension&lt;/span&gt;
+$ gh screensaver 
+
+&lt;span class=&#34;c1&#34;&gt;# upgrade the extension&lt;/span&gt;
+$ gh extensions upgrade screensaver
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;There is already a quickly growing ecosystem of extensions to choose from; when I started in mid-September there were less than 100, and at the time of writing there are &lt;a href=&#34;https://github.com/topics/gh-extension&#34;&gt;145&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;I love not only how useful, but also how creative and fun they are. Here&amp;rsquo;s a few of my favorites:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.com/dlvhdr/gh-prs&#34;&gt;dlvhdr/gh-prs&lt;/a&gt;: A slick dashboard of all your pull requests, with lots of configurability!&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;img src=&#34;https://github.com/dlvhdr/gh-prs/blob/8621183574c573e4077360b5027ffea70999b921/demo.gif?raw=true&#34; alt=&#34;gh-prs&#34;&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href=&#34;https://github.com/vilmibm/gh-screensaver&#34;&gt;vilmibm/gh-screensaver&lt;/a&gt;: Cool and colorful terminal animations (I added the game of life one)
+&lt;img src=&#34;https://user-images.githubusercontent.com/98482/134737341-701d0e7d-476f-4a29-8309-d34b4935c6a3.gif&#34; alt=&#34;gh-screensaver&#34;&gt;
+&lt;img src=&#34;https://user-images.githubusercontent.com/98482/134737299-aa306b69-ceb4-49c1-95c8-3582d195250c.gif&#34; alt=&#34;gh firework&#34;&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href=&#34;https://github.com/yusukebe/gh-markdown-preview&#34;&gt;yusukebe/gh-markdown-preview&lt;/a&gt;: Renders your local md files with GitHub-flavored markdown in your browser. Super useful for writing readmes.
+&lt;img src=&#34;https://user-images.githubusercontent.com/10682/138411417-dd12a831-bacc-4b05-a33d-47d3f6b45483.png&#34; alt=&#34;gh-markdown&#34;&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href=&#34;https://github.com/kawarimidoll/gh-graph&#34;&gt;kawarimidoll/gh-graph&lt;/a&gt;: View your contribution graph in the terminal
+&lt;img src=&#34;https://user-images.githubusercontent.com/8146876/131276560-9b97596f-2f21-48ed-a946-498c47d9faf1.png&#34; alt=&#34;gh-grpah&#34;&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;writing-extensions&#34;&gt;Writing extensions&lt;/h2&gt;
+&lt;p&gt;The CLI team made some tools to help write extensions (nice guys, eh?). Use the &lt;code&gt;gh extension create&lt;/code&gt; command and you&amp;rsquo;ll be prompted for the name and what kind of extension you want to make. A local git repository will then be created for you with some boilerplate.&lt;/p&gt;
+&lt;p&gt;Extensions can be written in any language, but for our purpose languages are split into three categories: interpreted, Golang, and other compiled language. Here are a few key differences between them when writing extensions.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Interpreted&lt;/strong&gt;:
+This requires the user to have the interpreter for the language (and any dependencies) installed. For that reason, most are written in bash, but it could be python, ruby, etc.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Compiled (not golang)&lt;/strong&gt;:
+This allows you to distribute binaries from your extension repo.
+Precompiled binary extensions are fully supported since gh version 2.3.0. That means if you publish a release with binary assets from your extension repo, &lt;code&gt;gh extension install&lt;/code&gt; will download the appropriate binary (instead of looking for a top-level executable).&lt;/p&gt;
+&lt;p&gt;The binary assets have to be named as &amp;ldquo;platform-architecture&amp;rdquo; (e.g. darwin-arm64). Luckily @vilmibm recently made &lt;a href=&#34;https://github.com/cli/gh-extension-precompile&#34;&gt;gh-extension-precompile&lt;/a&gt;, a GitHub action that automates the building and releasing for you. Modify the build script for your language as needed.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Golang&lt;/strong&gt;: The stuff for compiled languages also applies here, but there&amp;rsquo;s even &lt;em&gt;more&lt;/em&gt; tools for golang! The CLI team recently open-sourced &lt;a href=&#34;https://github.com/cli/go-gh&#34;&gt;go-gh&lt;/a&gt;, a module for golang that exposes a small subset of cli/cli internals. This includes an HTTP client for both the REST and GraphQL API for GitHub. It also has an &lt;code&gt;Exec&lt;/code&gt; function that safely shells out to &lt;code&gt;gh&lt;/code&gt;, and a &lt;code&gt;CurrentRepository&lt;/code&gt; function. It&amp;rsquo;s still in beta, so there will likely be more functionality to come. See below for an example usage.&lt;/p&gt;
+&lt;h3 id=&#34;github-apis&#34;&gt;GitHub APIs&lt;/h3&gt;
+&lt;p&gt;One of the main reasons to write gh extensions is that you can easily make authenticated GitHub API calls (although your extension can be completely unrelated to GitHub) since the user will presumably have an auth token for &lt;code&gt;gh&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;A typical way would be to use the &lt;code&gt;gh api&lt;/code&gt; command. This command wraps both the REST and GraphQL GitHub API.
+You can select format the response using jquery syntax with the &lt;code&gt;--jq&lt;/code&gt; flag, or (even better) with &lt;a href=&#34;https://golangdocs.com/templates-in-golang&#34;&gt;golang templates&lt;/a&gt; using the &lt;code&gt;--template&lt;/code&gt; flag.
+Templates are quite powerful for text formatting. See &lt;code&gt;gh formatting help&lt;/code&gt; for more details on built-in functions and examples.&lt;/p&gt;
+&lt;p&gt;For example, here is a script to print a table of a user&amp;rsquo;s starred repos:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#!/usr/bin/bash
+&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;&lt;/span&gt;gh api /users/&lt;span class=&#34;s2&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$USERNAME&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;&lt;/span&gt;/starred &lt;span class=&#34;se&#34;&gt;\
+&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;&lt;/span&gt;    --template &lt;span class=&#34;s1&#34;&gt;&amp;#39;
+&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;    {{- tablerow &amp;#34;NAME&amp;#34; &amp;#34;DESCRIPTION&amp;#34; -}}
+&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;    {{- range .}}{{- tablerow .name .description -}}{{- end -}}&amp;#39;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;A little polishing, and this would be a fine bash gh-extension!&lt;/p&gt;
+&lt;p&gt;If you&amp;rsquo;re using golang, you can use the clients from &lt;code&gt;go-gh&lt;/code&gt;. Here is how to get the same data as above:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;nx&#34;&gt;opts&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:=&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;api&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;ClientOptions&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;EnableCache&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;kc&#34;&gt;true&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt;client&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;err&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;gh&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;RESTClient&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;opts&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;err&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;!=&lt;/span&gt; &lt;span class=&#34;kc&#34;&gt;nil&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+    &lt;span class=&#34;nx&#34;&gt;log&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Fatal&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;err&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt;response&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:=&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;[]&lt;/span&gt;&lt;span class=&#34;kd&#34;&gt;struct&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt; 
+    &lt;span class=&#34;nx&#34;&gt;Name&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;string&lt;/span&gt; 
+    &lt;span class=&#34;nx&#34;&gt;Description&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;string&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;}{}&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt;err&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;client&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Get&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;fmt&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Sprintf&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;users/%s/starred&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;username&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;),&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;response&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;You can also use the GraphQL API (somewhat annoyingly, there are features not available in the REST API available in GraphQL and vice versa). Here is a query to get the same data once again:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-graphql&#34; data-lang=&#34;graphql&#34;&gt;&lt;span class=&#34;kd&#34;&gt;query&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;nc&#34;&gt;GetStarredRepos&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$username&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;nc&#34;&gt;String&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;!)&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;  &lt;/span&gt;&lt;span class=&#34;py&#34;&gt;user&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;py&#34;&gt;login&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$username&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;    &lt;/span&gt;&lt;span class=&#34;nc&#34;&gt;starredRepositories&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;py&#34;&gt;first&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;nc&#34;&gt;100&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;      &lt;/span&gt;&lt;span class=&#34;py&#34;&gt;nodes&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;        &lt;/span&gt;&lt;span class=&#34;py&#34;&gt;name&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;        &lt;/span&gt;&lt;span class=&#34;py&#34;&gt;description&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;      &lt;/span&gt;&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;    &lt;/span&gt;&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;  &lt;/span&gt;&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;GitHub has a &lt;a href=&#34;https://docs.github.com/en/graphql/overview/explorer&#34;&gt;great tool&lt;/a&gt; for exploring their GraphQL schema.
+There is also a &lt;a href=&#34;https://github.com/shurcooL/githubv4&#34;&gt;GitHub GraphQL library&lt;/a&gt; for golang that provides a more concise interface.&lt;/p&gt;
+&lt;h3 id=&#34;three-more-extensions&#34;&gt;Three more extensions&lt;/h3&gt;
+&lt;p&gt;To conclude, I want to go over three extensions I wrote during my time on the CLI team.
+They certainly aren&amp;rsquo;t the best quality since I wrote them while learning golang and gh, but hopefully they will serve as examples and perhaps give you ideas for your own extension &amp;ndash; &lt;em&gt;I&amp;rsquo;m eager to see what you make!&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;&lt;a href=&#34;https://github.com/meiji163/gh-notify&#34;&gt;gh-notify&lt;/a&gt;:&lt;/strong&gt;&lt;br&gt;
+This one is pretty simple. It&amp;rsquo;s a bash script that fetches notifications and pipes it into &lt;a href=&#34;https://github.com/junegunn/fzf&#34;&gt;fzf&lt;/a&gt;.
+If you select a notification linked to a pull request or issue, it will show it with the appropriate &lt;code&gt;gh&lt;/code&gt; command.
+I wrote it for a hackday.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# show unread notifs&lt;/span&gt;
+$ gh notify 
+
+&lt;span class=&#34;c1&#34;&gt;# show first 10 of all notifs  &lt;/span&gt;
+$ gh notify -a -n &lt;span class=&#34;m&#34;&gt;10&lt;/span&gt; 
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;strong&gt;&lt;a href=&#34;https://github.com/meiji163/gh-search&#34;&gt;gh-search&lt;/a&gt;:&lt;/strong&gt;&lt;br&gt;
+This extension provides access to the search API for repositories. It was a personal tool, as I&amp;rsquo;m frequently looking for great new projects on GitHub.&lt;/p&gt;
+&lt;p&gt;It allows you to filter with &lt;code&gt;--lang&lt;/code&gt; or &lt;code&gt;--topic&lt;/code&gt; flags, or simply enter the raw search query in &lt;a href=&#34;https://docs.github.com/en/search-github/getting-started-with-searching-on-github/understanding-the-search-syntax&#34;&gt;GitHub syntax&lt;/a&gt; with the &lt;code&gt;-q&lt;/code&gt; flag.
+It then shows you the results in a searchable scrolling menu.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# search for cli repos with hacktoberfest topic&lt;/span&gt;
+$ gh search cli --topic&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;hacktoberfest
+
+&lt;span class=&#34;c1&#34;&gt;# custom search with GitHub syntax&lt;/span&gt;
+$ gh search -q&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;org:cli created:&amp;gt;2019-01-01&amp;#34;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;I wrote it in golang using go-gh and &lt;a href=&#34;https://github.com/spf13/cobra/&#34;&gt;cobra&lt;/a&gt;, a nice library for CLI apps (and the same one used in gh).&lt;/p&gt;
+&lt;p&gt;Note that this extension will probably be obsolete&amp;rsquo;d once &lt;code&gt;gh&lt;/code&gt; adds search to the core commands (ref: &lt;a href=&#34;https://github.com/cli/cli/issues/4834&#34;&gt;cli#4834&lt;/a&gt;).&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;&lt;a href=&#34;https://github.com/meiji163/gh-spam&#34;&gt;gh-spam&lt;/a&gt;:&lt;/strong&gt;&lt;br&gt;
+This extension is a simple classifier for spam issues (again in golang). I wrote it on the last hackday (they have a lot of hackdays at GitHub, which is great). During the internship I noticed a fairly large volume of spam issues on the cli/cli repo that had to be closed manually.
+As an ML-inclined fellow, I thought I would take a crack at automating this.&lt;/p&gt;
+&lt;p&gt;To use it, you first download a labeled dataset of issues from a target repo (this only really works if you have a large repo). Then you train a classifier on it, which by default is a &lt;a href=&#34;https://en.wikipedia.org/wiki/Random_forest&#34;&gt;random forest&lt;/a&gt;.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# download data from cli/cli repo &lt;/span&gt;
+$ gh-spam download -R cli/cli
+
+&lt;span class=&#34;c1&#34;&gt;# classify an issue &lt;/span&gt;
+$ gh-spam classify -R cli/cli &lt;span class=&#34;m&#34;&gt;4894&lt;/span&gt;
+&lt;span class=&#34;c1&#34;&gt;#4894: spam&lt;/span&gt;
+
+&lt;span class=&#34;c1&#34;&gt;# classify multiple issues&lt;/span&gt;
+$ gh-spam classify -R cli/cli &lt;span class=&#34;m&#34;&gt;4913&lt;/span&gt; &lt;span class=&#34;m&#34;&gt;4907&lt;/span&gt; &lt;span class=&#34;m&#34;&gt;4906&lt;/span&gt; &lt;span class=&#34;m&#34;&gt;4894&lt;/span&gt;
+&lt;span class=&#34;c1&#34;&gt;#4913: not spam&lt;/span&gt;
+&lt;span class=&#34;c1&#34;&gt;#4907: not spam&lt;/span&gt;
+&lt;span class=&#34;c1&#34;&gt;#4906: not spam&lt;/span&gt;
+&lt;span class=&#34;c1&#34;&gt;#4894: spam&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Rather than do any fancy NLP on the issue content, the classifier inputs (aka features) are based primarily on the &amp;ldquo;reputation&amp;rdquo; of the author, i.e. number of contributions, association with the target repo, age of account, etc.
+I also took into account issues which just post one of the issue templates without substantive change by using a string-matching score.
+This approach turns out to be sufficiently accurate (at least for the cli/cli repo).&lt;/p&gt;
+&lt;p&gt;Making this extension was particularly interesting, because I previously only used python for machine learning. I looked around for ML libraries in golang, and ended up using &lt;a href=&#34;https://github.com/sjwhitworth/golearn&#34;&gt;golearn&lt;/a&gt;. It has a nice API similar to scikit-learn, but in comparison it is pretty awkward for handling data, and has less clear documentation&lt;sup id=&#34;fnref:3&#34;&gt;&lt;a href=&#34;#fn:3&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;3&lt;/a&gt;&lt;/sup&gt;.&lt;/p&gt;
+&lt;h2 id=&#34;further-resources&#34;&gt;Further Resources&lt;/h2&gt;
+&lt;p&gt;Here are a few more resources you may find useful.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://docs.github.com/en/github-cli/github-cli/creating-github-cli-extensions&#34;&gt;official GitHub guide&lt;/a&gt; for extensions&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://www.youtube.com/watch?v=tzK3ZuiEjcA&amp;amp;feature=youtu.be&amp;amp;ab_channel=vilmibm&#34;&gt;precompiled extension demo&lt;/a&gt; by @vilmibm&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.blog/2021-08-24-github-cli-2-0-includes-extensions/&#34;&gt;GitHub blogpost&lt;/a&gt; on extensions launch&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://cli.github.com/manual/&#34;&gt;manual&lt;/a&gt; for gh&lt;/li&gt;
+&lt;/ul&gt;
+&lt;section class=&#34;footnotes&#34; role=&#34;doc-endnotes&#34;&gt;
+&lt;hr&gt;
+&lt;ol&gt;
+&lt;li id=&#34;fn:1&#34; role=&#34;doc-endnote&#34;&gt;
+&lt;p&gt;&lt;a href=&#34;https://github.com/github/hub&#34;&gt;https://github.com/github/hub&lt;/a&gt;&amp;#160;&lt;a href=&#34;#fnref:1&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:2&#34; role=&#34;doc-endnote&#34;&gt;
+&lt;p&gt;The MLH Fellowship is basically an internship done in small groups called pods. I thought it was fantastic! Learn more at &lt;a href=&#34;https://fellowship.mlh.io/&#34;&gt;https://fellowship.mlh.io/&lt;/a&gt;&amp;#160;&lt;a href=&#34;#fnref:2&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:3&#34; role=&#34;doc-endnote&#34;&gt;
+&lt;p&gt;The documentation complaint is a &amp;ldquo;golang vs. python&amp;rdquo; complaint more than a &amp;ldquo;golearn vs. sklearn&amp;rdquo; complaint.&amp;#160;&lt;a href=&#34;#fnref:3&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/section&gt;
+</description>
+      
+    </item>
+    
+    <item>
       <title>Context Tree Weighting and Compression</title>
       <link>https://meiji163.github.io/post/context-tree-weighting/</link>
       <pubDate>Fri, 23 Apr 2021 00:00:00 +0000</pubDate>
@@ -396,7 +563,7 @@ endfor
 &lt;p&gt;Assuming arithmetic coding can be implemented efficiently (see &lt;a href=&#34;#implementation-and-experiments&#34;&gt;below&lt;/a&gt;), we have reduced compression to finding a good model of the data. Of course, the model will depend a lot on what type of data you&amp;rsquo;re compressing and your speed/memory goals.&lt;/p&gt;
 &lt;p&gt;The simplest model could just use frequency counts of the different symbols to make predictions. If you wanted to go all out you could train a neural net like an RNN or &lt;a href=&#34;https://en.wikipedia.org/wiki/Transformer_(machine_learning_model)&#34;&gt;transformer&lt;/a&gt; on your data to make the predictions. However you&amp;rsquo;d have to account for the size of the weights, which have to be sent the decoder. It would also be too slow for most purposes (although lightweight NN&amp;rsquo;s &lt;a href=&#34;http://mattmahoney.net/dc/mmahoney00.pdf&#34;&gt;achieve reasonable speed&lt;/a&gt;). Clearly there is a tradeoff between the complexity of the model and the compression ratio.&lt;/p&gt;
 &lt;p&gt;A simpler option is a &lt;em&gt;tree model&lt;/em&gt;. We assume that \(P(x_n)\) depends on at most \(D\) of the previous symbols (in probability lingo, a \(D\)-Markov model).&lt;/p&gt;
-&lt;p&gt;The main idea is to build a suffix tree (or trie) from the source. Given past symbols \(x_{n-D},&amp;hellip;,x_{n-1}\) (also known as the _context_) we take the last \(k \le D\) as the suffix. We are free to choose \(k\), and it can vary between contexts.   We then record the frequencies of each symbol we observe after seeing a suffix.&lt;/p&gt;
+&lt;p&gt;The main idea is to build a suffix tree (or trie) from the source. Given past symbols \(x_{n-D},&amp;hellip;,x_{n-1}\) (also known as the &lt;em&gt;context&lt;/em&gt;) we take the last \(k \le D\) as the suffix. We are free to choose \(k\), and it can vary between contexts.   We then record the frequencies of each symbol we observe after seeing a suffix.&lt;/p&gt;
 &lt;p&gt;For example if the alphabet is \(\mathcal{A} = \text{ \{a ,b ,n\}}\) and the sequence &amp;ldquo;\(\text{bananan}\)&amp;rdquo; here is one possible depth \(D=2\) tree (suffixes are read from bottom up)&lt;/p&gt;
 
 
@@ -778,7 +945,7 @@ We can do this using Euler&amp;rsquo;s criterion.
 &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Testing on my junk laptop, it only took 2.07 seconds to factor all the primes below 1e8!
 The best part is now we can enjoy long lists of primes as sums of squares. Soothing&amp;hellip;&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;	18413 = 118^2 + 67^2 
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;	18413 = 118^2 + 67^2 
 	18433 = 127^2 + 48^2 
 	18457 = 36^2 + 131^2 
 	18461 = 106^2 + 85^2 
