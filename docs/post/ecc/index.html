@@ -537,7 +537,7 @@ What we want is a set of &ldquo;codeword&rdquo; vectors such that whenever error
 <p>Thus we need the codewords to be as &ldquo;far apart&rdquo; as possible, to minimize the chances of a word being &ldquo;close&rdquo; to two codewords simulatenously.
 The <a href="https://en.wikipedia.org/wiki/Hamming_distance">Hamming Distance</a>, defined as the number of places where two words differ, is exactly the right notion of distance to measure this. Now the problem can be phrased as:</p>
 <p><em>Find a set of codewords that maximizes the minimum distance betweeen any two codewords.</em></p>
-<p>Equivalently, find a packing of non-intersecting spheres, such that the common radius is as large as possible.</p>
+<p>Equivalently, find a packing of non-intersecting spheres, such that the smallest radius is as large as possible.</p>
 <h3 id="algebraic-codes">Algebraic Codes</h3>
 <p>Codeword vectors can be chosen arbitrarily, but to make the problem tractable we impose an algebraic structure on the codewords, like a musician might impose meter and harmony on their music.</p>
 <p>First we require that the codewords form a <em>linear subspace</em> of \(F^n\).

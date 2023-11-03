@@ -188,7 +188,7 @@ The [Hamming Distance](https://en.wikipedia.org/wiki/Hamming_distance), defined 
 
 _Find a set of codewords that maximizes the minimum distance betweeen any two codewords._
 
-Equivalently, find a packing of non-intersecting spheres, such that the common radius is as large as possible.
+Equivalently, find a packing of non-intersecting spheres, such that the smallest radius is as large as possible.
 
 ### Algebraic Codes
 Codeword vectors can be chosen arbitrarily, but to make the problem tractable we impose an algebraic structure on the codewords, like a musician might impose meter and harmony on their music.
