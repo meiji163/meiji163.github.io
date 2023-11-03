@@ -610,7 +610,7 @@ If you&rsquo;re familiar with the <a href="https://en.wikipedia.org/wiki/Discret
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-clojure" data-lang="clojure"><span class="p">(</span><span class="k">def </span><span class="nv">RS-7-3</span> 
   <span class="p">(</span><span class="nf">reduce</span>
    <span class="p">(</span><span class="k">fn </span><span class="p">[</span><span class="nv">p1</span> <span class="nv">p2</span><span class="p">]</span> <span class="p">(</span><span class="nf">p/*</span> <span class="nv">p1</span> <span class="nv">p2</span> <span class="nv">GF8</span><span class="p">))</span>
-   <span class="p">[[</span><span class="mi">7</span> <span class="mi">1</span><span class="p">]</span> <span class="p">[</span><span class="mi">3</span> <span class="mi">1</span><span class="p">]</span> <span class="p">[</span><span class="mi">6</span> <span class="mi">1</span><span class="p">]</span> <span class="p">[</span><span class="mi">1</span> <span class="mi">1</span><span class="p">]]))</span>
+   <span class="p">[[</span><span class="mi">7</span> <span class="mi">1</span><span class="p">]</span> <span class="p">[</span><span class="mi">6</span> <span class="mi">1</span><span class="p">]</span> <span class="p">[</span><span class="mi">5</span> <span class="mi">1</span><span class="p">]</span> <span class="p">[</span><span class="mi">1</span> <span class="mi">1</span><span class="p">]]))</span>
 </code></pre></div><p>Now I can encode my favorite integer, 163.
 With check symbols it is <code>3326163</code>. Now I can change any two of the symbols and it decodes to <code>163</code>.</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-clojure" data-lang="clojure"><span class="p">(</span><span class="nf">encode</span> <span class="p">[</span><span class="mi">1</span> <span class="mi">6</span> <span class="mi">3</span><span class="p">]</span> <span class="nv">RS-7-3</span> <span class="nv">GF8</span><span class="p">)</span> <span class="c1">;; =&gt; [3 3 2 6 1 6 3]</span>
@@ -710,7 +710,7 @@ The message bits are prepended with a 4-bit datatype code followed by an 8-bit i
 <p>$$ g(x) = 117 + 68x + 11x^2 + 164x^3 + 154x^4 + 122x^5 + 127x^6 +  x^7 $$
 which is computed from \((x-\omega^0)(x-\omega^1)\dots(x-\omega^6)\).</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-clojure" data-lang="clojure"><span class="p">(</span><span class="k">def </span><span class="nv">GF256</span>
-  <span class="s">&#34;GF(255) constructed as GF2[x]/&lt;x^8+x^4+x^3+x^2+1&gt;&#34;</span>
+  <span class="s">&#34;GF(256) constructed as GF2[x]/&lt;x^8+x^4+x^3+x^2+1&gt;&#34;</span>
   <span class="p">(</span><span class="k">let </span><span class="p">[</span><span class="nv">GF2-poly</span> <span class="p">(</span><span class="nf">p/parse-bin</span> <span class="s">&#34;100011101&#34;</span><span class="p">)]</span>
     <span class="p">(</span><span class="nf">p/char2-field</span> <span class="mi">2</span> <span class="nv">GF2-poly</span><span class="p">)))</span>
 
