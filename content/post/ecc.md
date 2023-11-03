@@ -278,7 +278,7 @@ $$ g(x) = (x-\omega^4)(x-\omega^5)(x-\omega^6)(x-\omega^7).$$
 (def RS-7-3 
   (reduce
    (fn [p1 p2] (p/* p1 p2 GF8))
-   [[7 1] [3 1] [6 1] [1 1]]))
+   [[7 1] [6 1] [5 1] [1 1]]))
 ```
 Now I can encode my favorite integer, 163.
 With check symbols it is `3326163`. Now I can change any two of the symbols and it decodes to `163`.
@@ -408,7 +408,7 @@ which is computed from \\((x-\omega^0)(x-\omega^1)\dots(x-\omega^6)\\).
 
 ```clojure
 (def GF256
-  "GF(255) constructed as GF2[x]/<x^8+x^4+x^3+x^2+1>"
+  "GF(256) constructed as GF2[x]/<x^8+x^4+x^3+x^2+1>"
   (let [GF2-poly (p/parse-bin "100011101")]
     (p/char2-field 2 GF2-poly)))
 
