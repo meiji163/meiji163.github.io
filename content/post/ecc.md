@@ -83,7 +83,7 @@ Now to add polynomials, we just add each corresponding coordinate of the vectors
 
 _So then polynomial multiplication also defines multiplication of vectors?_
 
-Not quite. The trouble is when you multiply two polynomials, the degree of the product polynomial is can grow without bound! That's not good if we want to the vector size to be fixed.
+Not quite. The trouble is when you multiply two polynomials, the degree of the product polynomial is can grow without bound! That's not good if we want the vector size to be fixed.
 
 This is where we take inspiration from the integers mod \\(p\\). 
 In that case, whenever we get a result bigger than \\(p\\), we divide it by \\(p\\) and use the remainder instead. 
@@ -110,12 +110,12 @@ $$
 
 where we replaced \\(x^3\\) by \\( x + 1\\), or equivalently, divided out \\(p(x)\\).
 
-When the polynomials as viewed binary vectors, we can interpret each vector as spelling out an integer in binary. For example \\(x^2 + x + 1 \leftrightarrow 111_2 = 7\\). 
+When the polynomials are as viewed binary vectors, we can interpret each vector as spelling out an integer in binary. For example \\(x^2 + x + 1 \leftrightarrow 111_2 = 7\\). 
 Each field element gets assigned a number 0-7 according to this notational pun. _But beware, you can't add and multiply them like regular integers[^joke0]!_ 
 
-[^joke0]: You can now make people think you're crazy by telling them 3 times 3 equals 5
+[^joke0]: You can now tell everyone that 3 times 3 equals 5
 
-Another way of representing finite fields comes from the [primitive element theorem](https://en.wikipedia.org/wiki/Primitive_element_theorem), which says that every finite field has a special element \\(\omega\\), called the primitive element, such that the successive powers \\(\omega^1, \omega^2, \dots \\) generate the whole field.
+Yet another way of representing finite fields comes from the [primitive element theorem](https://en.wikipedia.org/wiki/Primitive_element_theorem), which says that every finite field has a special element \\(\omega\\), called the primitive element, such that the successive powers \\(\omega^1, \omega^2, \dots \\) generate the whole field.
 
 In our contruction of \\(GF(2^3)\\), a primitive element is the polynomial \\(x\\), aka "\\(2\\)" in our binary labeling scheme. Compare the different representations in the table below.
 
@@ -188,10 +188,12 @@ The [Hamming Distance](https://en.wikipedia.org/wiki/Hamming_distance), defined 
 
 _Find a set of codewords that maximizes the minimum distance betweeen any two codewords._
 
+Equivalently, find a packing of non-intersecting spheres, such that the common radius is as large as possible.
+
 ### Algebraic Codes
 Codeword vectors can be chosen arbitrarily, but to make the problem tractable we impose an algebraic structure on the codewords, like a musician might impose meter and harmony on their music.
 
-First require that the codewords form a _linear subspace_ of \\(F^n\\). 
+First we require that the codewords form a _linear subspace_ of \\(F^n\\). 
 That means whenever we add two codeword vectors or scale a codeword vector, we get another codeword vector.
 These are called _linear codes_. It's not too hard to bound the best possible minimum distance for linear codes.
 
@@ -200,11 +202,11 @@ But first, a little more terminology: A code that encodes length \\(k\\) words i
 **Hamming Bound:**
 The minimum distance \\( d_{min} \\) between any two codewords of a \\( (n,k) \\) linear code satisfies \\(d_{min} \le n-k+1\\).[^hamming-bound]
 
-[^hamming-bound]: Proof: the distance between any two codewords \\(c_1\\) and \\(c_2\\) is the same as the distance between the all-zero word and \\(c_1 - c_2\\). Thus \\(d_{min}\\) is equal to the minimum number of nonzero components across all nonzero codewords. We can take the codeword with one nonzero data symbol and \\(n-k\\) check symbols. Hence \\(d_{min} \le n-k+1 \\).
+[^hamming-bound]: Proof: the distance between any two codewords \\(c_1\\) and \\(c_2\\) is the same as the distance between the all-zero word and \\(c_1 - c_2\\). Thus \\(d_{min}\\) is equal to the minimum number of nonzero components of a codeword, across all nonzero codewords. But we can take the codeword with one nonzero data symbol and \\(n-k\\) check symbols. Hence \\(d_{min} \le n-k+1 \\).
 
 This tells us the max number of errors a linear code can correct is \\( \lfloor (n-k+1)/2 \rfloor \\). However it does not tell us if such a code exists for a given \\(n\\) and \\(k\\) (booo!).
 
-**Example:** The \\( (7,4) \\) binary Hamming code can correct 1 error. Its codewords form a four-dimensional subspace of \\(GF(2)^7\\), spanned by these vectors:
+**Example:** The \\( (7,4) \\) binary Hamming code can correct 1 error. Its codewords form a four-dimensional subspace of \\(GF(2)^7\\) spanned by these vectors:
 
 $$
 \begin{aligned}
@@ -227,7 +229,7 @@ Linear codes are great, but can we impose even _more_ structure to find better c
 
 A _cyclic code_ is a linear code that is invariant under a cyclic shift, e.g. if `1100` is a codeword then so is `0110` and `0011`. If we translate this back to polynomial language, it requires that \\(x^n\\) "wraps around" and becomes \\(x^0\\). Algebraically, this means we take the ring of polynomials \\(F[x]\\) _modulo_ \\(x^n-1\\)[^ideal]. However we say it, what it means in practice is that we carefully choose the generating polynomial \\(g(x)\\) to be a factor of \\(x^n-1\\).
 
-[^ideal]: In ring theory terminology, this makes the set of polynomial codewords is an [ideal](https://en.wikipedia.org/wiki/Ideal_(ring_theory)) of the quotient ring \\(F[x]/\langle x^n-1 \rangle \\).
+[^ideal]: In ring theory terminology, this means the set of polynomial codewords is an [ideal](https://en.wikipedia.org/wiki/Ideal_(ring_theory)) of the quotient ring \\(F[x]/\langle x^n-1 \rangle \\).
 
 
 **Example:** Here are some factorizations of \\(x^n-1\\) over \\(GF(2)\\) into prime polynomials.
@@ -262,9 +264,9 @@ _OK I cooked up my RS code, but why is it good?_
 It can be shown[^rsproof] that whenever a \\( (n,k) \\) RS code exists, it achieves equality in the Hamming bound, i.e. \\(d_{min} = n-k+1\\). So these codes are optimally error correcting linear codes.
 
 What accounts for this? It's closely related to the Fourier transform over the field \\(F\\). 
-If you're familiar with the [Discrete Fourier transform](https://en.wikipedia.org/wiki/Discrete_Fourier_transform) of a vector, it's exactly the same except \\(\omega\\) plays the role of \\(e^{-2\pi i/n}.\\) Requiring \\(\omega^j\\) to be a root of \\(g(x)\\) is equivalent to requiring the \\(j^{th}\\) component of the Fourier transform to be 0.
+If you're familiar with the [Discrete Fourier transform](https://en.wikipedia.org/wiki/Discrete_Fourier_transform) of a vector, it's exactly the same except \\(\omega\\) plays the role of \\(e^{-2\pi i/n}.\\) Requiring \\(\omega^j\\) to be a root of \\(g(x)\\) is equivalent to requiring the \\(j^{th}\\) component of the Fourier transform to be zero.
 
-The RS generating polynomial would be analogous to a low-pass frequency filter, requiring all frequencies to be greater than some value. This forces the minimum weight (i.e. number of nonzero components) of a codeword to be bounded away from 0. 
+The RS generating polynomial is then analogous to a low-pass frequency filter, which forces the frequencies of all codewords to be greater than some value. This forces the minimum weight (i.e. number of nonzero components) of a codeword to be bounded away from 0. 
 
 (This is a manifestation of [the uncertainty principle](https://terrytao.wordpress.com/2010/06/25/the-uncertainty-principle/), which roughly says that you cannot be simultaneously localized in both frequency and position. [[8]](#references))
 
@@ -292,7 +294,7 @@ With check symbols it is `3326163`. Now I can change any two of the symbols and 
 
 It feels _magical_ when you see it up close!
 
-For a bigger example, let's construct a \\( (255, 233) \\) RS code over \\(GF(256)\\). It uses 32 check symbols to correct 16 errors. This code is one recommended by the "Consultative Committee for Space Data Systems" [[4]](#references). Famously, it was used for [Voyager mission](https://en.wikipedia.org/wiki/Voyager_program) communications (in combination with other error-correcting codes).
+For a bigger example, let's construct a \\( (255, 233) \\) RS code over \\(GF(256)\\). It uses 32 check symbols to correct 16 errors (here the symbols are bytes). This code is one recommended by the "Consultative Committee for Space Data Systems" [[4]](#references). Famously, it was used for [Voyager mission](https://en.wikipedia.org/wiki/Voyager_program) communications (in combination with other error-correcting codes).
 
 ```clojure
 (def RS-255-223
@@ -326,13 +328,14 @@ g(x) &= (x-\omega)(x-\omega^2)(x-\omega^3)(x-\omega^4) \cr
 $$
 
 This polynomial has coefficients in \\(GF(2)\\), but its roots lie in the bigger field \\(GF(16).\\) This is analogous to a polynomial with real-valued coefficients having complex roots.
+The code generated by this polynomial is called the \\((15,7)\\) binary BCH code, which corrects 2 errors.
 
-The same argument from the RS codes shows that BCH codes are also optimal. The polynomial generates the \\((15,7)\\) binary BCH code, which corrects 2 errors.
+The same argument from the RS codes shows that BCH codes also have an optimal minimal distance. 
 
 ### Codecs
-As I said above, given a generating polynomial \\(g(x)\\) and data polynomial \\(w(x)\\) one way to encode is to use \\(g(x)w(x)\\) as the codeword. The codeword polynomials are the ones divisible by \\(g(x).\\) 
+As I said above, given a generating polynomial \\(g(x)\\) and data polynomial \\(w(x)\\) one way to encode is to use \\(g(x)w(x)\\) as the codeword. The _codeword polynomials_ are the ones divisible by \\(g(x).\\) 
 
-It's more convenient to use an encoding where the symbols of \\(w(x)\\) are visible in the codeword polynomial. To do this, set the top \\(k\\) coefficients as the coefficients of \\(w(x)\\), then add a degree \\(n-k\\) polynomial such that the codeword \\(c(x)\\)is divisible by \\(g(x).\\) 
+It's convenient to use an encoding where the symbols of \\(w(x)\\) are visible in the codeword. To do this, set the top \\(k\\) coefficients as the coefficients of \\(w(x)\\), then add a degree \\(n-k\\) polynomial such that the codeword \\(c(x)\\) is divisible by \\(g(x).\\) 
 Algebraically, \\( c(x) = x^k w(x) + r(x) \\) where \\(r(x) = -x^k w(k) \pmod{g(x)}\\).
 
 ```clojure
@@ -374,8 +377,8 @@ On the other hand, if a correctable number of errors occurred, the idea is to fo
 A more efficient decoder is based on the [Berlekamp-Massey algorithm](https://en.wikipedia.org/wiki/Berlekamp%E2%80%93Massey_algorithm), which I haven't implemented. (Maybe you can, my brave reader)
 
 ## Generating QR Codes
-Typically error-correcting codecs are implemented in hardware circuits, which run many orders of magnitude faster than my implementation.
-However just to prove that my terribly slow implementation isn't completely useless, I made a QR code generator. 
+Typically error-correcting codecs are implemented in hardware circuits, which of course run several orders of magnitude faster than my implementation.
+Just to prove that my terribly slow implementation isn't completely useless, I made a QR code generator. 
 
 There are many versions of QR codes, so I went with the 21x21 version as specified by the ISO/IEC standard [[5]](#references). I implemented just enough of the standard to make some example QR codes.
 
@@ -459,7 +462,7 @@ Now we can reproduce the QR code from the Wikipedia diagram above.
 {{< figure src="/images/wikipedia-qr.png">}}
 
 ## Conclusion
-Error-correcting codes are fundamental algorithms for everything involving data transfer. What's more, they are built from a wonderful blend of linear algebra, geometry, and ring theory. I hope I've given you a taste for what they are like.
+Error-correcting codes are fundamental algorithms for everything involving data transfer. What's more, they are built from a wonderful blend of linear algebra, geometry, and field theory. I hope I've given you a taste for what they are like.
 
 _Zzzz... I fell asleep right when you mentioned algebra_
 
