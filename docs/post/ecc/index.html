@@ -1,0 +1,1090 @@
+<!DOCTYPE html>
+<html lang="en" itemscope itemtype="http://schema.org/WebPage">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Error Correcting Codes: Part 1 - meiji163</title>
+  
+
+<meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes"/>
+
+<meta name="MobileOptimized" content="width"/>
+<meta name="HandheldFriendly" content="true"/>
+
+
+<meta name="applicable-device" content="pc,mobile">
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+<meta name="mobile-web-app-capable" content="yes">
+
+<meta name="author" content="meiji163" />
+  <meta name="description" content="&amp;ldquo;There is geometry in the humming of the strings, there is music in the spacing of the spheres.&amp;rdquo;
+&amp;ndash; Pythagoras
+ Introduction Recently I started exploring the world of error-correcting codes, and algebraic codes in particular. It&amp;rsquo;s a perfect example of mathematical hacking, where the Platonic realm of mathematical objects collides with the concrete world of signals, circuits, and CPUs to create something incredibly useful.
+In this post I&amp;rsquo;ll share what I&amp;rsquo;ve learned so far about algebraic codes and go into some detail about Reed-Solomon and BCH codes." />
+
+  <meta name="keywords" content="meiji163, math, machine learning, programming" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.92.2" />
+
+
+<link rel="canonical" href="https://meiji163.github.io/post/ecc/" />
+
+
+
+
+
+<link rel="icon" href="/favicon.ico" />
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/sass/jane.min.fa4b2b9f31b5c6d0b683db81157a9226e17b06e61911791ab547242a4a0556f2.css" integrity="sha256-&#43;ksrnzG1xtC2g9uBFXqSJuF7BuYZEXkatUckKkoFVvI=" media="screen" crossorigin="anonymous">
+
+
+
+
+<link rel="stylesheet" href="/css/center.css">
+
+
+<meta property="og:title" content="Error Correcting Codes: Part 1" />
+<meta property="og:description" content="&ldquo;There is geometry in the humming of the strings, there is music in the spacing of the spheres.&rdquo;
+&ndash; Pythagoras
+ Introduction Recently I started exploring the world of error-correcting codes, and algebraic codes in particular. It&rsquo;s a perfect example of mathematical hacking, where the Platonic realm of mathematical objects collides with the concrete world of signals, circuits, and CPUs to create something incredibly useful.
+In this post I&rsquo;ll share what I&rsquo;ve learned so far about algebraic codes and go into some detail about Reed-Solomon and BCH codes." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://meiji163.github.io/post/ecc/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2023-11-02T00:00:00+00:00" />
+<meta property="article:modified_time" content="2023-11-02T00:00:00+00:00" />
+
+<meta itemprop="name" content="Error Correcting Codes: Part 1">
+<meta itemprop="description" content="&ldquo;There is geometry in the humming of the strings, there is music in the spacing of the spheres.&rdquo;
+&ndash; Pythagoras
+ Introduction Recently I started exploring the world of error-correcting codes, and algebraic codes in particular. It&rsquo;s a perfect example of mathematical hacking, where the Platonic realm of mathematical objects collides with the concrete world of signals, circuits, and CPUs to create something incredibly useful.
+In this post I&rsquo;ll share what I&rsquo;ve learned so far about algebraic codes and go into some detail about Reed-Solomon and BCH codes."><meta itemprop="datePublished" content="2023-11-02T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2023-11-02T00:00:00+00:00" />
+<meta itemprop="wordCount" content="4053">
+<meta itemprop="keywords" content="error correcting codes,algebraic codes,QR code," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Error Correcting Codes: Part 1"/>
+<meta name="twitter:description" content="&ldquo;There is geometry in the humming of the strings, there is music in the spacing of the spheres.&rdquo;
+&ndash; Pythagoras
+ Introduction Recently I started exploring the world of error-correcting codes, and algebraic codes in particular. It&rsquo;s a perfect example of mathematical hacking, where the Platonic realm of mathematical objects collides with the concrete world of signals, circuits, and CPUs to create something incredibly useful.
+In this post I&rsquo;ll share what I&rsquo;ve learned so far about algebraic codes and go into some detail about Reed-Solomon and BCH codes."/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+
+
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">明治</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <li class="mobile-menu-item">
+        
+          
+          
+            <a class="menu-item-link" href="https://meiji163.github.io/">Home</a>
+          
+        
+      </li><li class="mobile-menu-item">
+        
+          
+          
+            <a class="menu-item-link" href="https://meiji163.github.io/post/">Archives</a>
+          
+        
+      </li><li class="mobile-menu-item">
+        
+          
+          
+            <a class="menu-item-link" href="https://meiji163.github.io/tags/">Tags</a>
+          
+        
+      </li><li class="mobile-menu-item">
+        
+          
+          
+            <a class="menu-item-link" href="https://meiji163.github.io/categories/">Categories</a>
+          
+        
+      </li><li class="mobile-menu-item">
+        
+          
+          
+            <a class="menu-item-link" href="https://meiji163.github.io/about/">About</a>
+          
+        
+      </li>
+    
+
+    
+  </ul>
+</nav>
+
+
+  
+    
+
+
+
+
+
+
+  <link rel="stylesheet" href="/lib/photoswipe/photoswipe.min.css" />
+  <link rel="stylesheet" href="/lib/photoswipe/default-skin/default-skin.min.css" />
+
+
+
+
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+<div class="pswp__bg"></div>
+
+<div class="pswp__scroll-wrap">
+    
+    <div class="pswp__container">
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+    </div>
+    
+    <div class="pswp__ui pswp__ui--hidden">
+    <div class="pswp__top-bar">
+      
+      <div class="pswp__counter"></div>
+      <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+      <button class="pswp__button pswp__button--share" title="Share"></button>
+      <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+      <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+      
+      
+      <div class="pswp__preloader">
+        <div class="pswp__preloader__icn">
+          <div class="pswp__preloader__cut">
+            <div class="pswp__preloader__donut"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+      <div class="pswp__share-tooltip"></div>
+    </div>
+    <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+    </button>
+    <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+    </button>
+    <div class="pswp__caption">
+      <div class="pswp__caption__center"></div>
+    </div>
+    </div>
+    </div>
+</div>
+
+  
+
+  
+
+  
+
+  <header id="header" class="header container">
+    <div class="logo-wrapper">
+  <a href="/" class="logo">
+    
+      明治
+    
+  </a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    
+    
+        <li class="menu-item">
+        
+          
+          
+            <a class="menu-item-link" href="https://meiji163.github.io/">Home</a>
+          
+
+        
+
+      </li>
+    
+        <li class="menu-item">
+        
+          
+          
+            <a class="menu-item-link" href="https://meiji163.github.io/post/">Archives</a>
+          
+
+        
+
+      </li>
+    
+        <li class="menu-item">
+        
+          
+          
+            <a class="menu-item-link" href="https://meiji163.github.io/tags/">Tags</a>
+          
+
+        
+
+      </li>
+    
+        <li class="menu-item">
+        
+          
+          
+            <a class="menu-item-link" href="https://meiji163.github.io/categories/">Categories</a>
+          
+
+        
+
+      </li>
+    
+        <li class="menu-item">
+        
+          
+          
+            <a class="menu-item-link" href="https://meiji163.github.io/about/">About</a>
+          
+
+        
+
+      </li>
+    
+
+    
+    
+
+    
+  </ul>
+</nav>
+
+  </header>
+
+  <div id="mobile-panel">
+    <main id="main" class="main bg-llight">
+      <div class="content-wrapper">
+        <div id="content" class="content container">
+          <article class="post bg-white">
+    
+    <header class="post-header">
+      <h1 class="post-title">Error Correcting Codes: Part 1</h1>
+      
+      <div class="post-meta">
+        <time datetime="2023-11-02" class="post-time">
+          2023-11-02
+        </time>
+        <div class="post-category">
+            <a href="https://meiji163.github.io/categories/error-correcting-codes/"> error-correcting-codes </a>
+            <a href="https://meiji163.github.io/categories/number-theory/"> number-theory </a>
+            <a href="https://meiji163.github.io/categories/clojure/"> clojure </a>
+            
+          </div>
+        
+
+        
+        
+
+        
+        
+      </div>
+    </header>
+
+    
+    
+<div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Table of Contents</h2>
+  <div class="post-toc-content">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#introduction">Introduction</a></li>
+    <li><a href="#algebra-background">Algebra Background</a>
+      <ul>
+        <li><a href="#finite-fields">Finite Fields</a></li>
+        <li><a href="#polynomial-fields">Polynomial Fields</a></li>
+        <li><a href="#constructing-gf2n">Constructing \(GF(2^n)\)</a></li>
+      </ul>
+    </li>
+    <li><a href="#error-correcting-codes">Error Correcting Codes</a>
+      <ul>
+        <li><a href="#algebraic-codes">Algebraic Codes</a></li>
+        <li><a href="#cyclic-codes">Cyclic Codes</a></li>
+        <li><a href="#reed-solomon-codes">Reed-Solomon Codes</a></li>
+        <li><a href="#bch-codes">BCH codes</a></li>
+        <li><a href="#codecs">Codecs</a></li>
+      </ul>
+    </li>
+    <li><a href="#generating-qr-codes">Generating QR Codes</a>
+      <ul>
+        <li><a href="#qr-specification">QR specification</a></li>
+      </ul>
+    </li>
+    <li><a href="#conclusion">Conclusion</a></li>
+    <li><a href="#addendum-on-clojure">Addendum on Clojure</a></li>
+    <li><a href="#references">References</a></li>
+  </ul>
+</nav>
+  </div>
+</div>
+
+    
+    <div class="post-content">
+      <blockquote>
+<p>&ldquo;There is geometry in the humming of the strings, there is music in the spacing of the spheres.&rdquo;</p>
+<p>&ndash; Pythagoras</p>
+</blockquote>
+<h2 id="introduction">Introduction</h2>
+<p>Recently I started exploring the world of error-correcting codes, and algebraic codes in particular.
+It&rsquo;s a perfect example of <a href="https://www.evanmiller.org/mathematical-hacker.html">mathematical hacking</a>, where the Platonic realm of mathematical objects collides with the concrete world of signals, circuits, and CPUs to create something incredibly useful.</p>
+<p>In this post I&rsquo;ll share what I&rsquo;ve learned so far about algebraic codes and go into some detail about Reed-Solomon and BCH codes. As a bonus I&rsquo;ll show how to create QR codes.</p>
+<p><em>Note on code examples</em>: The full code for this post is at <a href="https://github.com/meiji163/ecc-clj">meiji163/ecc-clj</a>. See the <a href="#addendum-on-clojure">addendum on Clojure</a> for how to play with it yourself.</p>
+<h2 id="algebra-background">Algebra Background</h2>
+<p>This section introduces some algebra needeed to understand algebraic codes.
+I&rsquo;ve tried to make it understandable to those without an extensive math education.
+Feel free to <a href="#error-correcting-codes">skip ahead</a> and come back later.</p>
+<h3 id="finite-fields">Finite Fields</h3>
+<p>A <em>field</em> is (roughly) a structure where you can add, subtract, multiply, and divide in the ways you&rsquo;re used to. You&rsquo;re already familiar with the field of real numbers, called \( \mathbb{R}\).
+You may also be familiar with the field of integers modulo p, called \(GF(p)\)<sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup> (also known as \( \mathbb{Z}/p\mathbb{Z}\)).
+You add and multiply the same as regular integers, but take the remainder of the result when divided by \(p\).</p>
+<p>For number-theoretic reasons<sup id="fnref:2"><a href="#fn:2" class="footnote-ref" role="doc-noteref">2</a></sup>, \(p\) has to be a prime for division to work.
+This ensures that for all \(a = 1,2,\dots,p-1\) there is an integer \(0 &lt; b &lt; p\) such that</p>
+<p>$$a \cdot b = 1 \pmod{p}.$$</p>
+<p>So \(b\) is the inverse of \(a\). Division by \(a\) is then defined as multiplication by \(b.\)</p>
+<p>As an example field, take the teeny little \(GF(2)\). It has two elements 0 and 1.</p>
+<p>$$
+\begin{aligned}
+1 + 1 &amp;= 0 \cr
+1 + 0 &amp;= 1 \cr
+1 \cdot 1 &amp;= 1 \cr
+1 \cdot 0 &amp;= 0
+\end{aligned}
+$$</p>
+<p>We could represent this in code as a collection of the field operations</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-clojure" data-lang="clojure"><span class="p">(</span><span class="k">def </span><span class="nv">GF2</span>
+  <span class="p">{</span><span class="ss">:+</span> <span class="nv">bit-xor</span>
+   <span class="ss">:-</span> <span class="nv">bit-xor</span>
+   <span class="ss">:*</span> <span class="nv">bit-and</span>
+   <span class="ss">:/</span> <span class="nv">bit-and</span><span class="p">})</span>
+</code></pre></div><p>You may think, <em>&ldquo;You have shown me one example of a finite field, now I demand a complete classification of all finite fields!&quot;</em></p>
+<p>Luckily, it can be shown<sup id="fnref:3"><a href="#fn:3" class="footnote-ref" role="doc-noteref">3</a></sup> that the number of elements a finite field can have must be \(p^n\) for some prime \(p\) and some integer \(n \gt 0\). We have seen the ones with \(p\) elements, in the next section we&rsquo;ll see the other ones.</p>
+<h3 id="polynomial-fields">Polynomial Fields</h3>
+<p>Whenever you have a field \(F\), you can create polynomials whose coefficients are elements of \(F\).
+It&rsquo;s usually called \(F[x]\)<sup id="fnref:4"><a href="#fn:4" class="footnote-ref" role="doc-noteref">4</a></sup>.
+For example, a polynomial with binary coefficients like \(x^3 + x + 1\) is a member of \(GF(2)[x]\) .</p>
+<p>Polynomials are a bit like vectors. Think of the coefficient of \(x^n\) as the value in the nth slot of a vector, e.g.</p>
+<p>$$ 1x^0 + 1x^1 + 0x^2 + 1x^3 \leftrightarrow (1,1,0,1).$$</p>
+<p>Now to add polynomials, we just add each corresponding coordinate of the vectors.</p>
+<p><em>So then polynomial multiplication also defines multiplication of vectors?</em></p>
+<p>Not quite. The trouble is when you multiply two polynomials, the degree of the product polynomial is can grow without bound! That&rsquo;s not good if we want to the vector size to be fixed.</p>
+<p>This is where we take inspiration from the integers mod \(p\).
+In that case, whenever we get a result bigger than \(p\), we divide it by \(p\) and use the remainder instead.
+Similarly, for polynomials we choose a &ldquo;modulus&rdquo; polynomial \(p(x)\) with degree \(n\).
+Whenever a polynomial has a degree greater than \(n\), we divide it by \(p(x)\) and take the remainder polynomial. The reason this works is that, like the integers, polynomials have a <a href="https://en.wikipedia.org/wiki/Euclidean_domain">Euclidean algorithm</a>.</p>
+<p><em>Can you use any modulus polynomial you want?</em></p>
+<p>You can, but in general you get a &ldquo;quotient ring&rdquo;  and not a field.
+Like the integer case, we have to choose \(p(x)\) to be &ldquo;prime&rdquo; in order to make division work.
+As you might guess, a prime polynomial is one that can&rsquo;t be factored into other polynomials &ndash; remarkable how similar polynomials and integers are!</p>
+<h3 id="constructing-gf2n">Constructing \(GF(2^n)\)</h3>
+<p>To see this in action let&rsquo;s construct \(GF(2^3)\) from \(GF(2)\) polynomials.</p>
+<p>Let \(p(x) = x^3 + x + 1\), which is a prime polynomial over \(GF(2)\). Now the distinct nonzero elements of the field are the eight \(GF(2)\) polynomials with degree &lt; 3. We can multiply them like so</p>
+<p>$$
+\begin{aligned}
+x \cdot (x^2 + x) = x^3 + x^2  = x^2 + x + 1
+\end{aligned}
+$$</p>
+<p>where we replaced \(x^3\) by \( x + 1\), or equivalently, divided out \(p(x)\).</p>
+<p>When the polynomials as viewed binary vectors, we can interpret each vector as spelling out an integer in binary. For example \(x^2 + x + 1 \leftrightarrow 111_2 = 7\).
+Each field element gets assigned a number 0-7 according to this notational pun. <em>But beware, you can&rsquo;t add and multiply them like regular integers<sup id="fnref:5"><a href="#fn:5" class="footnote-ref" role="doc-noteref">5</a></sup>!</em></p>
+<p>Another way of representing finite fields comes from the <a href="https://en.wikipedia.org/wiki/Primitive_element_theorem">primitive element theorem</a>, which says that every finite field has a special element \(\omega\), called the primitive element, such that the successive powers \(\omega^1, \omega^2, \dots \) generate the whole field.</p>
+<p>In our contruction of \(GF(2^3)\), a primitive element is the polynomial \(x\), aka &ldquo;\(2\)&rdquo; in our binary labeling scheme. Compare the different representations in the table below.</p>
+<table>
+<thead>
+<tr>
+<th>decimal</th>
+<th>binary</th>
+<th>polynomial</th>
+<th>exponential</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2</td>
+<td>010</td>
+<td>\(x\)</td>
+<td>\( \omega^1\)</td>
+</tr>
+<tr>
+<td>4</td>
+<td>100</td>
+<td>\(x^2\)</td>
+<td>\( \omega^2\)</td>
+</tr>
+<tr>
+<td>3</td>
+<td>011</td>
+<td>\(x+1\)</td>
+<td>\( \omega^3\)</td>
+</tr>
+<tr>
+<td>6</td>
+<td>110</td>
+<td>\(x^2+x\)</td>
+<td>\( \omega^4\)</td>
+</tr>
+<tr>
+<td>7</td>
+<td>111</td>
+<td>\(x^2+x+1\)</td>
+<td>\( \omega^5\)</td>
+</tr>
+<tr>
+<td>5</td>
+<td>101</td>
+<td>\(x^2+1\)</td>
+<td>\( \omega^6\)</td>
+</tr>
+<tr>
+<td>1</td>
+<td>001</td>
+<td>\(1\)</td>
+<td>\( \omega^0 ( = \omega^7 )\)</td>
+</tr>
+</tbody>
+</table>
+<p>We can implement this construction in code with something like this</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-clojure" data-lang="clojure"><span class="p">(</span><span class="kd">defn </span><span class="nv">char2-field</span>
+  <span class="s">&#34;construct field GF2[x]/&lt;p(x)&gt;
+</span><span class="s">  given a primitive element and generating polynomial&#34;</span>
+  <span class="p">[</span><span class="nv">prim</span> <span class="nv">poly</span><span class="p">]</span>
+  <span class="p">(</span><span class="k">let </span><span class="p">[</span><span class="nv">invs</span> <span class="p">(</span><span class="nf">char2-invs</span> <span class="nv">prim</span> <span class="nv">poly</span><span class="p">)</span>
+        <span class="nv">n-elts</span> <span class="p">(</span><span class="nb">bit-shift-left </span><span class="mi">1</span> <span class="p">(</span><span class="nf">bindeg</span> <span class="nv">poly</span><span class="p">))</span>
+        <span class="nv">exp</span> <span class="p">(</span><span class="nf">vec</span> <span class="p">(</span><span class="nb">take </span><span class="nv">n-elts</span>
+                   <span class="p">(</span><span class="nb">iterate </span><span class="o">#</span><span class="p">(</span><span class="nf">binmod</span> <span class="p">(</span><span class="nf">bin*</span> <span class="nv">%</span> <span class="nv">prim</span><span class="p">)</span> <span class="nv">poly</span><span class="p">)</span> <span class="mi">1</span><span class="p">)))]</span>
+    <span class="p">{</span><span class="ss">:unit</span> <span class="mi">1</span>
+     <span class="ss">:zero</span> <span class="mi">0</span>
+     <span class="ss">:primitive</span> <span class="nv">prim</span>
+     <span class="ss">:inv</span> <span class="nv">invs</span>
+     <span class="ss">:exp</span> <span class="nv">exp</span>
+     <span class="ss">:+</span> <span class="nv">bit-xor</span>
+     <span class="ss">:-</span> <span class="nv">bit-xor</span>
+     <span class="ss">:*</span> <span class="p">(</span><span class="k">fn </span><span class="p">[</span><span class="nv">p1</span> <span class="nv">p2</span><span class="p">]</span> <span class="p">(</span><span class="nf">binmod</span> <span class="p">(</span><span class="nf">bin*</span> <span class="nv">p1</span> <span class="nv">p2</span><span class="p">)</span> <span class="nv">poly</span><span class="p">))</span>
+     <span class="ss">:/</span> <span class="p">(</span><span class="k">fn </span><span class="p">[</span><span class="nv">p1</span> <span class="nv">p2</span><span class="p">]</span> <span class="p">(</span><span class="nf">binmod</span> <span class="p">(</span><span class="nf">bin*</span> <span class="nv">p1</span> <span class="p">(</span><span class="nf">invs</span> <span class="nv">p2</span><span class="p">))))}</span>
+    <span class="p">))</span>
+</code></pre></div><p>The important points are that <code>exp</code> is a vector containing \(\omega^0, \omega^1, \dots, \omega^{2^n - 1}\),
+and we define the field multiplication <code>:*</code> and field <code>:/</code> with the functions <code>binmod</code> and <code>bin*</code> that implement GF2-polynomial modulo reduction and multiplication, respectively.</p>
+<p>Now we can create GF8!</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-clojure" data-lang="clojure"><span class="p">(</span><span class="k">def </span><span class="nv">GF8</span>
+  <span class="s">&#34;GF(8) constructed as GF2[x]/&lt;x^3+x+1&gt;&#34;</span>
+  <span class="p">(</span><span class="k">let </span><span class="p">[</span><span class="nv">GF2-poly</span> <span class="p">(</span><span class="nf">parse-bin</span> <span class="s">&#34;1011&#34;</span><span class="p">)]</span>
+    <span class="p">(</span><span class="nf">char2-field</span> <span class="mi">2</span> <span class="nv">GF2-poly</span><span class="p">)))</span>
+    
+<span class="c1">;; examples    </span>
+<span class="p">(</span><span class="k">let </span><span class="p">[</span><span class="nv">mul</span> <span class="p">(</span><span class="ss">:*</span> <span class="nv">GF8</span><span class="p">)</span>
+      <span class="nv">add</span> <span class="p">(</span><span class="ss">:+</span> <span class="nv">GF8</span><span class="p">)</span>
+      <span class="nv">div</span> <span class="p">(</span><span class="ss">:/</span> <span class="nv">GF8</span><span class="p">)]</span>
+  <span class="p">(</span><span class="nf">mul</span> <span class="mi">3</span> <span class="mi">3</span><span class="p">)</span> <span class="c1">;; =&gt; 5</span>
+  <span class="p">(</span><span class="nf">add</span> <span class="mi">7</span> <span class="mi">6</span><span class="p">)</span> <span class="c1">;; =&gt; 1</span>
+  <span class="p">(</span><span class="nf">div</span> <span class="mi">5</span> <span class="mi">4</span><span class="p">)</span> <span class="c1">;; =&gt; 6</span>
+<span class="p">)</span>
+</code></pre></div><h2 id="error-correcting-codes">Error Correcting Codes</h2>
+<blockquote>
+<p>&ldquo;Thus finding an error-correcting code is the same as finding a set of code points in the \(n\)-dimensional space which has the required minimum distance between legal messages&rdquo;</p>
+<p>&ndash; Richard Hamming, <em>The Art of Doing Science and Engineering</em></p>
+</blockquote>
+<p>The main problem motivating error correcting codes is reliable data transmission.
+When sending symbols (such as bits) over a medium that can introduce errors or erasures, how do you ensure that your intended message gets through?</p>
+<p>Hamming&rsquo;s insight was to formulate this as a max-min distance problem.
+Let&rsquo;s consider the symbols as elements of a finite field \(F\). Then a block of \(n\) symbols, or &ldquo;word&rdquo;, corresponds to a vector in \(F^n\).
+What we want is a set of &ldquo;codeword&rdquo; vectors such that whenever errors occur, the erroneous vector can be mapped uniquely to the &ldquo;closest&rdquo; correct codeword vector.</p>
+<p>Thus we need the codewords to be as &ldquo;far apart&rdquo; as possible, to minimize the chances of a word being &ldquo;close&rdquo; to two codewords simulatenously.
+The <a href="https://en.wikipedia.org/wiki/Hamming_distance">Hamming Distance</a>, defined as the number of places where two words differ, is exactly the right notion of distance to measure this. Now the problem can be phrased as:</p>
+<p><em>Find a set of codewords that maximizes the minimum distance betweeen any two codewords.</em></p>
+<h3 id="algebraic-codes">Algebraic Codes</h3>
+<p>Codeword vectors can be chosen arbitrarily, but to make the problem tractable we impose an algebraic structure on the codewords, like a musician might impose meter and harmony on their music.</p>
+<p>First require that the codewords form a <em>linear subspace</em> of \(F^n\).
+That means whenever we add two codeword vectors or scale a codeword vector, we get another codeword vector.
+These are called <em>linear codes</em>. It&rsquo;s not too hard to bound the best possible minimum distance for linear codes.</p>
+<p>But first, a little more terminology: A code that encodes length \(k\) words into length \(n\) codewords and uses \(n-k\) check symbols is called an \( (n, k)\) code. Now we can state the</p>
+<p><strong>Hamming Bound:</strong>
+The minimum distance \( d_{min} \) between any two codewords of a \( (n,k) \) linear code satisfies \(d_{min} \le n-k+1\).<sup id="fnref:6"><a href="#fn:6" class="footnote-ref" role="doc-noteref">6</a></sup></p>
+<p>This tells us the max number of errors a linear code can correct is \( \lfloor (n-k+1)/2 \rfloor \). However it does not tell us if such a code exists for a given \(n\) and \(k\) (booo!).</p>
+<p><strong>Example:</strong> The \( (7,4) \) binary Hamming code can correct 1 error. Its codewords form a four-dimensional subspace of \(GF(2)^7\), spanned by these vectors:</p>
+<p>$$
+\begin{aligned}
+1000110 &amp; \cr
+0100101 &amp; \cr
+0010011 &amp; \cr
+0001111
+\end{aligned}
+$$</p>
+<p><em>What&rsquo;s with the vectors and linear subspaces? I was promised polynomials!</em></p>
+<p>But remember polynomials are like vectors too &ndash; we view the coefficients as vector coordinates. Then we can use a &ldquo;<em>generator polynomial</em>&rdquo; \(g(x)\) with degree \(n-k\) to generate a linear code as follows.</p>
+<p>For every &ldquo;word polynomial&rdquo; \(w(x)\) of degree \(k\), the product \(g(x)w(x)\) defines a codeword polynomial of degree \(n\). Considered as vectors, these polynomials span a linear subspace of \(F^n.\) For example, \(g(x) = x^3+x+1\) generates the Hamming code above.</p>
+<h3 id="cyclic-codes">Cyclic Codes</h3>
+<p>Linear codes are great, but can we impose even <em>more</em> structure to find better codes? One idea is to consider linear subspaces that are highly symmetrical. That is where <em>cyclic codes</em> come in.</p>
+<p>A <em>cyclic code</em> is a linear code that is invariant under a cyclic shift, e.g. if <code>1100</code> is a codeword then so is <code>0110</code> and <code>0011</code>. If we translate this back to polynomial language, it requires that \(x^n\) &ldquo;wraps around&rdquo; and becomes \(x^0\). Algebraically, this means we take the ring of polynomials \(F[x]\) <em>modulo</em> \(x^n-1\)<sup id="fnref:7"><a href="#fn:7" class="footnote-ref" role="doc-noteref">7</a></sup>. However we say it, what it means in practice is that we carefully choose the generating polynomial \(g(x)\) to be a factor of \(x^n-1\).</p>
+<p><strong>Example:</strong> Here are some factorizations of \(x^n-1\) over \(GF(2)\) into prime polynomials.</p>
+<table>
+<thead>
+<tr>
+<th>\(n\)</th>
+<th>Factorization of \(x^n - 1\)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3</td>
+<td>\( (1+x)(1+x+x^2) \)</td>
+</tr>
+<tr>
+<td>5</td>
+<td>\( (1+x)(1+x+x^2+x^3+x^4)\)</td>
+</tr>
+<tr>
+<td>7</td>
+<td>\( (1+x)(1+x^2+x^3)(1+x+x^3)\)</td>
+</tr>
+<tr>
+<td>9</td>
+<td>\( (1+x)(1+x+x^2)(1+x^3+x^6)\)</td>
+</tr>
+</tbody>
+</table>
+<p>For each \(n\), a choice of factors gives you a cyclic code. For example choosing \(g(x) = 1+x\)
+gives you a simple code that adds one parity-check bit.</p>
+<p>It&rsquo;s fun to discover what codes these polynomials will produce, but it&rsquo;s usually not easy to see what the minimum distance is. For that we need to use more strategic constructions.</p>
+<p>(An aside for true math nerds: let me mention a &ldquo;platypus&rdquo; of the cyclic code zoo.
+The \((23,12)\) binary Golay code has a minimum distance of 7 and <em>perfectly</em> partitions the space \(GF(2)^{23}\) into spheres of radius 3. Its automorphism group is a <a href="https://en.wikipedia.org/wiki/Mathieu_group">sporadic group</a>. The derivative \((24,12)\) Golay code is even more amazing and bizzare<sup id="fnref:8"><a href="#fn:8" class="footnote-ref" role="doc-noteref">8</a></sup>.)</p>
+<h3 id="reed-solomon-codes">Reed-Solomon Codes</h3>
+<p>Reed-Solomon codes are some of the best and most widely used cyclic codes.
+To make your own \( (n,k) \) RS code, let \(\omega\) be a primitive element of your field \(F\).
+For the generating polynomial, cook up a polynomial in \(F[x]\) with roots at \(\omega^j, \omega^{j+1}, \dots, \omega^{j+m}\) for some integers \(j \ge 0\) and \(0&lt;m&lt;n\). For example,</p>
+<p>$$ g(x) = (x-\omega)(x-\omega^2)\dots(x-\omega^m).$$</p>
+<p>To guarantee this generates a cyclic code, we require that the size of the field \(F\) equals \(n\). Then \(g(x)\) is a factor of \(x^n - 1\) because \(\omega^n = 1\).</p>
+<p><em>OK I cooked up my RS code, but why is it good?</em></p>
+<p>It can be shown<sup id="fnref:9"><a href="#fn:9" class="footnote-ref" role="doc-noteref">9</a></sup> that whenever a \( (n,k) \) RS code exists, it achieves equality in the Hamming bound, i.e. \(d_{min} = n-k+1\). So these codes are optimally error correcting linear codes.</p>
+<p>What accounts for this? It&rsquo;s closely related to the Fourier transform over the field \(F\).
+If you&rsquo;re familiar with the <a href="https://en.wikipedia.org/wiki/Discrete_Fourier_transform">Discrete Fourier transform</a> of a vector, it&rsquo;s exactly the same except \(\omega\) plays the role of \(e^{-2\pi i/n}.\) Requiring \(\omega^j\) to be a root of \(g(x)\) is equivalent to requiring the \(j^{th}\) component of the Fourier transform to be 0.</p>
+<p>The RS generating polynomial would be analogous to a low-pass frequency filter, requiring all frequencies to be greater than some value. This forces the minimum weight (i.e. number of nonzero components) of a codeword to be bounded away from 0.</p>
+<p>(This is a manifestation of <a href="https://terrytao.wordpress.com/2010/06/25/the-uncertainty-principle/">the uncertainty principle</a>, which roughly says that you cannot be simultaneously localized in both frequency and position. <a href="#references">[8]</a>)</p>
+<p><strong>Examples:</strong> Let&rsquo;s construct a \( (7,3) \) RS code over \( GF(8) \), using the representation of \(GF(8)\) from before. Let&rsquo;s choose the generating polynomial as</p>
+<p>$$ g(x) = (x-\omega^4)(x-\omega^5)(x-\omega^6)(x-\omega^7).$$</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-clojure" data-lang="clojure"><span class="p">(</span><span class="k">def </span><span class="nv">RS-7-3</span> 
+  <span class="p">(</span><span class="nf">reduce</span>
+   <span class="p">(</span><span class="k">fn </span><span class="p">[</span><span class="nv">p1</span> <span class="nv">p2</span><span class="p">]</span> <span class="p">(</span><span class="nf">p/*</span> <span class="nv">p1</span> <span class="nv">p2</span> <span class="nv">GF8</span><span class="p">))</span>
+   <span class="p">[[</span><span class="mi">7</span> <span class="mi">1</span><span class="p">]</span> <span class="p">[</span><span class="mi">3</span> <span class="mi">1</span><span class="p">]</span> <span class="p">[</span><span class="mi">6</span> <span class="mi">1</span><span class="p">]</span> <span class="p">[</span><span class="mi">1</span> <span class="mi">1</span><span class="p">]]))</span>
+</code></pre></div><p>Now I can encode my favorite integer, 163.
+With check symbols it is <code>3326163</code>. Now I can change any two of the symbols and it decodes to <code>163</code>.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-clojure" data-lang="clojure"><span class="p">(</span><span class="nf">encode</span> <span class="p">[</span><span class="mi">1</span> <span class="mi">6</span> <span class="mi">3</span><span class="p">]</span> <span class="nv">RS-7-3</span> <span class="nv">GF8</span><span class="p">)</span> <span class="c1">;; =&gt; [3 3 2 6 1 6 3]</span>
+<span class="p">(</span><span class="nf">RS-7-3-decode</span> <span class="p">[</span><span class="mi">3</span> <span class="mi">3</span> <span class="mi">2</span> <span class="mi">6</span> <span class="mi">1</span> <span class="mi">6</span> <span class="mi">3</span><span class="p">])</span> <span class="c1">;; =&gt; [1 6 3]</span>
+<span class="p">(</span><span class="nf">RS-7-3-decode</span> <span class="p">[</span><span class="mi">1</span> <span class="mi">3</span> <span class="mi">2</span> <span class="mi">6</span> <span class="mi">1</span> <span class="mi">7</span> <span class="mi">3</span><span class="p">])</span> <span class="c1">;; =&gt; [1 6 3]</span>
+<span class="p">(</span><span class="nf">RS-7-3-decode</span> <span class="p">[</span><span class="mi">3</span> <span class="mi">3</span> <span class="mi">2</span> <span class="mi">6</span> <span class="mi">6</span> <span class="mi">6</span> <span class="mi">6</span><span class="p">])</span> <span class="c1">;; =&gt; [1 6 3]</span>
+</code></pre></div><p>It feels <em>magical</em> when you see it up close!</p>
+<p>For a bigger example, let&rsquo;s construct a \( (255, 233) \) RS code over \(GF(256)\). It uses 32 check symbols to correct 16 errors. This code is one recommended by the &ldquo;Consultative Committee for Space Data Systems&rdquo; <a href="#references">[4]</a>. Famously, it was used for <a href="https://en.wikipedia.org/wiki/Voyager_program">Voyager mission</a> communications (in combination with other error-correcting codes).</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-clojure" data-lang="clojure"><span class="p">(</span><span class="k">def </span><span class="nv">RS-255-223</span>
+  <span class="p">(</span><span class="k">let </span><span class="p">[</span><span class="nv">exp</span> <span class="p">(</span><span class="ss">:exp</span> <span class="nv">GF256</span><span class="p">)</span>
+        <span class="nv">roots</span> <span class="p">(</span><span class="nb">for </span><span class="p">[</span><span class="nv">e</span> <span class="p">(</span><span class="nb">range </span><span class="mi">1</span> <span class="mi">33</span><span class="p">)]</span> <span class="p">(</span><span class="nf">exp</span> <span class="nv">e</span><span class="p">))]</span>
+    <span class="p">(</span><span class="nf">reduce</span>
+     <span class="p">(</span><span class="k">fn </span><span class="p">[</span><span class="nv">p1</span> <span class="nv">p2</span><span class="p">]</span> <span class="p">(</span><span class="nf">p/*</span> <span class="nv">p1</span> <span class="nv">p2</span> <span class="nv">GF256</span><span class="p">))</span>
+     <span class="p">(</span><span class="nb">for </span><span class="p">[</span><span class="nv">r</span> <span class="nv">roots</span><span class="p">]</span> <span class="p">[</span><span class="nv">r</span> <span class="mi">1</span><span class="p">]))))</span>
+
+<span class="c1">;; example encoding</span>
+<span class="p">(</span><span class="k">let </span><span class="p">[</span><span class="nv">message</span> <span class="p">(</span><span class="nf">str</span>
+       <span class="s">&#34;Hello world! This is meiji163 transmitting from Neptune. &#34;</span>
+       <span class="s">&#34;It&#39;s cold here, Please send hot chocolate. Thanks. &#34;</span>
+       <span class="s">&#34;Now that I think of it, ramen would be good too if you have some.&#34;</span><span class="p">)</span>
+      <span class="nv">data</span> <span class="p">(</span><span class="nb">map int </span><span class="nv">message</span><span class="p">)</span>
+      <span class="nv">padded</span> <span class="p">(</span><span class="nf">p/shift-right</span> <span class="nv">data</span> <span class="p">(</span><span class="nb">- </span><span class="mi">223</span> <span class="p">(</span><span class="nb">count </span><span class="nv">data</span><span class="p">)))]</span>
+      <span class="p">(</span><span class="nf">encode</span> <span class="nv">padded</span> <span class="nv">RS-255-223</span> <span class="nv">GF256</span><span class="p">))</span>
+</code></pre></div><h3 id="bch-codes">BCH codes</h3>
+<p>Bose–Chaudhuri–Hocquenghem (BCH) codes follow a similar idea to Reed-Solomon codes.
+A limitation of RS codes is that the field has to be the same size as \(n\), the codeword length.</p>
+<p>However it is still possible to specify the roots of \(g(x)\) in an <em>extension field</em> of \(F\).
+To see what I mean, let \(\omega = 2\) be a primitive element of \(GF(16)\) and let
+$$
+\begin{aligned}
+g(x) &amp;= (x-\omega)(x-\omega^2)(x-\omega^3)(x-\omega^4) \cr
+&amp;= (x^4+x+1)(x^4+x^3+x^2+1).
+\end{aligned}
+$$</p>
+<p>This polynomial has coefficients in \(GF(2)\), but its roots lie in the bigger field \(GF(16).\) This is analogous to a polynomial with real-valued coefficients having complex roots.</p>
+<p>The same argument from the RS codes shows that BCH codes are also optimal. The polynomial generates the \((15,7)\) binary BCH code, which corrects 2 errors.</p>
+<h3 id="codecs">Codecs</h3>
+<p>As I said above, given a generating polynomial \(g(x)\) and data polynomial \(w(x)\) one way to encode is to use \(g(x)w(x)\) as the codeword. The codeword polynomials are the ones divisible by \(g(x).\)</p>
+<p>It&rsquo;s more convenient to use an encoding where the symbols of \(w(x)\) are visible in the codeword polynomial. To do this, set the top \(k\) coefficients as the coefficients of \(w(x)\), then add a degree \(n-k\) polynomial such that the codeword \(c(x)\)is divisible by \(g(x).\)
+Algebraically, \( c(x) = x^k w(x) + r(x) \) where \(r(x) = -x^k w(k) \pmod{g(x)}\).</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-clojure" data-lang="clojure"><span class="p">(</span><span class="kd">defn </span><span class="nv">encode</span>
+  <span class="p">[</span><span class="nv">data-poly</span> <span class="nv">gen-poly</span> <span class="o">&amp;</span> <span class="p">[</span><span class="nv">field</span><span class="p">]]</span>
+  <span class="p">(</span><span class="k">let </span><span class="p">[</span><span class="nv">field</span> <span class="p">(</span><span class="nb">or </span><span class="nv">field</span> <span class="nv">p/default-field</span><span class="p">)</span>
+        <span class="nv">shifted</span> <span class="p">(</span><span class="nf">p/shift-right</span>
+                 <span class="nv">data-poly</span> <span class="p">(</span><span class="nb">dec </span><span class="p">(</span><span class="nb">count </span><span class="nv">gen-poly</span><span class="p">)))</span>
+        <span class="nb">rem </span><span class="p">(</span><span class="nf">p/mod</span> <span class="nv">shifted</span> <span class="nv">gen-poly</span> <span class="nv">field</span><span class="p">)]</span>
+    <span class="p">(</span><span class="nf">p/+</span> <span class="nv">shifted</span> <span class="nb">rem </span><span class="nv">field</span><span class="p">)))</span>
+</code></pre></div><p><em>Decoding</em> is considerably harder because we have to exploit the algebraic structure of the code to locate the errors and their magnitudes. For small codes, you can make a table of error patterns and their remainders modulo \(g(x)\). For example,</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-clojure" data-lang="clojure"><span class="p">(</span><span class="k">def </span><span class="nv">RS-7-5-table</span>
+  <span class="s">&#34;Decoding table for (7,5) Reed-Solomon code.&#34;</span>
+  <span class="p">(</span><span class="k">let </span><span class="p">[</span><span class="nv">errors</span> <span class="p">(</span><span class="nf">single-errors</span> <span class="mi">7</span> <span class="mi">8</span><span class="p">)</span>
+        <span class="nv">rems</span> <span class="p">(</span><span class="nb">map </span><span class="p">(</span><span class="k">fn </span><span class="p">[</span><span class="nv">e</span><span class="p">]</span> <span class="nv">p/mod</span> <span class="nv">e</span> <span class="nv">RS-7-5</span> <span class="nv">GF8</span><span class="p">)</span> <span class="nv">errors</span><span class="p">)]</span>
+    <span class="p">(</span><span class="nb">zipmap </span><span class="nv">rems</span> <span class="nv">errors</span><span class="p">)))</span>
+</code></pre></div><p>Given a message \(m(x)\) simply look up the error from \(m(x) \pmod{g(x)}\).</p>
+<p>To decode larger RS codes the main tool is <em>syndromes</em>. Syndromes are defined as \(S_j = m(\omega^j)\) for all \(\omega^j\) that are specified as the roots of \(g(x)\). If no errors occured, all the syndromes will be zero.</p>
+<p>On the other hand, if a correctable number of errors occurred, the idea is to form a linear system of equations using the syndromes to find the positions of the errors and the locations. I implemented the linear solver decoder <a href="https://github.com/meiji163/ecc-clj/blob/fb6bacba8280a33724c968718cb9d2194c74e58e/src/ecc_clj/core.clj#L181-L210">here</a>.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-clojure" data-lang="clojure"><span class="c1">;; decoding (255,223) RS code</span>
+<span class="p">(</span><span class="k">let </span><span class="p">[</span><span class="nv">err</span> <span class="p">[</span><span class="mi">0</span> <span class="mi">42</span> <span class="mi">1</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">163</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">66</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">101</span> <span class="mi">100</span><span class="p">]</span>
+      <span class="nv">max-errs</span> <span class="mi">8</span>
+      <span class="nv">decode-me</span> <span class="p">(</span><span class="nf">p/+</span> <span class="nv">msg-poly</span> <span class="nv">err</span> <span class="nv">GF256</span><span class="p">)]</span>
+  <span class="p">(</span><span class="nf">decode</span> <span class="nv">decode-me</span> <span class="nv">max-errs</span> <span class="nv">GF256</span><span class="p">)))</span>
+  <span class="c1">;; =&gt; {:locations [1 2 5 8 14 15], </span>
+  <span class="c1">;;     :sizes [42 1 163 66 101 100]}</span>
+</code></pre></div><p>A more efficient decoder is based on the <a href="https://en.wikipedia.org/wiki/Berlekamp%E2%80%93Massey_algorithm">Berlekamp-Massey algorithm</a>, which I haven&rsquo;t implemented. (Maybe you can, my brave reader)</p>
+<h2 id="generating-qr-codes">Generating QR Codes</h2>
+<p>Typically error-correcting codecs are implemented in hardware circuits, which run many orders of magnitude faster than my implementation.
+However just to prove that my terribly slow implementation isn&rsquo;t completely useless, I made a QR code generator.</p>
+<p>There are many versions of QR codes, so I went with the 21x21 version as specified by the ISO/IEC standard <a href="#references">[5]</a>. I implemented just enough of the standard to make some example QR codes.</p>
+<h3 id="qr-specification">QR specification</h3>
+<p>There are two error-correcting codes involved in the QR code. One is for the &ldquo;format bits&rdquo; and the other is for the &ldquo;data bits&rdquo;.</p>
+<p><strong>Format bits:</strong>
+There are 5 format bits. The first 2 specify the error-correction level and the last 3 specify the bitmask.
+The 5 bits are protected by a \( (15,5) \) BCH code with 10 check bits. This can correct up to 5 errors (Wikipedia falsely claims it can only correct 3).
+Two copies of the encoded bits are included, for a total of 30 bits.</p>
+<p><strong>Data bits</strong>:
+The message can be up to 17 bytes.
+The message bits are prepended with a 4-bit datatype code followed by an 8-bit integer specifying the message length. The 4-bit end sequence <code>0000</code> is appended to the message.</p>
+<p>Finally, these 19 bytes are encoded with a \( (255, 248) \) Reed-Solomon code, which can correct 2 byte errors. You may see this code called a \( (26, 19) \) code because only 19 of the 248 bytes are used. This is the lowest error correcting level; other possible generating polynomials are listed in the standard.</p>
+<p>Finally, the data bits are masked with a pattern specified in the format bits. The purpose of the bitmask is to preventing large areas of a single color.</p>
+
+<link rel="stylesheet" href="/css/hugo-easy-gallery.css" />
+<div class="box">
+<figure  itemprop="associatedMedia"
+  itemscope itemtype="http://schema.org/ImageObject" >
+    <div class="img">
+      <img itemprop="thumbnail" src="/images/qrcode.png" alt="The bit layout for QR code v1. Image from Wikipedia"/>
+    </div>
+    <a href="/images/qrcode.png" itemprop="contentUrl"></a>
+      <figcaption>
+          <p>The bit layout for QR code v1. Image from Wikipedia</p>
+      </figcaption>
+  </figure>
+</div>
+
+<p>The implementation of the RS and BCH codes is straightforward. We just have to be careful to use the same GF256 construction and generating polynomial as the one specified in the standard (Annex A in the manual).</p>
+<p>The generating polynomial for the Reed-Solomon code is</p>
+<p>$$ g(x) = 117 + 68x + 11x^2 + 164x^3 + 154x^4 + 122x^5 + 127x^6 +  x^7 $$
+which is computed from \((x-\omega^0)(x-\omega^1)\dots(x-\omega^6)\).</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-clojure" data-lang="clojure"><span class="p">(</span><span class="k">def </span><span class="nv">GF256</span>
+  <span class="s">&#34;GF(255) constructed as GF2[x]/&lt;x^8+x^4+x^3+x^2+1&gt;&#34;</span>
+  <span class="p">(</span><span class="k">let </span><span class="p">[</span><span class="nv">GF2-poly</span> <span class="p">(</span><span class="nf">p/parse-bin</span> <span class="s">&#34;100011101&#34;</span><span class="p">)]</span>
+    <span class="p">(</span><span class="nf">p/char2-field</span> <span class="mi">2</span> <span class="nv">GF2-poly</span><span class="p">)))</span>
+
+<span class="p">(</span><span class="k">def </span><span class="nv">RS-255-248</span>
+  <span class="s">&#34;(255,248) Reed-Solomon code over GF256&#34;</span>
+  <span class="p">(</span><span class="k">let </span><span class="p">[</span><span class="nv">roots</span> <span class="p">(</span><span class="nb">take </span><span class="mi">7</span> <span class="p">(</span><span class="ss">:exp</span> <span class="nv">GF256</span><span class="p">))]</span>
+    <span class="p">(</span><span class="nf">reduce</span>
+     <span class="p">(</span><span class="k">fn </span><span class="p">[</span><span class="nv">p1</span> <span class="nv">p2</span><span class="p">]</span> <span class="p">(</span><span class="nf">p/*</span> <span class="nv">p1</span> <span class="nv">p2</span> <span class="nv">GF256</span><span class="p">))</span>
+     <span class="p">(</span><span class="nb">for </span><span class="p">[</span><span class="nv">r</span> <span class="nv">roots</span><span class="p">]</span> <span class="p">[</span><span class="nv">r</span> <span class="mi">1</span><span class="p">]))))</span>
+</code></pre></div><p>For the BCH code, the generating polynomial is the minimal polynomial of \(\omega, \omega^2, \dots, \omega^6\) over \(GF(2)\). This turns out as
+$$
+(1+x+x^4)(1+x+x^2+x^3+x^4)(1+x+x^2).
+$$</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-clojure" data-lang="clojure"><span class="p">(</span><span class="k">def </span><span class="nv">BCH-15-5</span>
+  <span class="p">(</span><span class="nf">reduce</span>
+   <span class="p">(</span><span class="k">fn </span><span class="p">[</span><span class="nv">p1</span> <span class="nv">p2</span><span class="p">]</span> <span class="p">(</span><span class="nf">p/*</span> <span class="nv">p1</span> <span class="nv">p2</span> <span class="nv">GF2</span><span class="p">))</span>
+   <span class="p">[[</span><span class="mi">1</span> <span class="mi">1</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">1</span><span class="p">]</span> <span class="p">[</span><span class="mi">1</span> <span class="mi">1</span> <span class="mi">1</span> <span class="mi">1</span> <span class="mi">1</span><span class="p">]</span> <span class="p">[</span><span class="mi">1</span> <span class="mi">1</span> <span class="mi">1</span><span class="p">]]))</span>
+</code></pre></div><p>Encoding the format bits:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-clojure" data-lang="clojure"><span class="p">(</span><span class="kd">defn </span><span class="nv">fmt-bits</span> <span class="p">[</span><span class="nv">mask</span><span class="p">]</span>
+  <span class="p">(</span><span class="k">let </span><span class="p">[</span><span class="nv">mb</span> <span class="p">[</span><span class="mi">0</span> <span class="mi">0</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="nv">ec-level</span> <span class="p">[</span><span class="mi">0</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="nv">bits</span> <span class="p">(</span><span class="nb">reverse </span><span class="p">(</span><span class="nb">concat </span><span class="nv">ec-level</span> <span class="nv">mb</span><span class="p">))</span>
+        <span class="nv">enc-bt</span> <span class="p">(</span><span class="nf">ecc/encode</span> <span class="nv">bits</span> <span class="nv">ecc/BCH-15-5</span> <span class="nv">ecc/GF2</span><span class="p">)]</span>
+    <span class="p">(</span><span class="nf">p/+</span> <span class="p">(</span><span class="nb">reverse </span><span class="nv">enc-bt</span><span class="p">)</span> <span class="nv">fmt-bitmask</span> <span class="nv">ecc/GF2</span><span class="p">)))</span>
+</code></pre></div><p>I&rsquo;ll omit encoding the data bits; it&rsquo;s not as succinct because you have to move around many bits and pieces and pieces of bits.
+There are also some details with the bit ordering that bit me a few times (OK I&rsquo;m done punning for a bit). Anyways the full code is <a href="https://github.com/meiji163/ecc-clj/blob/main/src/ecc_clj/qr.clj">here</a>.</p>
+<p>Now we can reproduce the QR code from the Wikipedia diagram above.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-clojure" data-lang="clojure"><span class="p">(</span><span class="k">let </span><span class="p">[</span><span class="nv">mask-code</span> <span class="mi">1</span>
+      <span class="nv">databits</span> <span class="p">(</span><span class="nf">-&gt;&gt;</span> <span class="s">&#34;www.wikipedia.org&#34;</span>
+                    <span class="p">(</span><span class="nb">map </span><span class="nv">int</span><span class="p">)</span>
+                    <span class="p">(</span><span class="nf">encode-bytes</span><span class="p">)</span>
+                    <span class="p">(</span><span class="nf">mask-bits</span> <span class="nv">mask-code</span><span class="p">))</span>
+      <span class="nv">fmtbits</span> <span class="p">(</span><span class="nf">fmt-bits</span> <span class="nv">mask-code</span><span class="p">)</span>
+      <span class="nv">myimg</span> <span class="p">(</span><span class="nf">qr-image</span> <span class="nv">fmtbits</span> <span class="nv">databits</span><span class="p">)]</span>
+  <span class="p">(</span><span class="nf">ImageIO/write</span> <span class="nv">myimg</span> <span class="s">&#34;PNG&#34;</span> <span class="p">(</span><span class="nf">File.</span> <span class="s">&#34;wikipedia-qr.png&#34;</span><span class="p">)))</span>
+</code></pre></div>
+
+<div class="box">
+<figure  itemprop="associatedMedia"
+  itemscope itemtype="http://schema.org/ImageObject" >
+    <div class="img">
+      <img itemprop="thumbnail" src="/images/wikipedia-qr.png" />
+    </div>
+    <a href="/images/wikipedia-qr.png" itemprop="contentUrl"></a>
+  </figure>
+</div>
+
+<h2 id="conclusion">Conclusion</h2>
+<p>Error-correcting codes are fundamental algorithms for everything involving data transfer. What&rsquo;s more, they are built from a wonderful blend of linear algebra, geometry, and ring theory. I hope I&rsquo;ve given you a taste for what they are like.</p>
+<p><em>Zzzz&hellip; I fell asleep right when you mentioned algebra</em></p>
+<p>Wake up, there&rsquo;s much more to explore! I&rsquo;ve glossed over and omitted many details. For the interested reader please check out the references <a href="#references">[1] [2] [3]</a>.
+There are also many more applications I&rsquo;ve skipped including:</p>
+<ul>
+<li>RAID (specifically <a href="http://ftp.dei.uc.pt/pub/linux/kernel/people/hpa/raid6.pdf">RAID6</a>)</li>
+<li><a href="https://en.wikipedia.org/wiki/Cyclic_redundancy_check">Cyclic redundancy checks</a> (CRC).</li>
+<li><a href="https://en.wikipedia.org/wiki/Cross-interleaved_Reed%E2%80%93Solomon_coding">CDs</a> and DVDs</li>
+</ul>
+<p>I will post a sequel as I learn more, time permitting. I am particularly intrigued by codes based on algebraic curves, which were proposed by Goppa <a href="#references">[7]</a>.</p>
+<h2 id="addendum-on-clojure">Addendum on Clojure</h2>
+<p><em>Why use Clojure for this?</em></p>
+<p>I have long been curious about Lisp languages but never had occasion to use one seriously.
+I was inspired by Sam Ritchie&rsquo;s work on <a href="https://github.com/sicmutils/sicmutils">sicmutils</a> to use Clojure for exploratory self-education. Also, Rich Hickey is cool.</p>
+<p><em>Shouldn&rsquo;t you use Haskell instead?</em></p>
+<p>Yes I should. In fact I look up at the Haskellers in their ivory tower and seethe with envy.
+In all seriousness I did think about it, but Clojure&rsquo;s dynamic type system and the interactive REPL makes it more enjoyable for explorations like this one IMHO. I found it easier to debug too.</p>
+<p><em>How do I get started with Clojure?</em></p>
+<p>If you use Emacs the best way to get started is with <a href="https://docs.cider.mx/cider/index.html">cider</a>. This will allow you to start an interactive REPL and evaluate expressions right in your editor! I also recommend a plugin like <a href="https://github.com/abo-abo/lispy">lispy</a> to help with structural editing.
+For vim, I&rsquo;ve seen <a href="https://github.com/tpope/vim-fireplace">this</a> plugin, but I haven&rsquo;t tried it myself. For VSCode I&rsquo;ve heard <a href="https://calva.io/">calva</a> is great.</p>
+<p><em>How do I run your code examples?</em></p>
+<p>Once you have your Clojure editor setup clone <a href="https://github.com/meiji163/ecc-clj">the repo</a>, run the code, modify it, write your own version, etc. Pull requests are always welcome if you make something cool or improve the code!</p>
+<h2 id="references">References</h2>
+<p><a href="https://www.cambridge.org/core/books/algebraic-codes-for-data-transmission/2F606F75ABE1BAA014A1DE0F5D62F498">[1]</a> Blahut, Richard &ldquo;<em>Algebraic Codes for Data Transmission</em>&rdquo; (2003)</p>
+<p><a href="https://cdn.preterhuman.net/texts/math/Codes%20and%20Curves.pdf">[2]</a> Walker, Judy &ldquo;<em>Codes and Curves</em>&rdquo;, Lecture Notes</p>
+<p><a href="https://cse.buffalo.edu/faculty/atri/courses/coding-theory/book/index.html">[3]</a> Guruswami, Rudra &amp; Sudan &ldquo;<em>Essential Coding Theory</em>&rdquo;, Online Draft</p>
+<p><a href="https://public.ccsds.org/Pubs/130x1g3.pdf">[4]</a> CCSDS &ldquo;<em>Report Concerning Space Data System Standards</em>&rdquo; (2020)</p>
+<p><a href="https://github.com/yansikeim/QR-Code/blob/master/ISO%20IEC%2018004%202015%20Standard.pdf">[5]</a> ISO/IEC 18004, &ldquo;<em>QR Code bar code symbology specification</em>&rdquo;, 3rd ed.</p>
+<p><a href="http://drhuang.com/science/mathematics/book/GTM73-Algebra.Thomas%20W.Hungerford.pdf">[6]</a> Hungerford, Thomas &ldquo;<em>Algebra</em>&rdquo; (1974)</p>
+<p><a href="https://www.mathnet.ru/php/archive.phtml?wshow=paper&amp;jrnid=im&amp;paperid=1646&amp;option_lang=eng">[7]</a> Goppa, Valery &ldquo;<em>Algebraico-Geometric Codes</em>&rdquo; Math. USSR Izvestiya Vol. 21 (1983)</p>
+<p><a href="https://arxiv.org/pdf/1703.01080.pdf">[8]</a> Evra, Kowalski, Lubotzky &ldquo;<em>Good Cyclic Codes and the Uncertainty Principle</em>&rdquo; (2017)</p>
+<section class="footnotes" role="doc-endnotes">
+<hr>
+<ol>
+<li id="fn:1" role="doc-endnote">
+<p>GF stands for &ldquo;Galois field&rdquo; in honor of the legendary Evariste Galois.&#160;<a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:2" role="doc-endnote">
+<p>If you want to prove this, it follows from <a href="https://math.libretexts.org/Bookshelves/Combinatorics_and_Discrete_Mathematics/Elementary_Number_Theory_(Barrus_and_Clark)/01:_Chapters/1.09:_Bezout's_Lemma">Bezout&rsquo;s Lemma</a>&#160;<a href="#fnref:2" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:3" role="doc-endnote">
+<p>You&rsquo;ll find a proof in any good algebra book, Theorem 5.1 in <a href="#references">[6]</a> for example.&#160;<a href="#fnref:3" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:4" role="doc-endnote">
+<p>Its full name is &ldquo;the ring of polynomials over \(F\)&rdquo;&#160;<a href="#fnref:4" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:5" role="doc-endnote">
+<p>You can now make people think you&rsquo;re crazy by telling them 3 times 3 equals 5&#160;<a href="#fnref:5" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:6" role="doc-endnote">
+<p>Proof: the distance between any two codewords \(c_1\) and \(c_2\) is the same as the distance between the all-zero word and \(c_1 - c_2\). Thus \(d_{min}\) is equal to the minimum number of nonzero components across all nonzero codewords. We can take the codeword with one nonzero data symbol and \(n-k\) check symbols. Hence \(d_{min} \le n-k+1 \).&#160;<a href="#fnref:6" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:7" role="doc-endnote">
+<p>In ring theory terminology, this makes the set of polynomial codewords is an <a href="https://en.wikipedia.org/wiki/Ideal_(ring_theory)">ideal</a> of the quotient ring \(F[x]/\langle x^n-1 \rangle \).&#160;<a href="#fnref:7" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:8" role="doc-endnote">
+<p>It is used to contruct the <a href="https://en.wikipedia.org/wiki/Leech_lattice">Leech lattice</a>, the <em>densest</em> packing of spheres in \(\mathbb{R}^{24}\)! Also see the (5,8,24) <a href="https://en.wikipedia.org/wiki/Steiner_system#Construction_from_the_binary_Golay_code">Steiner system</a> for another rabbit hole.&#160;<a href="#fnref:8" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:9" role="doc-endnote">
+<p>There is a truly marvelous proof of this, which the footnotes of this blog are too small to contain. But see <a href="#references">[1]</a> Chapter 6.&#160;<a href="#fnref:9" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+</ol>
+</section>
+
+    </div>
+
+    
+    
+<div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content">meiji163</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+      2023-11-02
+      
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">License</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+
+
+    
+    
+
+    <footer class="post-footer">
+      <div class="post-tags">
+          <a href="https://meiji163.github.io/tags/error-correcting-codes/">error correcting codes</a>
+          <a href="https://meiji163.github.io/tags/algebraic-codes/">algebraic codes</a>
+          <a href="https://meiji163.github.io/tags/qr-code/">QR code</a>
+          
+        </div>
+
+      
+      <nav class="post-nav">
+        
+        
+          <a class="next" href="/post/gh-extension/">
+            <span class="next-text nav-default">Fun With GitHub CLI Extensions</span>
+            <span class="prev-text nav-mobile">Next</span>
+            
+            <i class="iconfont">
+              <svg class="icon" viewBox="0 0 1024 1024" version="1.1"
+  xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+  width="18" height="18">
+  <path d="M332.091514 74.487481l-75.369571 89.491197c-10.963703 12.998035-10.285251 32.864502 1.499144 44.378743l286.278095 300.375162L266.565125 819.058374c-11.338233 12.190647-11.035334 32.285311 0.638543 44.850487l80.46666 86.564541c11.680017 12.583596 30.356378 12.893658 41.662889 0.716314l377.434212-421.426145c11.332093-12.183484 11.041474-32.266891-0.657986-44.844348l-80.46666-86.564541c-1.772366-1.910513-3.706415-3.533476-5.750981-4.877077L373.270379 71.774697C361.493148 60.273758 343.054193 61.470003 332.091514 74.487481z"></path>
+</svg>
+
+            </i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+
+  
+  
+
+  
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+    
+
+  
+
+        </div>
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="icon-links">
+  
+  
+    <a href="mailto:mysatellite99@gmail.com" rel="me noopener" class="iconfont"
+      title="email" >
+      <svg class="icon" viewBox="0 0 1451 1024" version="1.1"
+  xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+  width="36" height="36">
+  <path d="M664.781909 681.472759 0 97.881301C0 3.997201 71.046997 0 71.046997 0L474.477909 0 961.649408 0 1361.641813 0C1361.641813 0 1432.688811 3.997201 1432.688811 97.881301L771.345323 681.472759C771.345323 681.472759 764.482731 685.154773 753.594283 688.65053L753.594283 688.664858C741.602731 693.493018 729.424896 695.068979 718.077952 694.839748 706.731093 695.068979 694.553173 693.493018 682.561621 688.664858L682.561621 688.65053C671.644501 685.140446 664.781909 681.472759 664.781909 681.472759L664.781909 681.472759ZM718.063616 811.603883C693.779541 811.016482 658.879232 802.205449 619.10784 767.734955 542.989056 701.759633 0 212.052267 0 212.052267L0 942.809523C0 942.809523 0 1024 83.726336 1024L682.532949 1024 753.579947 1024 1348.948139 1024C1432.688811 1024 1432.688811 942.809523 1432.688811 942.809523L1432.688811 212.052267C1432.688811 212.052267 893.138176 701.759633 817.019477 767.734955 777.248 802.205449 742.347691 811.03081 718.063616 811.603883L718.063616 811.603883Z"></path>
+</svg>
+
+    </a>
+  
+    <a href="https://math.stackexchange.com/users/201018/mysatellite" rel="me noopener" class="iconfont"
+      title="stack-overflow"  target="_blank"
+      >
+      <svg class="icon" viewBox="0 0 1024 1024" version="1.1"
+  xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+  width="36" height="36">
+  <path d="M809.714286 932.571429l-638.857143 0 0-274.285714-91.428571 0 0 365.714286 821.714286 0 0-365.714286-91.428571 0 0 274.285714zm-538.285714-299.428571l18.857143-89.714286 447.428571 94.285714-18.857143 89.142857zm58.857143-213.714286l38.285714-83.428571 414.285714 193.714286-38.285714 82.857143zm114.857143-203.428571l58.285714-70.285714 350.857143 293.142857-58.285714 70.285714zm226.857143-216l272.571429 366.285714-73.142857 54.857143-272.571429-366.285714zm-410.285714 840.571429l0-90.857143 457.142857 0 0 90.857143-457.142857 0z"></path>
+</svg>
+
+    </a>
+  
+    <a href="https://github.com/meiji163" rel="me noopener" class="iconfont"
+      title="github"  target="_blank"
+      >
+      <svg class="icon" style="" viewBox="0 0 1024 1024" version="1.1"
+  xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+  width="36" height="36">
+  <path d="M512 12.672c-282.88 0-512 229.248-512 512 0 226.261333 146.688 418.133333 350.08 485.76 25.6 4.821333 34.986667-11.008 34.986667-24.618667 0-12.16-0.426667-44.373333-0.64-87.04-142.421333 30.890667-172.458667-68.693333-172.458667-68.693333C188.672 770.986667 155.008 755.2 155.008 755.2c-46.378667-31.744 3.584-31.104 3.584-31.104 51.413333 3.584 78.421333 52.736 78.421333 52.736 45.653333 78.293333 119.850667 55.68 149.12 42.581333 4.608-33.109333 17.792-55.68 32.426667-68.48-113.706667-12.8-233.216-56.832-233.216-253.013333 0-55.893333 19.84-101.546667 52.693333-137.386667-5.76-12.928-23.04-64.981333 4.48-135.509333 0 0 42.88-13.738667 140.8 52.48 40.96-11.392 84.48-17.024 128-17.28 43.52 0.256 87.04 5.888 128 17.28 97.28-66.218667 140.16-52.48 140.16-52.48 27.52 70.528 10.24 122.581333 5.12 135.509333 32.64 35.84 52.48 81.493333 52.48 137.386667 0 196.693333-119.68 240-233.6 252.586667 17.92 15.36 34.56 46.762667 34.56 94.72 0 68.522667-0.64 123.562667-0.64 140.202666 0 13.44 8.96 29.44 35.2 24.32C877.44 942.592 1024 750.592 1024 524.672c0-282.752-229.248-512-512-512"></path>
+</svg>
+
+    </a>
+  
+    <a href="https://codeforces.com/profile/meiji163" rel="me noopener" class="iconfont"
+      title="codeforces"  target="_blank"
+      >
+      <svg width="36" height="36" class="icon" style="" version="1.1" viewBox="0 0 1024 1024">
+<path d="M 192 334.2 C 227.3 334.2 256 369.2 256 412.4 v 547.5 C 256 1003.2 227.3 1038.2 192 1038.2 H 64 C 28.7 1038.2 0 1003.2 0 960 V 412.4 C 0 369.2 28.7 334.2 64 334.2 h 128 z m 384 -234.7 C 611.3 99.6 640 134.5 640 177.8 v 782.2 C 640 1003.2 611.3 1038.2 576 1038.2 H 448 C 412.7 1038.2 384 1003.2 384 960 V 177.8 C 384 134.5 412.7 99.6 448 99.6 h 128 z m 384 391.1 C 995.3 490.6 1024 525.7 1024 568.9 v 391.1 C 1024 1003.2 995.3 1038.2 960 1038.2 h -128 C 796.7 1038.2 768 1003.2 768 960 V 568.9 C 768 525.7 796.7 490.6 832 490.6 h 128 z" />
+</svg>
+
+    </a>
+  
+    <a href="https://qoto.org/@meiji163" rel="me noopener" class="iconfont"
+      title="mastodon"  target="_blank"
+      >
+      <svg class="icon" style="" viewBox="0 0 448 512" version="1.1"
+  xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+  width="36" height="36"><path fill="currentColor" d="M433 179.11c0-97.2-63.71-125.7-63.71-125.7-62.52-28.7-228.56-28.4-290.48 0 0 0-63.72 28.5-63.72 125.7 0 115.7-6.6 259.4 105.63 289.1 40.51 10.7 75.32 13 103.33 11.4 50.81-2.8 79.32-18.1 79.32-18.1l-1.7-36.9s-36.31 11.4-77.12 10.1c-40.41-1.4-83-4.4-89.63-54a102.54 102.54 0 0 1-.9-13.9c85.63 20.9 158.65 9.1 178.75 6.7 56.12-6.7 105-41.3 111.23-72.9 9.8-49.8 9-121.5 9-121.5zm-75.12 125.2h-46.63v-114.2c0-49.7-64-51.6-64 6.9v62.5h-46.33V197c0-58.5-64-56.6-64-6.9v114.2H90.19c0-122.1-5.2-147.9 18.41-175 25.9-28.9 79.82-30.8 103.83 6.1l11.6 19.5 11.6-19.5c24.11-37.1 78.12-34.8 103.83-6.1 23.71 27.3 18.4 53 18.4 175z"></path></svg>
+    </a>
+
+
+<a href="https://meiji163.github.io/index.xml" rel="noopener alternate" type="application/rss&#43;xml"
+    class="iconfont" title="rss" target="_blank">
+    <svg class="icon" viewBox="0 0 1024 1024" version="1.1"
+  xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+  width="30" height="30">
+  <path d="M819.157333 1024C819.157333 574.592 449.408 204.8 0 204.8V0c561.706667 0 1024 462.293333 1024 1024h-204.842667zM140.416 743.04a140.8 140.8 0 0 1 140.501333 140.586667A140.928 140.928 0 0 1 140.074667 1024C62.72 1024 0 961.109333 0 883.626667s62.933333-140.544 140.416-140.586667zM678.784 1024h-199.04c0-263.210667-216.533333-479.786667-479.744-479.786667V345.173333c372.352 0 678.784 306.517333 678.784 678.826667z"></path>
+</svg>
+
+  </a>
+   
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - <a class="theme-link" href="https://github.com/xianmin/hugo-theme-jane">Jane</a>
+  </span>
+
+  <span class="copyright-year">
+    &copy;
+    
+      2021 -
+    2023
+    <span class="heart">
+      
+      <i class="iconfont">
+        <svg class="icon" viewBox="0 0 1025 1024" version="1.1"
+  xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+  width="14" height="14">
+  <path d="M1000.1 247.9c-15.5-37.3-37.6-70.6-65.7-98.9-54.4-54.8-125.8-85-201-85-85.7 0-166 39-221.4 107.4C456.6 103 376.3 64 290.6 64c-75.1 0-146.5 30.4-201.1 85.6-28.2 28.5-50.4 61.9-65.8 99.3-16 38.8-24 79.9-23.6 122.2 0.7 91.7 40.1 177.2 108.1 234.8 3.1 2.6 6 5.1 8.9 7.8 14.9 13.4 58 52.8 112.6 102.7 93.5 85.5 209.9 191.9 257.5 234.2 7 6.1 15.8 9.5 24.9 9.5 9.2 0 18.1-3.4 24.9-9.5 34.5-30.7 105.8-95.9 181.4-165 74.2-67.8 150.9-138 195.8-178.2 69.5-57.9 109.6-144.4 109.9-237.3 0.1-42.5-8-83.6-24-122.2z"
+   fill="#8a8a8a"></path>
+</svg>
+
+      </i>
+    </span><span class="author">
+        meiji163
+        
+      </span></span>
+
+  
+  
+
+  
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont">
+        
+        <svg class="icon" viewBox="0 0 1024 1024" version="1.1"
+  xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+  width="35" height="35">
+  <path d="M510.866688 227.694839 95.449397 629.218702l235.761562 0-2.057869 328.796468 362.40389 0L691.55698 628.188232l241.942331-3.089361L510.866688 227.694839zM63.840492 63.962777l894.052392 0 0 131.813095L63.840492 195.775872 63.840492 63.962777 63.840492 63.962777zM63.840492 63.962777"></path>
+</svg>
+
+      </i>
+    </div>
+  </div>
+  
+<script type="text/javascript" src="/lib/jquery/jquery-3.2.1.min.js"></script>
+  <script type="text/javascript" src="/lib/slideout/slideout-1.0.1.min.js"></script>
+
+
+
+
+<script type="text/javascript" src="/js/main.638251f4230630f0335d8c6748e53a96f94b72670920b60c09a56fdc8bece214.js" integrity="sha256-Y4JR9CMGMPAzXYxnSOU6lvlLcmcJILYMCaVv3Ivs4hQ=" crossorigin="anonymous"></script>
+
+
+
+
+
+
+  <link rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/katex@0.11.0/dist/katex.min.css"
+    integrity="sha384-BdGj8xC2eZkQaxoQ8nSLefg4AV4/AwB3Fj+8SUSo7pnKP6Eoy18liIKTPn9oBYNG"
+    crossorigin="anonymous">
+
+  
+  <script defer
+    src="https://cdn.jsdelivr.net/npm/katex@0.11.0/dist/katex.min.js"
+    integrity="sha384-JiKN5O8x9Hhs/UE5cT5AAJqieYlOZbGT3CHws/y97o3ty4R7/O5poG9F3JoiOYw1"
+    crossorigin="anonymous"></script>
+
+  
+  <script defer
+    src="https://cdn.jsdelivr.net/npm/katex@0.11.0/dist/contrib/auto-render.min.js"
+    integrity="sha384-kWPLUVMOks5AQFrykwIup5lo0m3iMkkHrD0uJ4H5cjeGihAutqP0yW0J6dpFiVkI"
+    crossorigin="anonymous" onload="renderMathInElement(document.body);">
+  </script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      renderMathInElement(document.body, {
+        
+      });
+    });
+  </script>
+
+
+
+
+
+
+  
+    <script type="text/javascript" src="/js/load-photoswipe.js"></script>
+    <script type="text/javascript" src="/lib/photoswipe/photoswipe.min.js"></script>
+    <script type="text/javascript" src="/lib/photoswipe/photoswipe-ui-default.min.js"></script>
+  
+
+
+
+
+
+
+
+
+
+  <script id="dsq-count-scr" src="//.disqus.com/count.js" async></script>
+
+
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,354 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<title>ecc.html</title>
+<meta http-equiv="Content-Type" content="application/xhtml+xml;charset=utf-8"/>
+<link rel="stylesheet" type="text/css" media="all" href="https://cdn.jsdelivr.net/npm/github-markdown-css/github-markdown.min.css"  />
+<link rel="stylesheet" type="text/css" media="all" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release/build/styles/github.min.css"  /><meta name='viewport' content='width=device-width, initial-scale=1, shrink-to-fit=no'><style> body { box-sizing: border-box; max-width: 740px; width: 100%; margin: 40px auto; padding: 0 10px; } </style><script id='MathJax-script' async src='https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js'></script><script src='https://cdn.jsdelivr.net/gh/highlightjs/cdn-release/build/highlight.min.js'></script><script>document.addEventListener('DOMContentLoaded', () => { document.body.classList.add('markdown-body'); document.querySelectorAll('pre[lang] > code').forEach((code) => { code.classList.add(code.parentElement.lang); }); document.querySelectorAll('pre > code').forEach((code) => { hljs.highlightBlock(code); }); });</script>
+</head>
+
+<body>
+
+<blockquote>
+<p>“There is geometry in the humming of the strings, there is music in the spacing of the spheres.”</p>
+<p>– Pythagoras</p>
+</blockquote>
+<h2 id="introduction">Introduction</h2>
+<p>Recently I started exploring the world of error-correcting codes, and algebraic codes in particular. It’s a perfect example of <a href="https://www.evanmiller.org/mathematical-hacker.html">mathematical hacking</a>, where the Platonic realm of mathematical objects collides with the concrete world of signals, circuits, and CPUs to create something incredibly useful.</p>
+<p>In this post I’ll share what I’ve learned so far about algebraic codes and go into some detail about Reed-Solomon and BCH codes. As a bonus I’ll show how to create QR codes.</p>
+<p><em>Note on code examples</em>: The full code for this post is at <a href="https://github.com/meiji163/ecc-clj">meiji163/ecc-clj</a>. See the <a href="#addendum-on-clojure">addendum on Clojure</a> for how to play with it yourself.</p>
+<h2 id="algebra-background">Algebra Background</h2>
+<p>This section introduces some algebra needeed to understand algebraic codes. I’ve tried to make it understandable to those without an extensive math education. Feel free to <a href="#error-correcting-codes">skip ahead</a> and come back later.</p>
+<h3 id="finite-fields">Finite Fields</h3>
+<p>A <em>field</em> is (roughly) a structure where you can add, subtract, multiply, and divide in the ways you’re used to. You’re already familiar with the field of real numbers, called \( \). You may also be familiar with the field of integers modulo p, called \(GF(p)\)<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> (also known as \( /p\)). You add and multiply the same as regular integers, but take the remainder of the result when divided by \(p\).</p>
+<p>For number-theoretic reasons<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a>, \(p\) has to be a prime for division to work. This ensures that for all \(a = 1,2,,p-1\) there is an integer \(0 &lt; b &lt; p\) such that</p>
+<p><span class="math display">\[a \cdot b = 1 \pmod{p}.\]</span></p>
+<p>So \(b\) is the inverse of \(a\). Division by \(a\) is then defined as multiplication by \(b.\)</p>
+<p>As an example field, take the teeny little \(GF(2)\). It has two elements 0 and 1.</p>
+<p><span class="math display">\[
+\begin{aligned}
+1 + 1 &amp;= 0 \cr
+1 + 0 &amp;= 1 \cr
+1 \cdot 1 &amp;= 1 \cr
+1 \cdot 0 &amp;= 0
+\end{aligned}
+\]</span></p>
+<p>We could represent this in code as a collection of the field operations</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode clojure"><code class="sourceCode clojure"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a>(<span class="bu">def</span><span class="fu"> GF2</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true"></a>  {:+ <span class="kw">bit-xor</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true"></a>   <span class="at">:-</span> <span class="kw">bit-xor</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true"></a>   :* <span class="kw">bit-and</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true"></a>   <span class="at">:/</span> <span class="kw">bit-and</span>})</span></code></pre></div>
+<p>You may think, <em>“You have shown me one example of a finite field, now I demand a complete classification of all finite fields!”</em></p>
+<p>Luckily, it can be shown<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a> that the number of elements a finite field can have must be \(p^n\) for some prime \(p\) and some integer \(n \). We have seen the ones with \(p\) elements, in the next section we’ll see the other ones.</p>
+<h3 id="polynomial-fields">Polynomial Fields</h3>
+<p>Whenever you have a field \(F\), you can create polynomials whose coefficients are elements of \(F\). It’s usually called \(F[x]\)<a href="#fn4" class="footnote-ref" id="fnref4" role="doc-noteref"><sup>4</sup></a>. For example, a polynomial with binary coefficients like \(x^3 + x + 1\) is a member of \(GF(2)[x]\) .</p>
+<p>Polynomials are a bit like vectors. Think of the coefficient of \(x^n\) as the value in the nth slot of a vector, e.g.</p>
+<p><span class="math display">\[ 1x^0 + 1x^1 + 0x^2 + 1x^3 \leftrightarrow (1,1,0,1).\]</span></p>
+<p>Now to add polynomials, we just add each corresponding coordinate of the vectors.</p>
+<p><em>So then polynomial multiplication also defines multiplication of vectors?</em></p>
+<p>Not quite. The trouble is when you multiply two polynomials, the degree of the product polynomial is can grow without bound! That’s not good if we want to the vector size to be fixed.</p>
+<p>This is where we take inspiration from the integers mod \(p\). In that case, whenever we get a result bigger than \(p\), we divide it by \(p\) and use the remainder instead. Similarly, for polynomials we choose a “modulus” polynomial \(p(x)\) with degree \(n\). Whenever a polynomial has a degree greater than \(n\), we divide it by \(p(x)\) and take the remainder polynomial. The reason this works is that, like the integers, polynomials have a <a href="https://en.wikipedia.org/wiki/Euclidean_domain">Euclidean algorithm</a>.</p>
+<p><em>Can you use any modulus polynomial you want?</em></p>
+<p>You can, but in general you get a “quotient ring” and not a field. Like the integer case, we have to choose \(p(x)\) to be “prime” in order to make division work. As you might guess, a prime polynomial is one that can’t be factored into other polynomials – remarkable how similar polynomials and integers are!</p>
+<h3 id="constructing-gf2n">Constructing \(GF(2^n)\)</h3>
+<p>To see this in action let’s construct \(GF(2^3)\) from \(GF(2)\) polynomials.</p>
+<p>Let \(p(x) = x^3 + x + 1\), which is a prime polynomial over \(GF(2)\). Now the distinct nonzero elements of the field are the eight \(GF(2)\) polynomials with degree &lt; 3. We can multiply them like so</p>
+<p><span class="math display">\[
+\begin{aligned}
+x \cdot (x^2 + x) = x^3 + x^2  = x^2 + x + 1
+\end{aligned}
+\]</span></p>
+<p>where we replaced \(x^3\) by \( x + 1\), or equivalently, divided out \(p(x)\).</p>
+<p>When the polynomials as viewed binary vectors, we can interpret each vector as spelling out an integer in binary. For example \(x^2 + x + 1 _2 = 7\). Each field element gets assigned a number 0-7 according to this notational pun. <em>But beware, you can’t add and multiply them like regular integers<a href="#fn5" class="footnote-ref" id="fnref5" role="doc-noteref"><sup>5</sup></a>!</em></p>
+<p>Another way of representing finite fields comes from the <a href="https://en.wikipedia.org/wiki/Primitive_element_theorem">primitive element theorem</a>, which says that every finite field has a special element \(\), called the primitive element, such that the successive powers \(^1, ^2, \) generate the whole field.</p>
+<p>In our contruction of \(GF(2^3)\), a primitive element is the polynomial \(x\), aka “\(2\)” in our binary labeling scheme. Compare the different representations in the table below.</p>
+<table>
+<thead>
+<tr class="header">
+<th>decimal</th>
+<th>binary</th>
+<th>polynomial</th>
+<th>exponential</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>2</td>
+<td>010</td>
+<td>\(x\)</td>
+<td>\( ^1\)</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>100</td>
+<td>\(x^2\)</td>
+<td>\( ^2\)</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>011</td>
+<td>\(x+1\)</td>
+<td>\( ^3\)</td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td>110</td>
+<td>\(x^2+x\)</td>
+<td>\( ^4\)</td>
+</tr>
+<tr class="odd">
+<td>7</td>
+<td>111</td>
+<td>\(x^2+x+1\)</td>
+<td>\( ^5\)</td>
+</tr>
+<tr class="even">
+<td>5</td>
+<td>101</td>
+<td>\(x^2+1\)</td>
+<td>\( ^6\)</td>
+</tr>
+<tr class="odd">
+<td>1</td>
+<td>001</td>
+<td>\(1\)</td>
+<td>\( ^0 ( = ^7 )\)</td>
+</tr>
+</tbody>
+</table>
+<p>We can implement this construction in code with something like this</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode clojure"><code class="sourceCode clojure"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a>(<span class="bu">defn</span><span class="fu"> char2-field</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true"></a>  <span class="st">&quot;construct field GF2[x]/&lt;p(x)&gt;</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true"></a><span class="st">  given a primitive element and generating polynomial&quot;</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true"></a>  [prim poly]</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true"></a>  (<span class="kw">let</span> [invs (char2-invs prim poly)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true"></a>        n-elts (<span class="kw">bit-shift-left</span> <span class="dv">1</span> (bindeg poly))</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true"></a>        exp (<span class="kw">vec</span> (<span class="kw">take</span> n-elts</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true"></a>                   (<span class="kw">iterate</span> #(binmod (bin* <span class="va">%</span> prim) poly) <span class="dv">1</span>)))]</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true"></a>    {<span class="at">:unit</span> <span class="dv">1</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true"></a>     <span class="at">:zero</span> <span class="dv">0</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true"></a>     <span class="at">:primitive</span> prim</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true"></a>     <span class="at">:inv</span> invs</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true"></a>     <span class="at">:exp</span> exp</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true"></a>     :+ <span class="kw">bit-xor</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true"></a>     <span class="at">:-</span> <span class="kw">bit-xor</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true"></a>     :* (<span class="kw">fn</span> [p1 p2] (binmod (bin* p1 p2) poly))</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true"></a>     <span class="at">:/</span> (<span class="kw">fn</span> [p1 p2] (binmod (bin* p1 (invs p2))))}</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true"></a>    ))</span></code></pre></div>
+<p>The important points are that <code>exp</code> is a vector containing \(^0, ^1, , <sup>{2</sup>n - 1}\), and we define the field multiplication <code>:*</code> and field <code>:/</code> with the functions <code>binmod</code> and <code>bin*</code> that implement GF2-polynomial modulo reduction and multiplication, respectively.</p>
+<p>Now we can create GF8!</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode clojure"><code class="sourceCode clojure"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a>(<span class="bu">def</span><span class="fu"> GF8</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true"></a>  <span class="st">&quot;GF(8) constructed as GF2[x]/&lt;x^3+x+1&gt;&quot;</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true"></a>  (<span class="kw">let</span> [GF2-poly (parse-bin <span class="st">&quot;1011&quot;</span>)]</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true"></a>    (char2-field <span class="dv">2</span> GF2-poly)))</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true"></a>    </span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true"></a><span class="co">;; examples    </span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true"></a>(<span class="kw">let</span> [mul (:* GF8)</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true"></a>      add (:+ GF8)</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true"></a>      div (<span class="at">:/</span> GF8)]</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true"></a>  (mul <span class="dv">3</span> <span class="dv">3</span>) <span class="co">;; =&gt; 5</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true"></a>  (add <span class="dv">7</span> <span class="dv">6</span>) <span class="co">;; =&gt; 1</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true"></a>  (div <span class="dv">5</span> <span class="dv">4</span>) <span class="co">;; =&gt; 6</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true"></a>)</span></code></pre></div>
+<h2 id="error-correcting-codes">Error Correcting Codes</h2>
+<blockquote>
+<p>“Thus finding an error-correcting code is the same as finding a set of code points in the \(n\)-dimensional space which has the required minimum distance between legal messages”</p>
+<p>– Richard Hamming, <em>The Art of Doing Science and Engineering</em></p>
+</blockquote>
+<p>The main problem motivating error correcting codes is reliable data transmission. When sending symbols (such as bits) over a medium that can introduce errors or erasures, how do you ensure that your intended message gets through?</p>
+<p>Hamming’s insight was to formulate this as a max-min distance problem. Let’s consider the symbols as elements of a finite field \(F\). Then a block of \(n\) symbols, or “word”, corresponds to a vector in \(F^n\). What we want is a set of “codeword” vectors such that whenever errors occur, the erroneous vector can be mapped uniquely to the “closest” correct codeword vector.</p>
+<p>Thus we need the codewords to be as “far apart” as possible, to minimize the chances of a word being “close” to two codewords simulatenously. The <a href="https://en.wikipedia.org/wiki/Hamming_distance">Hamming Distance</a>, defined as the number of places where two words differ, is exactly the right notion of distance to measure this. Now the problem can be phrased as:</p>
+<p><em>Find a set of codewords that maximizes the minimum distance betweeen any two codewords.</em></p>
+<h3 id="algebraic-codes">Algebraic Codes</h3>
+<p>Codeword vectors can be chosen arbitrarily, but to make the problem tractable we impose an algebraic structure on the codewords, like a musician might impose meter and harmony on their music.</p>
+<p>First require that the codewords form a <em>linear subspace</em> of \(F^n\). That means whenever we add two codeword vectors or scale a codeword vector, we get another codeword vector. These are called <em>linear codes</em>. It’s not too hard to bound the best possible minimum distance for linear codes.</p>
+<p>But first, a little more terminology: A code that encodes length \(k\) words into length \(n\) codewords and uses \(n-k\) check symbols is called an \( (n, k)\) code. Now we can state the</p>
+<p><strong>Hamming Bound:</strong> The minimum distance \( d_{min} \) between any two codewords of a \( (n,k) \) linear code satisfies \(d_{min} n-k+1\).<a href="#fn6" class="footnote-ref" id="fnref6" role="doc-noteref"><sup>6</sup></a></p>
+<p>This tells us the max number of errors a linear code can correct is \( (n-k+1)/2 \). However it does not tell us if such a code exists for a given \(n\) and \(k\) (booo!).</p>
+<p><strong>Example:</strong> The \( (7,4) \) binary Hamming code can correct 1 error. Its codewords form a four-dimensional subspace of \(GF(2)^7\), spanned by these vectors:</p>
+<p><span class="math display">\[
+\begin{aligned}
+1000110 &amp; \cr
+0100101 &amp; \cr
+0010011 &amp; \cr
+0001111 
+\end{aligned}
+\]</span></p>
+<p><em>What’s with the vectors and linear subspaces? I was promised polynomials!</em></p>
+<p>But remember polynomials are like vectors too – we view the coefficients as vector coordinates. Then we can use a “<em>generator polynomial</em>” \(g(x)\) with degree \(n-k\) to generate a linear code as follows.</p>
+<p>For every “word polynomial” \(w(x)\) of degree \(k\), the product \(g(x)w(x)\) defines a codeword polynomial of degree \(n\). Considered as vectors, these polynomials span a linear subspace of \(F^n.\) For example, \(g(x) = x^3+x+1\) generates the Hamming code above.</p>
+<h3 id="cyclic-codes">Cyclic Codes</h3>
+<p>Linear codes are great, but can we impose even <em>more</em> structure to find better codes? One idea is to consider linear subspaces that are highly symmetrical. That is where <em>cyclic codes</em> come in.</p>
+<p>A <em>cyclic code</em> is a linear code that is invariant under a cyclic shift, e.g. if <code>1100</code> is a codeword then so is <code>0110</code> and <code>0011</code>. If we translate this back to polynomial language, it requires that \(x^n\) “wraps around” and becomes \(x^0\). Algebraically, this means we take the ring of polynomials \(F[x]\) <em>modulo</em> \(x^n-1\)<a href="#fn7" class="footnote-ref" id="fnref7" role="doc-noteref"><sup>7</sup></a>. However we say it, what it means in practice is that we carefully choose the generating polynomial \(g(x)\) to be a factor of \(x^n-1\).</p>
+<p><strong>Example:</strong> Here are some factorizations of \(x^n-1\) over \(GF(2)\) into prime polynomials. | \(n\) | Factorization of \(x^n - 1\) | — | — | | 3 | \( (1+x)(1+x+x^2) \) | | 5 | \( (1+x)(1+x+x<sup>2+x</sup>3+x^4)\) | | 7 | \( (1+x)(1+x<sup>2+x</sup>3)(1+x+x^3)\) | | 9 | \( (1+x)(1+x+x<sup>2)(1+x</sup>3+x^6)\) |</p>
+<p>For each \(n\), a choice of factors gives you a cyclic code. For example choosing \(g(x) = 1+x\) gives you a simple code that adds one parity-check bit.</p>
+<p>It’s fun to discover what codes these polynomials will produce, but it’s usually not easy to see what the minimum distance is. For that we need to use more strategic constructions.</p>
+<p>(An aside for true math nerds: let me mention a “platypus” of the cyclic code zoo. The \((23,12)\) binary Golay code has a minimum distance of 7 and <em>perfectly</em> partitions the space \(GF(2)^{23}\) into spheres of radius 3. Its automorphism group is a <a href="https://en.wikipedia.org/wiki/Mathieu_group">sporadic group</a>. The derivative \((24,12)\) Golay code is even more amazing and bizzare<a href="#fn8" class="footnote-ref" id="fnref8" role="doc-noteref"><sup>8</sup></a>.)</p>
+<h3 id="reed-solomon-codes">Reed-Solomon Codes</h3>
+<p>Reed-Solomon codes are some of the best and most widely used cyclic codes. To make your own \( (n,k) \) RS code, let \(\) be a primitive element of your field \(F\). For the generating polynomial, cook up a polynomial in \(F[x]\) with roots at \(^j, ^{j+1}, , ^{j+m}\) for some integers \(j \) and \(0&lt;m&lt;n\). For example,</p>
+<p><span class="math display">\[ g(x) = (x-\omega)(x-\omega^2)\dots(x-\omega^m).\]</span></p>
+<p>To guarantee this generates a cyclic code, we require that the size of the field \(F\) equals \(n\). Then \(g(x)\) is a factor of \(x^n - 1\) because \(^n = 1\).</p>
+<p><em>OK I cooked up my RS code, but why is it good?</em></p>
+<p>It can be shown<a href="#fn9" class="footnote-ref" id="fnref9" role="doc-noteref"><sup>9</sup></a> that whenever a \( (n,k) \) RS code exists, it achieves equality in the Hamming bound, i.e. \(d_{min} = n-k+1\). So these codes are optimally error correcting linear codes.</p>
+<p>What accounts for this? It’s closely related to the Fourier transform over the field \(F\). If you’re familiar with the <a href="https://en.wikipedia.org/wiki/Discrete_Fourier_transform">Discrete Fourier transform</a> of a vector, it’s exactly the same except \(\) plays the role of \(e^{-2i/n}.\) Requiring \(^j\) to be a root of \(g(x)\) is equivalent to requiring the \(j^{th}\) component of the Fourier transform to be 0.</p>
+<p>The RS generating polynomial would be analogous to a low-pass frequency filter, requiring all frequencies to be greater than some value. This forces the minimum weight (i.e. number of nonzero components) of a codeword to be bounded away from 0.</p>
+<p>(This is a manifestation of <a href="https://terrytao.wordpress.com/2010/06/25/the-uncertainty-principle/">the uncertainty principle</a>, which roughly says that you cannot be simultaneously localized in both frequency and position. <a href="#references">[8]</a>)</p>
+<p><strong>Examples:</strong> Let’s construct a \( (7,3) \) RS code over \( GF(8) \), using the representation of \(GF(8)\) from before. Let’s choose the generating polynomial as</p>
+<p><span class="math display">\[ g(x) = (x-\omega^4)(x-\omega^5)(x-\omega^6)(x-\omega^7).\]</span></p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode clojure"><code class="sourceCode clojure"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true"></a>(<span class="bu">def</span><span class="fu"> RS-7-3 </span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true"></a>  (<span class="kw">reduce</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true"></a>   (<span class="kw">fn</span> [p1 p2] (p/* p1 p2 GF8))</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true"></a>   [[<span class="dv">7</span> <span class="dv">1</span>] [<span class="dv">3</span> <span class="dv">1</span>] [<span class="dv">6</span> <span class="dv">1</span>] [<span class="dv">1</span> <span class="dv">1</span>]]))</span></code></pre></div>
+<p>Now I can encode my favorite integer, 163. With check symbols it is <code>0224163</code>. Now I can change any two of the symbols and it decodes to <code>163</code>.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode clojure"><code class="sourceCode clojure"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true"></a>(encode [<span class="dv">1</span> <span class="dv">6</span> <span class="dv">3</span>] RS<span class="dv">-7-3</span> GF8) <span class="co">;; =&gt; [0 2 2 4 1 6 3]</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true"></a>(RS<span class="dv">-7-3</span>-decode [<span class="dv">0</span> <span class="dv">2</span> <span class="dv">2</span> <span class="dv">4</span> <span class="dv">1</span> <span class="dv">6</span> <span class="dv">3</span>]) <span class="co">;; =&gt; [1 6 3]</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true"></a>(RS<span class="dv">-7-3</span>-decode [<span class="dv">1</span> <span class="dv">2</span> <span class="dv">2</span> <span class="dv">4</span> <span class="dv">1</span> <span class="dv">7</span> <span class="dv">3</span>]) <span class="co">;; =&gt; [1 6 3]</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true"></a>(RS<span class="dv">-7-3</span>-decode [<span class="dv">0</span> <span class="dv">2</span> <span class="dv">2</span> <span class="dv">4</span> <span class="dv">6</span> <span class="dv">6</span> <span class="dv">6</span>]) <span class="co">;; =&gt; [1 6 3]</span></span></code></pre></div>
+<p>It feels <em>magical</em> when you see it up close!</p>
+<p>For a bigger example, let’s construct a \( (255, 233) \) RS code over \(GF(256)\). It uses 32 check symbols to correct 16 errors. This code is one recommended by the “Consultative Committee for Space Data Systems” <a href="#references">[4]</a>. Famously, it was used for <a href="https://en.wikipedia.org/wiki/Voyager_program">Voyager mission</a> communications (in combination with other error-correcting codes).</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode clojure"><code class="sourceCode clojure"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true"></a>(<span class="bu">def</span><span class="fu"> RS-255-223</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true"></a>  (<span class="kw">let</span> [exp (<span class="at">:exp</span> GF256)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true"></a>        roots (<span class="kw">for</span> [<span class="kw">e</span> (<span class="kw">range</span> <span class="dv">1</span> <span class="dv">33</span>)] (exp <span class="kw">e</span>))]</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true"></a>    (<span class="kw">reduce</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true"></a>     (<span class="kw">fn</span> [p1 p2] (p/* p1 p2 GF256))</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true"></a>     (<span class="kw">for</span> [r roots] [r <span class="dv">1</span>]))))</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true"></a></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true"></a><span class="co">;; example encoding</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true"></a>(<span class="kw">let</span> [message (<span class="kw">str</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true"></a>       <span class="st">&quot;Hello world! This is meiji163 transmitting from Neptune. &quot;</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true"></a>       <span class="st">&quot;It&#39;s cold here, Please send hot chocolate. Thanks. &quot;</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true"></a>       <span class="st">&quot;Now that I think of it, ramen would be good too if you have some.&quot;</span>)</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true"></a>      data (<span class="kw">map</span> <span class="kw">int</span> message)</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true"></a>      padded (p/shift-right data (<span class="kw">-</span> <span class="dv">223</span> (<span class="kw">count</span> data)))]</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true"></a>      (encode padded RS<span class="dv">-255-223</span> GF256))</span></code></pre></div>
+<h3 id="bch-codes">BCH codes</h3>
+<p>Bose–Chaudhuri–Hocquenghem (BCH) codes follow a similar idea to Reed-Solomon codes. A limitation of RS codes is that the field has to be the same size as \(n\), the codeword length.</p>
+<p>However it is still possible to specify the roots of \(g(x)\) in an <em>extension field</em> of \(F\). To see what I mean, let \(= 2\) be a primitive element of \(GF(16)\) and let <span class="math display">\[
+\begin{aligned}
+g(x) &amp;= (x-\omega)(x-\omega^2)(x-\omega^3)(x-\omega^4) \cr
+     &amp;= (x^4+x+1)(x^4+x^3+x^2+1).
+\end{aligned}
+\]</span></p>
+<p>This polynomial has coefficients in \(GF(2)\), but its roots lie in the bigger field \(GF(16).\) This is analogous to a polynomial with real-valued coefficients having complex roots.</p>
+<p>The same argument from the RS codes shows that BCH codes are also optimal. The polynomial generates the \((15,7)\) binary BCH code, which corrects 2 errors.</p>
+<h3 id="codecs">Codecs</h3>
+<p>As I said above, given a generating polynomial \(g(x)\) and data polynomial \(w(x)\) one way to encode is to use \(g(x)w(x)\) as the codeword. The codeword polynomials are the ones divisible by \(g(x).\)</p>
+<p>It’s more convenient to use an encoding where the symbols of \(w(x)\) are visible in the codeword polynomial. To do this, set the top \(k\) coefficients as the coefficients of \(w(x)\), then add a degree \(n-k\) polynomial such that the codeword \(c(x)\)is divisible by \(g(x).\) Algebraically, \( c(x) = x^k w(x) + r(x) \) where \(r(x) = -x^k w(k) \).</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode clojure"><code class="sourceCode clojure"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true"></a>(<span class="bu">defn</span><span class="fu"> encode</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true"></a>  [data-poly gen-poly &amp; [field]]</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true"></a>  (<span class="kw">let</span> [field (<span class="kw">or</span> field p/default-field)</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true"></a>        shifted (p/shift-right</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true"></a>                 data-poly (<span class="kw">dec</span> (<span class="kw">count</span> gen-poly)))</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true"></a>        <span class="kw">rem</span> (p/mod shifted gen-poly field)]</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true"></a>    (p/+ shifted <span class="kw">rem</span> field)))</span></code></pre></div>
+<p><em>Decoding</em> is considerably harder because we have to exploit the algebraic structure of the code to locate the errors and their magnitudes. For small codes, you can make a table of error patterns and their remainders modulo \(g(x)\). For example,</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode clojure"><code class="sourceCode clojure"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true"></a>(<span class="bu">def</span><span class="fu"> RS-7-5-table</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true"></a>  <span class="st">&quot;Decoding table for (7,5) Reed-Solomon code.&quot;</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true"></a>  (<span class="kw">let</span> [errors (single-errors <span class="dv">7</span> <span class="dv">8</span>)</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true"></a>        rems (<span class="kw">map</span> (<span class="kw">fn</span> [<span class="kw">e</span>] p/mod <span class="kw">e</span> RS<span class="dv">-7-5</span> GF8) errors)]</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true"></a>    (<span class="kw">zipmap</span> rems errors)))</span></code></pre></div>
+<p>Given a message \(m(x)\) simply look up the error from \(m(x) \).</p>
+<p>To decode larger RS codes the main tool is <em>syndromes</em>. Syndromes are defined as \(S_j = m(^j)\) for all \(^j\) that are specified as the roots of \(g(x)\). If no errors occured, all the syndromes will be zero.</p>
+<p>On the other hand, if a correctable number of errors occurred, the idea is to form a linear system of equations using the syndromes to find the positions of the errors and the locations. I implemented the linear solver decoder <a href="https://github.com/meiji163/ecc-clj/blob/fb6bacba8280a33724c968718cb9d2194c74e58e/src/ecc_clj/core.clj#L181-L210">here</a>.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode clojure"><code class="sourceCode clojure"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true"></a><span class="co">;; decoding (255,223) RS code</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true"></a>(<span class="kw">let</span> [err [<span class="dv">0</span> <span class="dv">42</span> <span class="dv">1</span> <span class="dv">0</span> <span class="dv">0</span> <span class="dv">163</span> <span class="dv">0</span> <span class="dv">0</span> <span class="dv">66</span> <span class="dv">0</span> <span class="dv">0</span> <span class="dv">0</span> <span class="dv">0</span> <span class="dv">0</span> <span class="dv">101</span> <span class="dv">100</span>]</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true"></a>      max-errs <span class="dv">8</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true"></a>      decode-me (p/+ msg-poly err GF256)]</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true"></a>  (decode decode-me max-errs GF256)))</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true"></a>  <span class="co">;; =&gt; {:locations [1 2 5 8 14 15], </span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true"></a>  <span class="co">;;     :sizes [42 1 163 66 101 100]}</span></span></code></pre></div>
+<p>A more efficient decoder is based on the <a href="https://en.wikipedia.org/wiki/Berlekamp%E2%80%93Massey_algorithm">Berlekamp-Massey algorithm</a>, which I haven’t implemented. (Maybe you can, my brave reader)</p>
+<h2 id="generating-qr-codes">Generating QR Codes</h2>
+<p>Typically error-correcting codecs are implemented in hardware circuits, which run many orders of magnitude faster than my implementation. However just to prove that my terribly slow implementation isn’t completely useless, I made a QR code generator.</p>
+<p>There are many versions of QR codes, so I went with the 21x21 version as specified by the ISO/IEC standard <a href="#references">[5]</a>. I implemented just enough of the standard to make some example QR codes.</p>
+<h3 id="qr-specification">QR specification</h3>
+<p>There are two error-correcting codes involved in the QR code. One is for the “format bits” and the other is for the “data bits”.</p>
+<p><strong>Format bits:</strong> There are 5 format bits. The first 2 specify the error-correction level and the last 3 specify the bitmask. The 5 bits are protected by a \( (15,5) \) BCH code with 10 check bits. This can correct up to 5 errors (Wikipedia falsely claims it can only correct 3). Two copies of the encoded bits are included, for a total of 30 bits.</p>
+<p><strong>Data bits</strong>: The message can be up to 17 bytes. The message bits are prepended with a 4-bit datatype code followed by an 8-bit integer specifying the message length. The 4-bit end sequence <code>0000</code> is appended to the message.</p>
+<p>Finally, these 19 bytes are encoded with a \( (255, 248) \) Reed-Solomon code, which can correct 2 byte errors. You may see this code called a \( (26, 19) \) code because only 19 of the 248 bytes are used. This is the lowest error correcting level; other possible generating polynomials are listed in the standard.</p>
+<p>Finally, the data bits are masked with a pattern specified in the format bits. The purpose of the bitmask is to preventing large areas of a single color.</p>
+<p>{{&lt; figure src=“/images/qrcode.png” caption=“The bit layout for QR code v1. Image from Wikipedia” &gt;}}</p>
+<p>The implementation of the RS and BCH codes is straightforward. We just have to be careful to use the same GF256 construction and generating polynomial as the one specified in the standard (Annex A in the manual).</p>
+<p>The generating polynomial for the Reed-Solomon code is</p>
+<p><span class="math display">\[ g(x) = 117 + 68x + 11x^2 + 164x^3 + 154x^4 + 122x^5 + 127x^6 +  x^7 \]</span> which is computed from \((x-<sup>0)(x-</sup>1)(x-^6)\).</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode clojure"><code class="sourceCode clojure"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true"></a>(<span class="bu">def</span><span class="fu"> GF256</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true"></a>  <span class="st">&quot;GF(255) constructed as GF2[x]/&lt;x^8+x^4+x^3+x^2+1&gt;&quot;</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true"></a>  (<span class="kw">let</span> [GF2-poly (p/parse-bin <span class="st">&quot;100011101&quot;</span>)]</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true"></a>    (p/char2-field <span class="dv">2</span> GF2-poly)))</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true"></a></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true"></a>(<span class="bu">def</span><span class="fu"> RS-255-248</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true"></a>  <span class="st">&quot;(255,248) Reed-Solomon code over GF256&quot;</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true"></a>  (<span class="kw">let</span> [roots (<span class="kw">take</span> <span class="dv">7</span> (<span class="at">:exp</span> GF256))]</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true"></a>    (<span class="kw">reduce</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true"></a>     (<span class="kw">fn</span> [p1 p2] (p/* p1 p2 GF256))</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true"></a>     (<span class="kw">for</span> [r roots] [r <span class="dv">1</span>]))))</span></code></pre></div>
+<p>For the BCH code, the generating polynomial is the minimal polynomial of \(, ^2, , ^6\) over \(GF(2)\). This turns out as <span class="math display">\[
+(1+x+x^4)(1+x+x^2+x^3+x^4)(1+x+x^2).
+\]</span></p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode clojure"><code class="sourceCode clojure"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true"></a>(<span class="bu">def</span><span class="fu"> BCH-15-5</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true"></a>  (<span class="kw">reduce</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true"></a>   (<span class="kw">fn</span> [p1 p2] (p/* p1 p2 GF2))</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true"></a>   [[<span class="dv">1</span> <span class="dv">1</span> <span class="dv">0</span> <span class="dv">0</span> <span class="dv">1</span>] [<span class="dv">1</span> <span class="dv">1</span> <span class="dv">1</span> <span class="dv">1</span> <span class="dv">1</span>] [<span class="dv">1</span> <span class="dv">1</span> <span class="dv">1</span>]]))</span></code></pre></div>
+<p>Encoding the format bits:</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode clojure"><code class="sourceCode clojure"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true"></a>(<span class="bu">defn</span><span class="fu"> fmt-bits </span>[mask]</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true"></a>  (<span class="kw">let</span> [mb [<span class="dv">0</span> <span class="dv">0</span> <span class="dv">1</span>]</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true"></a>        ec-level [<span class="dv">0</span> <span class="dv">1</span>]</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true"></a>        bits (<span class="kw">reverse</span> (<span class="kw">concat</span> ec-level mb))</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true"></a>        enc-bt (ecc/encode bits ecc/BCH<span class="dv">-15-5</span> ecc/GF2)]</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true"></a>    (p/+ (<span class="kw">reverse</span> enc-bt) fmt-bitmask ecc/GF2)))</span></code></pre></div>
+<p>I’ll omit encoding the data bits; it’s not as succinct because you have to move around many bits and pieces and pieces of bits. There are also some details with the bit ordering that bit me a few times (OK I’m done punning for a bit). Anyways the full code is <a href="https://github.com/meiji163/ecc-clj/blob/main/src/ecc_clj/qr.clj">here</a>.</p>
+<p>Now we can reproduce the QR code from the Wikipedia diagram above.</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode clojure"><code class="sourceCode clojure"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true"></a>(<span class="kw">let</span> [mask-code <span class="dv">1</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true"></a>      databits (<span class="kw">-&gt;&gt;</span> <span class="st">&quot;www.wikipedia.org&quot;</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true"></a>                    (<span class="kw">map</span> <span class="kw">int</span>)</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true"></a>                    (encode-bytes)</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true"></a>                    (mask-bits mask-code))</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true"></a>      fmtbits (fmt-bits mask-code)</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true"></a>      myimg (qr-image fmtbits databits)]</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true"></a>  (ImageIO/write myimg <span class="st">&quot;PNG&quot;</span> (File. <span class="st">&quot;wikipedia-qr.png&quot;</span>)))</span></code></pre></div>
+<p>{{&lt; figure src=“/images/wikipedia-qr.png”&gt;}}</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>Error-correcting codes are fundamental algorithms for everything involving data transfer. What’s more, they are built from a wonderful blend of linear algebra, geometry, and ring theory. I hope I’ve given you a taste for what they are like.</p>
+<p><em>Zzzz… I fell asleep right when you mentioned algebra</em></p>
+<p>Wake up, there’s much more to explore! I’ve glossed over and omitted many details. For the interested reader please check out the references <a href="#references">[1] [2] [3]</a>. There are also many more applications I’ve skipped including: - RAID (specifically <a href="http://ftp.dei.uc.pt/pub/linux/kernel/people/hpa/raid6.pdf">RAID6</a>) - <a href="https://en.wikipedia.org/wiki/Cyclic_redundancy_check">Cyclic redundancy checks</a> (CRC). - <a href="https://en.wikipedia.org/wiki/Cross-interleaved_Reed%E2%80%93Solomon_coding">CDs</a> and DVDs</p>
+<p>I will post a sequel as I learn more, time permitting. I am particularly intrigued by codes based on algebraic curves, which were proposed by Goppa <a href="#references">[7]</a>.</p>
+<h2 id="addendum-on-clojure">Addendum on Clojure</h2>
+<p><em>Why use Clojure for this?</em></p>
+<p>I have long been curious about Lisp languages but never had occasion to use one seriously. I was inspired by Sam Ritchie’s work on <a href="https://github.com/sicmutils/sicmutils">sicmutils</a> to use Clojure for exploratory self-education. Also, Rich Hickey is cool.</p>
+<p><em>Shouldn’t you use Haskell instead?</em></p>
+<p>Yes I should. In fact I look up at the Haskellers in their ivory tower and seethe with envy. In all seriousness I did think about it, but Clojure’s dynamic type system and the interactive REPL makes it more enjoyable for explorations like this one IMHO. I found it easier to debug too.</p>
+<p><em>How do I get started with Clojure?</em></p>
+<p>If you use Emacs the best way to get started is with <a href="https://docs.cider.mx/cider/index.html">cider</a>. This will allow you to start an interactive REPL and evaluate expressions right in your editor! I also recommend a plugin like <a href="https://github.com/abo-abo/lispy">lispy</a> to help with structural editing. For vim, I’ve seen <a href="https://github.com/tpope/vim-fireplace">this</a> plugin, but I haven’t tried it myself. For VSCode I’ve heard <a href="https://calva.io/">calva</a> is great.</p>
+<p><em>How do I run your code examples?</em></p>
+<p>Once you have your Clojure editor setup clone <a href="https://github.com/meiji163/ecc-clj">the repo</a>, run the code, modify it, write your own version, etc. Pull requests are always welcome if you make something cool or improve the code!</p>
+<h2 id="references">References</h2>
+<p><a href="https://www.cambridge.org/core/books/algebraic-codes-for-data-transmission/2F606F75ABE1BAA014A1DE0F5D62F498">[1]</a> Blahut, Richard “<em>Algebraic Codes for Data Transmission</em>” (2003)</p>
+<p><a href="https://cdn.preterhuman.net/texts/math/Codes%20and%20Curves.pdf">[2]</a> Walker, Judy “<em>Codes and Curves</em>”, Lecture Notes</p>
+<p><a href="https://cse.buffalo.edu/faculty/atri/courses/coding-theory/book/index.html">[3]</a> Guruswami, Rudra &amp; Sudan “<em>Essential Coding Theory</em>”, Online Draft</p>
+<p><a href="https://public.ccsds.org/Pubs/130x1g3.pdf">[4]</a> CCSDS “<em>Report Concerning Space Data System Standards</em>” (2020)</p>
+<p><a href="https://github.com/yansikeim/QR-Code/blob/master/ISO%20IEC%2018004%202015%20Standard.pdf">[5]</a> ISO/IEC 18004, “<em>QR Code bar code symbology specification</em>”, 3rd ed.</p>
+<p><a href="http://drhuang.com/science/mathematics/book/GTM73-Algebra.Thomas%20W.Hungerford.pdf">[6]</a> Hungerford, Thomas “<em>Algebra</em>” (1974)</p>
+<p><a href="https://www.mathnet.ru/php/archive.phtml?wshow=paper&amp;jrnid=im&amp;paperid=1646&amp;option_lang=eng">[7]</a> Goppa, Valery “<em>Algebraico-Geometric Codes</em>” Math. USSR Izvestiya Vol. 21 (1983)</p>
+<p><a href="https://arxiv.org/pdf/1703.01080.pdf">[8]</a> Evra, Kowalski, Lubotzky “<em>Good Cyclic Codes and the Uncertainty Principle</em>” (2017)</p>
+<section class="footnotes" role="doc-endnotes">
+<hr />
+<ol>
+<li id="fn1" role="doc-endnote"><p>GF stands for “Galois field” in honor of the legendary Evariste Galois.<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2" role="doc-endnote"><p>If you want to prove this, it follows from <a href="https://math.libretexts.org/Bookshelves/Combinatorics_and_Discrete_Mathematics/Elementary_Number_Theory_(Barrus_and_Clark)/01:_Chapters/1.09:_Bezout&#39;s_Lemma">Bezout’s Lemma</a><a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn3" role="doc-endnote"><p>You’ll find a proof in any good algebra book, Theorem 5.1 in <a href="#references">[6]</a> for example.<a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn4" role="doc-endnote"><p>Its full name is “the ring of polynomials over \(F\)”<a href="#fnref4" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn5" role="doc-endnote"><p>You can now make people think you’re crazy by telling them 3 times 3 equals 5<a href="#fnref5" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn6" role="doc-endnote"><p>Proof: the distance between any two codewords \(c_1\) and \(c_2\) is the same as the distance between the all-zero word and \(c_1 - c_2\). Thus \(d_{min}\) is equal to the minimum number of nonzero components across all nonzero codewords. We can take the codeword with one nonzero data symbol and \(n-k\) check symbols. Hence \(d_{min} n-k+1 \).<a href="#fnref6" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn7" role="doc-endnote"><p>In ring theory terminology, this makes the set of polynomial codewords is an <a href="https://en.wikipedia.org/wiki/Ideal_(ring_theory)">ideal</a> of the quotient ring \(F[x]/x^n-1 \).<a href="#fnref7" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn8" role="doc-endnote"><p>It is used to contruct the <a href="https://en.wikipedia.org/wiki/Leech_lattice">Leech lattice</a>, the <em>densest</em> packing of spheres in \(^{24}\)! Also see the (5,8,24) <a href="https://en.wikipedia.org/wiki/Steiner_system#Construction_from_the_binary_Golay_code">Steiner system</a> for another rabbit hole.<a href="#fnref8" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn9" role="doc-endnote"><p>There is a truly marvelous proof of this, which the footnotes of this blog are too small to contain. But see <a href="#references">[1]</a> Chapter 6.<a href="#fnref9" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section>
+
+</body>
+</html>

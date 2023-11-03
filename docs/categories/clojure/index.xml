@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>clojure on meiji163</title>
+    <link>https://meiji163.github.io/categories/clojure/</link>
+    <description>Recent content in clojure on meiji163</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <lastBuildDate>Thu, 02 Nov 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://meiji163.github.io/categories/clojure/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Error Correcting Codes: Part 1</title>
+      <link>https://meiji163.github.io/post/ecc/</link>
+      <pubDate>Thu, 02 Nov 2023 00:00:00 +0000</pubDate>
+      
+      <guid>https://meiji163.github.io/post/ecc/</guid>
+      <description>&amp;ldquo;There is geometry in the humming of the strings, there is music in the spacing of the spheres.&amp;rdquo;
+&amp;ndash; Pythagoras
+ Introduction Recently I started exploring the world of error-correcting codes, and algebraic codes in particular. It&amp;rsquo;s a perfect example of mathematical hacking, where the Platonic realm of mathematical objects collides with the concrete world of signals, circuits, and CPUs to create something incredibly useful.
+In this post I&amp;rsquo;ll share what I&amp;rsquo;ve learned so far about algebraic codes and go into some detail about Reed-Solomon and BCH codes.</description>
+    </item>
+    
+  </channel>
+</rss>

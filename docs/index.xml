@@ -6,10 +6,663 @@
     <description>Recent content on meiji163</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
-    <lastBuildDate>Sat, 25 Dec 2021 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Thu, 02 Nov 2023 00:00:00 +0000</lastBuildDate>
     
         <atom:link href="https://meiji163.github.io/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Error Correcting Codes: Part 1</title>
+      <link>https://meiji163.github.io/post/ecc/</link>
+      <pubDate>Thu, 02 Nov 2023 00:00:00 +0000</pubDate>
+      
+      <guid>https://meiji163.github.io/post/ecc/</guid>
+      
+        <description>&lt;blockquote&gt;
+&lt;p&gt;&amp;ldquo;There is geometry in the humming of the strings, there is music in the spacing of the spheres.&amp;rdquo;&lt;/p&gt;
+&lt;p&gt;&amp;ndash; Pythagoras&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2 id=&#34;introduction&#34;&gt;Introduction&lt;/h2&gt;
+&lt;p&gt;Recently I started exploring the world of error-correcting codes, and algebraic codes in particular.
+It&amp;rsquo;s a perfect example of &lt;a href=&#34;https://www.evanmiller.org/mathematical-hacker.html&#34;&gt;mathematical hacking&lt;/a&gt;, where the Platonic realm of mathematical objects collides with the concrete world of signals, circuits, and CPUs to create something incredibly useful.&lt;/p&gt;
+&lt;p&gt;In this post I&amp;rsquo;ll share what I&amp;rsquo;ve learned so far about algebraic codes and go into some detail about Reed-Solomon and BCH codes. As a bonus I&amp;rsquo;ll show how to create QR codes.&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Note on code examples&lt;/em&gt;: The full code for this post is at &lt;a href=&#34;https://github.com/meiji163/ecc-clj&#34;&gt;meiji163/ecc-clj&lt;/a&gt;. See the &lt;a href=&#34;#addendum-on-clojure&#34;&gt;addendum on Clojure&lt;/a&gt; for how to play with it yourself.&lt;/p&gt;
+&lt;h2 id=&#34;algebra-background&#34;&gt;Algebra Background&lt;/h2&gt;
+&lt;p&gt;This section introduces some algebra needeed to understand algebraic codes.
+I&amp;rsquo;ve tried to make it understandable to those without an extensive math education.
+Feel free to &lt;a href=&#34;#error-correcting-codes&#34;&gt;skip ahead&lt;/a&gt; and come back later.&lt;/p&gt;
+&lt;h3 id=&#34;finite-fields&#34;&gt;Finite Fields&lt;/h3&gt;
+&lt;p&gt;A &lt;em&gt;field&lt;/em&gt; is (roughly) a structure where you can add, subtract, multiply, and divide in the ways you&amp;rsquo;re used to. You&amp;rsquo;re already familiar with the field of real numbers, called \( \mathbb{R}\).
+You may also be familiar with the field of integers modulo p, called \(GF(p)\)&lt;sup id=&#34;fnref:1&#34;&gt;&lt;a href=&#34;#fn:1&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;1&lt;/a&gt;&lt;/sup&gt; (also known as \( \mathbb{Z}/p\mathbb{Z}\)).
+You add and multiply the same as regular integers, but take the remainder of the result when divided by \(p\).&lt;/p&gt;
+&lt;p&gt;For number-theoretic reasons&lt;sup id=&#34;fnref:2&#34;&gt;&lt;a href=&#34;#fn:2&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;2&lt;/a&gt;&lt;/sup&gt;, \(p\) has to be a prime for division to work.
+This ensures that for all \(a = 1,2,\dots,p-1\) there is an integer \(0 &amp;lt; b &amp;lt; p\) such that&lt;/p&gt;
+&lt;p&gt;$$a \cdot b = 1 \pmod{p}.$$&lt;/p&gt;
+&lt;p&gt;So \(b\) is the inverse of \(a\). Division by \(a\) is then defined as multiplication by \(b.\)&lt;/p&gt;
+&lt;p&gt;As an example field, take the teeny little \(GF(2)\). It has two elements 0 and 1.&lt;/p&gt;
+&lt;p&gt;$$
+\begin{aligned}
+1 + 1 &amp;amp;= 0 \cr
+1 + 0 &amp;amp;= 1 \cr
+1 \cdot 1 &amp;amp;= 1 \cr
+1 \cdot 0 &amp;amp;= 0
+\end{aligned}
+$$&lt;/p&gt;
+&lt;p&gt;We could represent this in code as a collection of the field operations&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-clojure&#34; data-lang=&#34;clojure&#34;&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;def &lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;GF2&lt;/span&gt;
+  &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;&lt;span class=&#34;ss&#34;&gt;:+&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;bit-xor&lt;/span&gt;
+   &lt;span class=&#34;ss&#34;&gt;:-&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;bit-xor&lt;/span&gt;
+   &lt;span class=&#34;ss&#34;&gt;:*&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;bit-and&lt;/span&gt;
+   &lt;span class=&#34;ss&#34;&gt;:/&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;bit-and&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;})&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;You may think, &lt;em&gt;&amp;ldquo;You have shown me one example of a finite field, now I demand a complete classification of all finite fields!&amp;quot;&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;Luckily, it can be shown&lt;sup id=&#34;fnref:3&#34;&gt;&lt;a href=&#34;#fn:3&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;3&lt;/a&gt;&lt;/sup&gt; that the number of elements a finite field can have must be \(p^n\) for some prime \(p\) and some integer \(n \gt 0\). We have seen the ones with \(p\) elements, in the next section we&amp;rsquo;ll see the other ones.&lt;/p&gt;
+&lt;h3 id=&#34;polynomial-fields&#34;&gt;Polynomial Fields&lt;/h3&gt;
+&lt;p&gt;Whenever you have a field \(F\), you can create polynomials whose coefficients are elements of \(F\).
+It&amp;rsquo;s usually called \(F[x]\)&lt;sup id=&#34;fnref:4&#34;&gt;&lt;a href=&#34;#fn:4&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;4&lt;/a&gt;&lt;/sup&gt;.
+For example, a polynomial with binary coefficients like \(x^3 + x + 1\) is a member of \(GF(2)[x]\) .&lt;/p&gt;
+&lt;p&gt;Polynomials are a bit like vectors. Think of the coefficient of \(x^n\) as the value in the nth slot of a vector, e.g.&lt;/p&gt;
+&lt;p&gt;$$ 1x^0 + 1x^1 + 0x^2 + 1x^3 \leftrightarrow (1,1,0,1).$$&lt;/p&gt;
+&lt;p&gt;Now to add polynomials, we just add each corresponding coordinate of the vectors.&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;So then polynomial multiplication also defines multiplication of vectors?&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;Not quite. The trouble is when you multiply two polynomials, the degree of the product polynomial is can grow without bound! That&amp;rsquo;s not good if we want to the vector size to be fixed.&lt;/p&gt;
+&lt;p&gt;This is where we take inspiration from the integers mod \(p\).
+In that case, whenever we get a result bigger than \(p\), we divide it by \(p\) and use the remainder instead.
+Similarly, for polynomials we choose a &amp;ldquo;modulus&amp;rdquo; polynomial \(p(x)\) with degree \(n\).
+Whenever a polynomial has a degree greater than \(n\), we divide it by \(p(x)\) and take the remainder polynomial. The reason this works is that, like the integers, polynomials have a &lt;a href=&#34;https://en.wikipedia.org/wiki/Euclidean_domain&#34;&gt;Euclidean algorithm&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Can you use any modulus polynomial you want?&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;You can, but in general you get a &amp;ldquo;quotient ring&amp;rdquo;  and not a field.
+Like the integer case, we have to choose \(p(x)\) to be &amp;ldquo;prime&amp;rdquo; in order to make division work.
+As you might guess, a prime polynomial is one that can&amp;rsquo;t be factored into other polynomials &amp;ndash; remarkable how similar polynomials and integers are!&lt;/p&gt;
+&lt;h3 id=&#34;constructing-gf2n&#34;&gt;Constructing \(GF(2^n)\)&lt;/h3&gt;
+&lt;p&gt;To see this in action let&amp;rsquo;s construct \(GF(2^3)\) from \(GF(2)\) polynomials.&lt;/p&gt;
+&lt;p&gt;Let \(p(x) = x^3 + x + 1\), which is a prime polynomial over \(GF(2)\). Now the distinct nonzero elements of the field are the eight \(GF(2)\) polynomials with degree &amp;lt; 3. We can multiply them like so&lt;/p&gt;
+&lt;p&gt;$$
+\begin{aligned}
+x \cdot (x^2 + x) = x^3 + x^2  = x^2 + x + 1
+\end{aligned}
+$$&lt;/p&gt;
+&lt;p&gt;where we replaced \(x^3\) by \( x + 1\), or equivalently, divided out \(p(x)\).&lt;/p&gt;
+&lt;p&gt;When the polynomials as viewed binary vectors, we can interpret each vector as spelling out an integer in binary. For example \(x^2 + x + 1 \leftrightarrow 111_2 = 7\).
+Each field element gets assigned a number 0-7 according to this notational pun. &lt;em&gt;But beware, you can&amp;rsquo;t add and multiply them like regular integers&lt;sup id=&#34;fnref:5&#34;&gt;&lt;a href=&#34;#fn:5&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;5&lt;/a&gt;&lt;/sup&gt;!&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;Another way of representing finite fields comes from the &lt;a href=&#34;https://en.wikipedia.org/wiki/Primitive_element_theorem&#34;&gt;primitive element theorem&lt;/a&gt;, which says that every finite field has a special element \(\omega\), called the primitive element, such that the successive powers \(\omega^1, \omega^2, \dots \) generate the whole field.&lt;/p&gt;
+&lt;p&gt;In our contruction of \(GF(2^3)\), a primitive element is the polynomial \(x\), aka &amp;ldquo;\(2\)&amp;rdquo; in our binary labeling scheme. Compare the different representations in the table below.&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;decimal&lt;/th&gt;
+&lt;th&gt;binary&lt;/th&gt;
+&lt;th&gt;polynomial&lt;/th&gt;
+&lt;th&gt;exponential&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;2&lt;/td&gt;
+&lt;td&gt;010&lt;/td&gt;
+&lt;td&gt;\(x\)&lt;/td&gt;
+&lt;td&gt;\( \omega^1\)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;4&lt;/td&gt;
+&lt;td&gt;100&lt;/td&gt;
+&lt;td&gt;\(x^2\)&lt;/td&gt;
+&lt;td&gt;\( \omega^2\)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;3&lt;/td&gt;
+&lt;td&gt;011&lt;/td&gt;
+&lt;td&gt;\(x+1\)&lt;/td&gt;
+&lt;td&gt;\( \omega^3\)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;6&lt;/td&gt;
+&lt;td&gt;110&lt;/td&gt;
+&lt;td&gt;\(x^2+x\)&lt;/td&gt;
+&lt;td&gt;\( \omega^4\)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;7&lt;/td&gt;
+&lt;td&gt;111&lt;/td&gt;
+&lt;td&gt;\(x^2+x+1\)&lt;/td&gt;
+&lt;td&gt;\( \omega^5\)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;5&lt;/td&gt;
+&lt;td&gt;101&lt;/td&gt;
+&lt;td&gt;\(x^2+1\)&lt;/td&gt;
+&lt;td&gt;\( \omega^6\)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;1&lt;/td&gt;
+&lt;td&gt;001&lt;/td&gt;
+&lt;td&gt;\(1\)&lt;/td&gt;
+&lt;td&gt;\( \omega^0 ( = \omega^7 )\)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;We can implement this construction in code with something like this&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-clojure&#34; data-lang=&#34;clojure&#34;&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kd&#34;&gt;defn &lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;char2-field&lt;/span&gt;
+  &lt;span class=&#34;s&#34;&gt;&amp;#34;construct field GF2[x]/&amp;lt;p(x)&amp;gt;
+&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;  given a primitive element and generating polynomial&amp;#34;&lt;/span&gt;
+  &lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;prim&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;poly&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt;
+  &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;let &lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;invs&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;char2-invs&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;prim&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;poly&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+        &lt;span class=&#34;nv&#34;&gt;n-elts&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;bit-shift-left &lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;bindeg&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;poly&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;))&lt;/span&gt;
+        &lt;span class=&#34;nv&#34;&gt;exp&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;vec&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;take &lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;n-elts&lt;/span&gt;
+                   &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;iterate &lt;/span&gt;&lt;span class=&#34;o&#34;&gt;#&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;binmod&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;bin*&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;%&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;prim&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;poly&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)))]&lt;/span&gt;
+    &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;&lt;span class=&#34;ss&#34;&gt;:unit&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;
+     &lt;span class=&#34;ss&#34;&gt;:zero&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt;
+     &lt;span class=&#34;ss&#34;&gt;:primitive&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;prim&lt;/span&gt;
+     &lt;span class=&#34;ss&#34;&gt;:inv&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;invs&lt;/span&gt;
+     &lt;span class=&#34;ss&#34;&gt;:exp&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;exp&lt;/span&gt;
+     &lt;span class=&#34;ss&#34;&gt;:+&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;bit-xor&lt;/span&gt;
+     &lt;span class=&#34;ss&#34;&gt;:-&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;bit-xor&lt;/span&gt;
+     &lt;span class=&#34;ss&#34;&gt;:*&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;fn &lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;p1&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;p2&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;binmod&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;bin*&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;p1&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;p2&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;poly&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;))&lt;/span&gt;
+     &lt;span class=&#34;ss&#34;&gt;:/&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;fn &lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;p1&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;p2&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;binmod&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;bin*&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;p1&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;invs&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;p2&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;))))}&lt;/span&gt;
+    &lt;span class=&#34;p&#34;&gt;))&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;The important points are that &lt;code&gt;exp&lt;/code&gt; is a vector containing \(\omega^0, \omega^1, \dots, \omega^{2^n - 1}\),
+and we define the field multiplication &lt;code&gt;:*&lt;/code&gt; and field &lt;code&gt;:/&lt;/code&gt; with the functions &lt;code&gt;binmod&lt;/code&gt; and &lt;code&gt;bin*&lt;/code&gt; that implement GF2-polynomial modulo reduction and multiplication, respectively.&lt;/p&gt;
+&lt;p&gt;Now we can create GF8!&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-clojure&#34; data-lang=&#34;clojure&#34;&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;def &lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;GF8&lt;/span&gt;
+  &lt;span class=&#34;s&#34;&gt;&amp;#34;GF(8) constructed as GF2[x]/&amp;lt;x^3+x+1&amp;gt;&amp;#34;&lt;/span&gt;
+  &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;let &lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;GF2-poly&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;parse-bin&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;#34;1011&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)]&lt;/span&gt;
+    &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;char2-field&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;2&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;GF2-poly&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)))&lt;/span&gt;
+    
+&lt;span class=&#34;c1&#34;&gt;;; examples    &lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;let &lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;mul&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;ss&#34;&gt;:*&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;GF8&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+      &lt;span class=&#34;nv&#34;&gt;add&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;ss&#34;&gt;:+&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;GF8&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+      &lt;span class=&#34;nv&#34;&gt;div&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;ss&#34;&gt;:/&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;GF8&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)]&lt;/span&gt;
+  &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;mul&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;3&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;3&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;c1&#34;&gt;;; =&amp;gt; 5&lt;/span&gt;
+  &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;add&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;7&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;6&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;c1&#34;&gt;;; =&amp;gt; 1&lt;/span&gt;
+  &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;div&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;5&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;4&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;c1&#34;&gt;;; =&amp;gt; 6&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id=&#34;error-correcting-codes&#34;&gt;Error Correcting Codes&lt;/h2&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&amp;ldquo;Thus finding an error-correcting code is the same as finding a set of code points in the \(n\)-dimensional space which has the required minimum distance between legal messages&amp;rdquo;&lt;/p&gt;
+&lt;p&gt;&amp;ndash; Richard Hamming, &lt;em&gt;The Art of Doing Science and Engineering&lt;/em&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;The main problem motivating error correcting codes is reliable data transmission.
+When sending symbols (such as bits) over a medium that can introduce errors or erasures, how do you ensure that your intended message gets through?&lt;/p&gt;
+&lt;p&gt;Hamming&amp;rsquo;s insight was to formulate this as a max-min distance problem.
+Let&amp;rsquo;s consider the symbols as elements of a finite field \(F\). Then a block of \(n\) symbols, or &amp;ldquo;word&amp;rdquo;, corresponds to a vector in \(F^n\).
+What we want is a set of &amp;ldquo;codeword&amp;rdquo; vectors such that whenever errors occur, the erroneous vector can be mapped uniquely to the &amp;ldquo;closest&amp;rdquo; correct codeword vector.&lt;/p&gt;
+&lt;p&gt;Thus we need the codewords to be as &amp;ldquo;far apart&amp;rdquo; as possible, to minimize the chances of a word being &amp;ldquo;close&amp;rdquo; to two codewords simulatenously.
+The &lt;a href=&#34;https://en.wikipedia.org/wiki/Hamming_distance&#34;&gt;Hamming Distance&lt;/a&gt;, defined as the number of places where two words differ, is exactly the right notion of distance to measure this. Now the problem can be phrased as:&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Find a set of codewords that maximizes the minimum distance betweeen any two codewords.&lt;/em&gt;&lt;/p&gt;
+&lt;h3 id=&#34;algebraic-codes&#34;&gt;Algebraic Codes&lt;/h3&gt;
+&lt;p&gt;Codeword vectors can be chosen arbitrarily, but to make the problem tractable we impose an algebraic structure on the codewords, like a musician might impose meter and harmony on their music.&lt;/p&gt;
+&lt;p&gt;First require that the codewords form a &lt;em&gt;linear subspace&lt;/em&gt; of \(F^n\).
+That means whenever we add two codeword vectors or scale a codeword vector, we get another codeword vector.
+These are called &lt;em&gt;linear codes&lt;/em&gt;. It&amp;rsquo;s not too hard to bound the best possible minimum distance for linear codes.&lt;/p&gt;
+&lt;p&gt;But first, a little more terminology: A code that encodes length \(k\) words into length \(n\) codewords and uses \(n-k\) check symbols is called an \( (n, k)\) code. Now we can state the&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Hamming Bound:&lt;/strong&gt;
+The minimum distance \( d_{min} \) between any two codewords of a \( (n,k) \) linear code satisfies \(d_{min} \le n-k+1\).&lt;sup id=&#34;fnref:6&#34;&gt;&lt;a href=&#34;#fn:6&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;6&lt;/a&gt;&lt;/sup&gt;&lt;/p&gt;
+&lt;p&gt;This tells us the max number of errors a linear code can correct is \( \lfloor (n-k+1)/2 \rfloor \). However it does not tell us if such a code exists for a given \(n\) and \(k\) (booo!).&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Example:&lt;/strong&gt; The \( (7,4) \) binary Hamming code can correct 1 error. Its codewords form a four-dimensional subspace of \(GF(2)^7\), spanned by these vectors:&lt;/p&gt;
+&lt;p&gt;$$
+\begin{aligned}
+1000110 &amp;amp; \cr
+0100101 &amp;amp; \cr
+0010011 &amp;amp; \cr
+0001111
+\end{aligned}
+$$&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;What&amp;rsquo;s with the vectors and linear subspaces? I was promised polynomials!&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;But remember polynomials are like vectors too &amp;ndash; we view the coefficients as vector coordinates. Then we can use a &amp;ldquo;&lt;em&gt;generator polynomial&lt;/em&gt;&amp;rdquo; \(g(x)\) with degree \(n-k\) to generate a linear code as follows.&lt;/p&gt;
+&lt;p&gt;For every &amp;ldquo;word polynomial&amp;rdquo; \(w(x)\) of degree \(k\), the product \(g(x)w(x)\) defines a codeword polynomial of degree \(n\). Considered as vectors, these polynomials span a linear subspace of \(F^n.\) For example, \(g(x) = x^3+x+1\) generates the Hamming code above.&lt;/p&gt;
+&lt;h3 id=&#34;cyclic-codes&#34;&gt;Cyclic Codes&lt;/h3&gt;
+&lt;p&gt;Linear codes are great, but can we impose even &lt;em&gt;more&lt;/em&gt; structure to find better codes? One idea is to consider linear subspaces that are highly symmetrical. That is where &lt;em&gt;cyclic codes&lt;/em&gt; come in.&lt;/p&gt;
+&lt;p&gt;A &lt;em&gt;cyclic code&lt;/em&gt; is a linear code that is invariant under a cyclic shift, e.g. if &lt;code&gt;1100&lt;/code&gt; is a codeword then so is &lt;code&gt;0110&lt;/code&gt; and &lt;code&gt;0011&lt;/code&gt;. If we translate this back to polynomial language, it requires that \(x^n\) &amp;ldquo;wraps around&amp;rdquo; and becomes \(x^0\). Algebraically, this means we take the ring of polynomials \(F[x]\) &lt;em&gt;modulo&lt;/em&gt; \(x^n-1\)&lt;sup id=&#34;fnref:7&#34;&gt;&lt;a href=&#34;#fn:7&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;7&lt;/a&gt;&lt;/sup&gt;. However we say it, what it means in practice is that we carefully choose the generating polynomial \(g(x)\) to be a factor of \(x^n-1\).&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Example:&lt;/strong&gt; Here are some factorizations of \(x^n-1\) over \(GF(2)\) into prime polynomials.&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;\(n\)&lt;/th&gt;
+&lt;th&gt;Factorization of \(x^n - 1\)&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;3&lt;/td&gt;
+&lt;td&gt;\( (1+x)(1+x+x^2) \)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;5&lt;/td&gt;
+&lt;td&gt;\( (1+x)(1+x+x^2+x^3+x^4)\)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;7&lt;/td&gt;
+&lt;td&gt;\( (1+x)(1+x^2+x^3)(1+x+x^3)\)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;9&lt;/td&gt;
+&lt;td&gt;\( (1+x)(1+x+x^2)(1+x^3+x^6)\)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;For each \(n\), a choice of factors gives you a cyclic code. For example choosing \(g(x) = 1+x\)
+gives you a simple code that adds one parity-check bit.&lt;/p&gt;
+&lt;p&gt;It&amp;rsquo;s fun to discover what codes these polynomials will produce, but it&amp;rsquo;s usually not easy to see what the minimum distance is. For that we need to use more strategic constructions.&lt;/p&gt;
+&lt;p&gt;(An aside for true math nerds: let me mention a &amp;ldquo;platypus&amp;rdquo; of the cyclic code zoo.
+The \((23,12)\) binary Golay code has a minimum distance of 7 and &lt;em&gt;perfectly&lt;/em&gt; partitions the space \(GF(2)^{23}\) into spheres of radius 3. Its automorphism group is a &lt;a href=&#34;https://en.wikipedia.org/wiki/Mathieu_group&#34;&gt;sporadic group&lt;/a&gt;. The derivative \((24,12)\) Golay code is even more amazing and bizzare&lt;sup id=&#34;fnref:8&#34;&gt;&lt;a href=&#34;#fn:8&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;8&lt;/a&gt;&lt;/sup&gt;.)&lt;/p&gt;
+&lt;h3 id=&#34;reed-solomon-codes&#34;&gt;Reed-Solomon Codes&lt;/h3&gt;
+&lt;p&gt;Reed-Solomon codes are some of the best and most widely used cyclic codes.
+To make your own \( (n,k) \) RS code, let \(\omega\) be a primitive element of your field \(F\).
+For the generating polynomial, cook up a polynomial in \(F[x]\) with roots at \(\omega^j, \omega^{j+1}, \dots, \omega^{j+m}\) for some integers \(j \ge 0\) and \(0&amp;lt;m&amp;lt;n\). For example,&lt;/p&gt;
+&lt;p&gt;$$ g(x) = (x-\omega)(x-\omega^2)\dots(x-\omega^m).$$&lt;/p&gt;
+&lt;p&gt;To guarantee this generates a cyclic code, we require that the size of the field \(F\) equals \(n\). Then \(g(x)\) is a factor of \(x^n - 1\) because \(\omega^n = 1\).&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;OK I cooked up my RS code, but why is it good?&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;It can be shown&lt;sup id=&#34;fnref:9&#34;&gt;&lt;a href=&#34;#fn:9&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;9&lt;/a&gt;&lt;/sup&gt; that whenever a \( (n,k) \) RS code exists, it achieves equality in the Hamming bound, i.e. \(d_{min} = n-k+1\). So these codes are optimally error correcting linear codes.&lt;/p&gt;
+&lt;p&gt;What accounts for this? It&amp;rsquo;s closely related to the Fourier transform over the field \(F\).
+If you&amp;rsquo;re familiar with the &lt;a href=&#34;https://en.wikipedia.org/wiki/Discrete_Fourier_transform&#34;&gt;Discrete Fourier transform&lt;/a&gt; of a vector, it&amp;rsquo;s exactly the same except \(\omega\) plays the role of \(e^{-2\pi i/n}.\) Requiring \(\omega^j\) to be a root of \(g(x)\) is equivalent to requiring the \(j^{th}\) component of the Fourier transform to be 0.&lt;/p&gt;
+&lt;p&gt;The RS generating polynomial would be analogous to a low-pass frequency filter, requiring all frequencies to be greater than some value. This forces the minimum weight (i.e. number of nonzero components) of a codeword to be bounded away from 0.&lt;/p&gt;
+&lt;p&gt;(This is a manifestation of &lt;a href=&#34;https://terrytao.wordpress.com/2010/06/25/the-uncertainty-principle/&#34;&gt;the uncertainty principle&lt;/a&gt;, which roughly says that you cannot be simultaneously localized in both frequency and position. &lt;a href=&#34;#references&#34;&gt;[8]&lt;/a&gt;)&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Examples:&lt;/strong&gt; Let&amp;rsquo;s construct a \( (7,3) \) RS code over \( GF(8) \), using the representation of \(GF(8)\) from before. Let&amp;rsquo;s choose the generating polynomial as&lt;/p&gt;
+&lt;p&gt;$$ g(x) = (x-\omega^4)(x-\omega^5)(x-\omega^6)(x-\omega^7).$$&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-clojure&#34; data-lang=&#34;clojure&#34;&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;def &lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;RS-7-3&lt;/span&gt; 
+  &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;reduce&lt;/span&gt;
+   &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;fn &lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;p1&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;p2&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;p/*&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;p1&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;p2&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;GF8&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;))&lt;/span&gt;
+   &lt;span class=&#34;p&#34;&gt;[[&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;7&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;3&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;6&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]]))&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Now I can encode my favorite integer, 163.
+With check symbols it is &lt;code&gt;3326163&lt;/code&gt;. Now I can change any two of the symbols and it decodes to &lt;code&gt;163&lt;/code&gt;.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-clojure&#34; data-lang=&#34;clojure&#34;&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;encode&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;6&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;3&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;RS-7-3&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;GF8&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;c1&#34;&gt;;; =&amp;gt; [3 3 2 6 1 6 3]&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;RS-7-3-decode&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;3&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;3&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;2&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;6&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;6&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;3&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;])&lt;/span&gt; &lt;span class=&#34;c1&#34;&gt;;; =&amp;gt; [1 6 3]&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;RS-7-3-decode&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;3&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;2&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;6&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;7&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;3&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;])&lt;/span&gt; &lt;span class=&#34;c1&#34;&gt;;; =&amp;gt; [1 6 3]&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;RS-7-3-decode&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;3&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;3&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;2&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;6&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;6&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;6&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;6&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;])&lt;/span&gt; &lt;span class=&#34;c1&#34;&gt;;; =&amp;gt; [1 6 3]&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;It feels &lt;em&gt;magical&lt;/em&gt; when you see it up close!&lt;/p&gt;
+&lt;p&gt;For a bigger example, let&amp;rsquo;s construct a \( (255, 233) \) RS code over \(GF(256)\). It uses 32 check symbols to correct 16 errors. This code is one recommended by the &amp;ldquo;Consultative Committee for Space Data Systems&amp;rdquo; &lt;a href=&#34;#references&#34;&gt;[4]&lt;/a&gt;. Famously, it was used for &lt;a href=&#34;https://en.wikipedia.org/wiki/Voyager_program&#34;&gt;Voyager mission&lt;/a&gt; communications (in combination with other error-correcting codes).&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-clojure&#34; data-lang=&#34;clojure&#34;&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;def &lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;RS-255-223&lt;/span&gt;
+  &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;let &lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;exp&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;ss&#34;&gt;:exp&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;GF256&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+        &lt;span class=&#34;nv&#34;&gt;roots&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;for &lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;e&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;range &lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;33&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)]&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;exp&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;e&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;))]&lt;/span&gt;
+    &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;reduce&lt;/span&gt;
+     &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;fn &lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;p1&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;p2&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;p/*&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;p1&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;p2&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;GF256&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;))&lt;/span&gt;
+     &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;for &lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;r&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;roots&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;r&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]))))&lt;/span&gt;
+
+&lt;span class=&#34;c1&#34;&gt;;; example encoding&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;let &lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;message&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;str&lt;/span&gt;
+       &lt;span class=&#34;s&#34;&gt;&amp;#34;Hello world! This is meiji163 transmitting from Neptune. &amp;#34;&lt;/span&gt;
+       &lt;span class=&#34;s&#34;&gt;&amp;#34;It&amp;#39;s cold here, Please send hot chocolate. Thanks. &amp;#34;&lt;/span&gt;
+       &lt;span class=&#34;s&#34;&gt;&amp;#34;Now that I think of it, ramen would be good too if you have some.&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+      &lt;span class=&#34;nv&#34;&gt;data&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;map int &lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;message&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+      &lt;span class=&#34;nv&#34;&gt;padded&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;p/shift-right&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;data&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;- &lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;223&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;count &lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;data&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)))]&lt;/span&gt;
+      &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;encode&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;padded&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;RS-255-223&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;GF256&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;))&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;bch-codes&#34;&gt;BCH codes&lt;/h3&gt;
+&lt;p&gt;Bose–Chaudhuri–Hocquenghem (BCH) codes follow a similar idea to Reed-Solomon codes.
+A limitation of RS codes is that the field has to be the same size as \(n\), the codeword length.&lt;/p&gt;
+&lt;p&gt;However it is still possible to specify the roots of \(g(x)\) in an &lt;em&gt;extension field&lt;/em&gt; of \(F\).
+To see what I mean, let \(\omega = 2\) be a primitive element of \(GF(16)\) and let
+$$
+\begin{aligned}
+g(x) &amp;amp;= (x-\omega)(x-\omega^2)(x-\omega^3)(x-\omega^4) \cr
+&amp;amp;= (x^4+x+1)(x^4+x^3+x^2+1).
+\end{aligned}
+$$&lt;/p&gt;
+&lt;p&gt;This polynomial has coefficients in \(GF(2)\), but its roots lie in the bigger field \(GF(16).\) This is analogous to a polynomial with real-valued coefficients having complex roots.&lt;/p&gt;
+&lt;p&gt;The same argument from the RS codes shows that BCH codes are also optimal. The polynomial generates the \((15,7)\) binary BCH code, which corrects 2 errors.&lt;/p&gt;
+&lt;h3 id=&#34;codecs&#34;&gt;Codecs&lt;/h3&gt;
+&lt;p&gt;As I said above, given a generating polynomial \(g(x)\) and data polynomial \(w(x)\) one way to encode is to use \(g(x)w(x)\) as the codeword. The codeword polynomials are the ones divisible by \(g(x).\)&lt;/p&gt;
+&lt;p&gt;It&amp;rsquo;s more convenient to use an encoding where the symbols of \(w(x)\) are visible in the codeword polynomial. To do this, set the top \(k\) coefficients as the coefficients of \(w(x)\), then add a degree \(n-k\) polynomial such that the codeword \(c(x)\)is divisible by \(g(x).\)
+Algebraically, \( c(x) = x^k w(x) + r(x) \) where \(r(x) = -x^k w(k) \pmod{g(x)}\).&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-clojure&#34; data-lang=&#34;clojure&#34;&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kd&#34;&gt;defn &lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;encode&lt;/span&gt;
+  &lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;data-poly&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;gen-poly&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;amp;&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;field&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]]&lt;/span&gt;
+  &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;let &lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;field&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;or &lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;field&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;p/default-field&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+        &lt;span class=&#34;nv&#34;&gt;shifted&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;p/shift-right&lt;/span&gt;
+                 &lt;span class=&#34;nv&#34;&gt;data-poly&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;dec &lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;count &lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;gen-poly&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)))&lt;/span&gt;
+        &lt;span class=&#34;nb&#34;&gt;rem &lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;p/mod&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;shifted&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;gen-poly&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;field&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)]&lt;/span&gt;
+    &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;p/+&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;shifted&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;rem &lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;field&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)))&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;em&gt;Decoding&lt;/em&gt; is considerably harder because we have to exploit the algebraic structure of the code to locate the errors and their magnitudes. For small codes, you can make a table of error patterns and their remainders modulo \(g(x)\). For example,&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-clojure&#34; data-lang=&#34;clojure&#34;&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;def &lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;RS-7-5-table&lt;/span&gt;
+  &lt;span class=&#34;s&#34;&gt;&amp;#34;Decoding table for (7,5) Reed-Solomon code.&amp;#34;&lt;/span&gt;
+  &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;let &lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;errors&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;single-errors&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;7&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;8&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+        &lt;span class=&#34;nv&#34;&gt;rems&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;map &lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;fn &lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;e&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;p/mod&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;e&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;RS-7-5&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;GF8&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;errors&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)]&lt;/span&gt;
+    &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;zipmap &lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;rems&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;errors&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)))&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Given a message \(m(x)\) simply look up the error from \(m(x) \pmod{g(x)}\).&lt;/p&gt;
+&lt;p&gt;To decode larger RS codes the main tool is &lt;em&gt;syndromes&lt;/em&gt;. Syndromes are defined as \(S_j = m(\omega^j)\) for all \(\omega^j\) that are specified as the roots of \(g(x)\). If no errors occured, all the syndromes will be zero.&lt;/p&gt;
+&lt;p&gt;On the other hand, if a correctable number of errors occurred, the idea is to form a linear system of equations using the syndromes to find the positions of the errors and the locations. I implemented the linear solver decoder &lt;a href=&#34;https://github.com/meiji163/ecc-clj/blob/fb6bacba8280a33724c968718cb9d2194c74e58e/src/ecc_clj/core.clj#L181-L210&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-clojure&#34; data-lang=&#34;clojure&#34;&gt;&lt;span class=&#34;c1&#34;&gt;;; decoding (255,223) RS code&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;let &lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;err&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;42&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;163&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;66&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;101&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;100&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt;
+      &lt;span class=&#34;nv&#34;&gt;max-errs&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;8&lt;/span&gt;
+      &lt;span class=&#34;nv&#34;&gt;decode-me&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;p/+&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;msg-poly&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;err&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;GF256&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)]&lt;/span&gt;
+  &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;decode&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;decode-me&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;max-errs&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;GF256&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)))&lt;/span&gt;
+  &lt;span class=&#34;c1&#34;&gt;;; =&amp;gt; {:locations [1 2 5 8 14 15], &lt;/span&gt;
+  &lt;span class=&#34;c1&#34;&gt;;;     :sizes [42 1 163 66 101 100]}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;A more efficient decoder is based on the &lt;a href=&#34;https://en.wikipedia.org/wiki/Berlekamp%E2%80%93Massey_algorithm&#34;&gt;Berlekamp-Massey algorithm&lt;/a&gt;, which I haven&amp;rsquo;t implemented. (Maybe you can, my brave reader)&lt;/p&gt;
+&lt;h2 id=&#34;generating-qr-codes&#34;&gt;Generating QR Codes&lt;/h2&gt;
+&lt;p&gt;Typically error-correcting codecs are implemented in hardware circuits, which run many orders of magnitude faster than my implementation.
+However just to prove that my terribly slow implementation isn&amp;rsquo;t completely useless, I made a QR code generator.&lt;/p&gt;
+&lt;p&gt;There are many versions of QR codes, so I went with the 21x21 version as specified by the ISO/IEC standard &lt;a href=&#34;#references&#34;&gt;[5]&lt;/a&gt;. I implemented just enough of the standard to make some example QR codes.&lt;/p&gt;
+&lt;h3 id=&#34;qr-specification&#34;&gt;QR specification&lt;/h3&gt;
+&lt;p&gt;There are two error-correcting codes involved in the QR code. One is for the &amp;ldquo;format bits&amp;rdquo; and the other is for the &amp;ldquo;data bits&amp;rdquo;.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Format bits:&lt;/strong&gt;
+There are 5 format bits. The first 2 specify the error-correction level and the last 3 specify the bitmask.
+The 5 bits are protected by a \( (15,5) \) BCH code with 10 check bits. This can correct up to 5 errors (Wikipedia falsely claims it can only correct 3).
+Two copies of the encoded bits are included, for a total of 30 bits.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Data bits&lt;/strong&gt;:
+The message can be up to 17 bytes.
+The message bits are prepended with a 4-bit datatype code followed by an 8-bit integer specifying the message length. The 4-bit end sequence &lt;code&gt;0000&lt;/code&gt; is appended to the message.&lt;/p&gt;
+&lt;p&gt;Finally, these 19 bytes are encoded with a \( (255, 248) \) Reed-Solomon code, which can correct 2 byte errors. You may see this code called a \( (26, 19) \) code because only 19 of the 248 bytes are used. This is the lowest error correcting level; other possible generating polynomials are listed in the standard.&lt;/p&gt;
+&lt;p&gt;Finally, the data bits are masked with a pattern specified in the format bits. The purpose of the bitmask is to preventing large areas of a single color.&lt;/p&gt;
+
+&lt;link rel=&#34;stylesheet&#34; href=&#34;https://meiji163.github.io/css/hugo-easy-gallery.css&#34; /&gt;
+&lt;div class=&#34;box&#34;&gt;
+&lt;figure  itemprop=&#34;associatedMedia&#34;
+  itemscope itemtype=&#34;http://schema.org/ImageObject&#34; &gt;
+    &lt;div class=&#34;img&#34;&gt;
+      &lt;img itemprop=&#34;thumbnail&#34; src=&#34;https://meiji163.github.io/images/qrcode.png&#34; alt=&#34;The bit layout for QR code v1. Image from Wikipedia&#34;/&gt;
+    &lt;/div&gt;
+    &lt;a href=&#34;https://meiji163.github.io/images/qrcode.png&#34; itemprop=&#34;contentUrl&#34;&gt;&lt;/a&gt;
+      &lt;figcaption&gt;
+          &lt;p&gt;The bit layout for QR code v1. Image from Wikipedia&lt;/p&gt;
+      &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+
+&lt;p&gt;The implementation of the RS and BCH codes is straightforward. We just have to be careful to use the same GF256 construction and generating polynomial as the one specified in the standard (Annex A in the manual).&lt;/p&gt;
+&lt;p&gt;The generating polynomial for the Reed-Solomon code is&lt;/p&gt;
+&lt;p&gt;$$ g(x) = 117 + 68x + 11x^2 + 164x^3 + 154x^4 + 122x^5 + 127x^6 +  x^7 $$
+which is computed from \((x-\omega^0)(x-\omega^1)\dots(x-\omega^6)\).&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-clojure&#34; data-lang=&#34;clojure&#34;&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;def &lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;GF256&lt;/span&gt;
+  &lt;span class=&#34;s&#34;&gt;&amp;#34;GF(255) constructed as GF2[x]/&amp;lt;x^8+x^4+x^3+x^2+1&amp;gt;&amp;#34;&lt;/span&gt;
+  &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;let &lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;GF2-poly&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;p/parse-bin&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;#34;100011101&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)]&lt;/span&gt;
+    &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;p/char2-field&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;2&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;GF2-poly&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)))&lt;/span&gt;
+
+&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;def &lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;RS-255-248&lt;/span&gt;
+  &lt;span class=&#34;s&#34;&gt;&amp;#34;(255,248) Reed-Solomon code over GF256&amp;#34;&lt;/span&gt;
+  &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;let &lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;roots&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;take &lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;7&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;ss&#34;&gt;:exp&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;GF256&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;))]&lt;/span&gt;
+    &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;reduce&lt;/span&gt;
+     &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;fn &lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;p1&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;p2&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;p/*&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;p1&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;p2&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;GF256&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;))&lt;/span&gt;
+     &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;for &lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;r&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;roots&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;r&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]))))&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;For the BCH code, the generating polynomial is the minimal polynomial of \(\omega, \omega^2, \dots, \omega^6\) over \(GF(2)\). This turns out as
+$$
+(1+x+x^4)(1+x+x^2+x^3+x^4)(1+x+x^2).
+$$&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-clojure&#34; data-lang=&#34;clojure&#34;&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;def &lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;BCH-15-5&lt;/span&gt;
+  &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;reduce&lt;/span&gt;
+   &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;fn &lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;p1&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;p2&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;p/*&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;p1&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;p2&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;GF2&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;))&lt;/span&gt;
+   &lt;span class=&#34;p&#34;&gt;[[&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]]))&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Encoding the format bits:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-clojure&#34; data-lang=&#34;clojure&#34;&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kd&#34;&gt;defn &lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;fmt-bits&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;mask&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt;
+  &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;let &lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;mb&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt;
+        &lt;span class=&#34;nv&#34;&gt;ec-level&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt;
+        &lt;span class=&#34;nv&#34;&gt;bits&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;reverse &lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;concat &lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;ec-level&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;mb&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;))&lt;/span&gt;
+        &lt;span class=&#34;nv&#34;&gt;enc-bt&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;ecc/encode&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;bits&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;ecc/BCH-15-5&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;ecc/GF2&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)]&lt;/span&gt;
+    &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;p/+&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;reverse &lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;enc-bt&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;fmt-bitmask&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;ecc/GF2&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)))&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;I&amp;rsquo;ll omit encoding the data bits; it&amp;rsquo;s not as succinct because you have to move around many bits and pieces and pieces of bits.
+There are also some details with the bit ordering that bit me a few times (OK I&amp;rsquo;m done punning for a bit). Anyways the full code is &lt;a href=&#34;https://github.com/meiji163/ecc-clj/blob/main/src/ecc_clj/qr.clj&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Now we can reproduce the QR code from the Wikipedia diagram above.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-clojure&#34; data-lang=&#34;clojure&#34;&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;let &lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;mask-code&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;
+      &lt;span class=&#34;nv&#34;&gt;databits&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;-&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;#34;www.wikipedia.org&amp;#34;&lt;/span&gt;
+                    &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;map &lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;int&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+                    &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;encode-bytes&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+                    &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;mask-bits&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;mask-code&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;))&lt;/span&gt;
+      &lt;span class=&#34;nv&#34;&gt;fmtbits&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;fmt-bits&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;mask-code&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+      &lt;span class=&#34;nv&#34;&gt;myimg&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;qr-image&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;fmtbits&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;databits&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)]&lt;/span&gt;
+  &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;ImageIO/write&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;myimg&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;#34;PNG&amp;#34;&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;File.&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;#34;wikipedia-qr.png&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)))&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;div class=&#34;box&#34;&gt;
+&lt;figure  itemprop=&#34;associatedMedia&#34;
+  itemscope itemtype=&#34;http://schema.org/ImageObject&#34; &gt;
+    &lt;div class=&#34;img&#34;&gt;
+      &lt;img itemprop=&#34;thumbnail&#34; src=&#34;https://meiji163.github.io/images/wikipedia-qr.png&#34; /&gt;
+    &lt;/div&gt;
+    &lt;a href=&#34;https://meiji163.github.io/images/wikipedia-qr.png&#34; itemprop=&#34;contentUrl&#34;&gt;&lt;/a&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+
+&lt;h2 id=&#34;conclusion&#34;&gt;Conclusion&lt;/h2&gt;
+&lt;p&gt;Error-correcting codes are fundamental algorithms for everything involving data transfer. What&amp;rsquo;s more, they are built from a wonderful blend of linear algebra, geometry, and ring theory. I hope I&amp;rsquo;ve given you a taste for what they are like.&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Zzzz&amp;hellip; I fell asleep right when you mentioned algebra&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;Wake up, there&amp;rsquo;s much more to explore! I&amp;rsquo;ve glossed over and omitted many details. For the interested reader please check out the references &lt;a href=&#34;#references&#34;&gt;[1] [2] [3]&lt;/a&gt;.
+There are also many more applications I&amp;rsquo;ve skipped including:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;RAID (specifically &lt;a href=&#34;http://ftp.dei.uc.pt/pub/linux/kernel/people/hpa/raid6.pdf&#34;&gt;RAID6&lt;/a&gt;)&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://en.wikipedia.org/wiki/Cyclic_redundancy_check&#34;&gt;Cyclic redundancy checks&lt;/a&gt; (CRC).&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://en.wikipedia.org/wiki/Cross-interleaved_Reed%E2%80%93Solomon_coding&#34;&gt;CDs&lt;/a&gt; and DVDs&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;I will post a sequel as I learn more, time permitting. I am particularly intrigued by codes based on algebraic curves, which were proposed by Goppa &lt;a href=&#34;#references&#34;&gt;[7]&lt;/a&gt;.&lt;/p&gt;
+&lt;h2 id=&#34;addendum-on-clojure&#34;&gt;Addendum on Clojure&lt;/h2&gt;
+&lt;p&gt;&lt;em&gt;Why use Clojure for this?&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;I have long been curious about Lisp languages but never had occasion to use one seriously.
+I was inspired by Sam Ritchie&amp;rsquo;s work on &lt;a href=&#34;https://github.com/sicmutils/sicmutils&#34;&gt;sicmutils&lt;/a&gt; to use Clojure for exploratory self-education. Also, Rich Hickey is cool.&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Shouldn&amp;rsquo;t you use Haskell instead?&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;Yes I should. In fact I look up at the Haskellers in their ivory tower and seethe with envy.
+In all seriousness I did think about it, but Clojure&amp;rsquo;s dynamic type system and the interactive REPL makes it more enjoyable for explorations like this one IMHO. I found it easier to debug too.&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;How do I get started with Clojure?&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;If you use Emacs the best way to get started is with &lt;a href=&#34;https://docs.cider.mx/cider/index.html&#34;&gt;cider&lt;/a&gt;. This will allow you to start an interactive REPL and evaluate expressions right in your editor! I also recommend a plugin like &lt;a href=&#34;https://github.com/abo-abo/lispy&#34;&gt;lispy&lt;/a&gt; to help with structural editing.
+For vim, I&amp;rsquo;ve seen &lt;a href=&#34;https://github.com/tpope/vim-fireplace&#34;&gt;this&lt;/a&gt; plugin, but I haven&amp;rsquo;t tried it myself. For VSCode I&amp;rsquo;ve heard &lt;a href=&#34;https://calva.io/&#34;&gt;calva&lt;/a&gt; is great.&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;How do I run your code examples?&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;Once you have your Clojure editor setup clone &lt;a href=&#34;https://github.com/meiji163/ecc-clj&#34;&gt;the repo&lt;/a&gt;, run the code, modify it, write your own version, etc. Pull requests are always welcome if you make something cool or improve the code!&lt;/p&gt;
+&lt;h2 id=&#34;references&#34;&gt;References&lt;/h2&gt;
+&lt;p&gt;&lt;a href=&#34;https://www.cambridge.org/core/books/algebraic-codes-for-data-transmission/2F606F75ABE1BAA014A1DE0F5D62F498&#34;&gt;[1]&lt;/a&gt; Blahut, Richard &amp;ldquo;&lt;em&gt;Algebraic Codes for Data Transmission&lt;/em&gt;&amp;rdquo; (2003)&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://cdn.preterhuman.net/texts/math/Codes%20and%20Curves.pdf&#34;&gt;[2]&lt;/a&gt; Walker, Judy &amp;ldquo;&lt;em&gt;Codes and Curves&lt;/em&gt;&amp;rdquo;, Lecture Notes&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://cse.buffalo.edu/faculty/atri/courses/coding-theory/book/index.html&#34;&gt;[3]&lt;/a&gt; Guruswami, Rudra &amp;amp; Sudan &amp;ldquo;&lt;em&gt;Essential Coding Theory&lt;/em&gt;&amp;rdquo;, Online Draft&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://public.ccsds.org/Pubs/130x1g3.pdf&#34;&gt;[4]&lt;/a&gt; CCSDS &amp;ldquo;&lt;em&gt;Report Concerning Space Data System Standards&lt;/em&gt;&amp;rdquo; (2020)&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://github.com/yansikeim/QR-Code/blob/master/ISO%20IEC%2018004%202015%20Standard.pdf&#34;&gt;[5]&lt;/a&gt; ISO/IEC 18004, &amp;ldquo;&lt;em&gt;QR Code bar code symbology specification&lt;/em&gt;&amp;rdquo;, 3rd ed.&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;http://drhuang.com/science/mathematics/book/GTM73-Algebra.Thomas%20W.Hungerford.pdf&#34;&gt;[6]&lt;/a&gt; Hungerford, Thomas &amp;ldquo;&lt;em&gt;Algebra&lt;/em&gt;&amp;rdquo; (1974)&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://www.mathnet.ru/php/archive.phtml?wshow=paper&amp;amp;jrnid=im&amp;amp;paperid=1646&amp;amp;option_lang=eng&#34;&gt;[7]&lt;/a&gt; Goppa, Valery &amp;ldquo;&lt;em&gt;Algebraico-Geometric Codes&lt;/em&gt;&amp;rdquo; Math. USSR Izvestiya Vol. 21 (1983)&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://arxiv.org/pdf/1703.01080.pdf&#34;&gt;[8]&lt;/a&gt; Evra, Kowalski, Lubotzky &amp;ldquo;&lt;em&gt;Good Cyclic Codes and the Uncertainty Principle&lt;/em&gt;&amp;rdquo; (2017)&lt;/p&gt;
+&lt;section class=&#34;footnotes&#34; role=&#34;doc-endnotes&#34;&gt;
+&lt;hr&gt;
+&lt;ol&gt;
+&lt;li id=&#34;fn:1&#34; role=&#34;doc-endnote&#34;&gt;
+&lt;p&gt;GF stands for &amp;ldquo;Galois field&amp;rdquo; in honor of the legendary Evariste Galois.&amp;#160;&lt;a href=&#34;#fnref:1&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:2&#34; role=&#34;doc-endnote&#34;&gt;
+&lt;p&gt;If you want to prove this, it follows from &lt;a href=&#34;https://math.libretexts.org/Bookshelves/Combinatorics_and_Discrete_Mathematics/Elementary_Number_Theory_(Barrus_and_Clark)/01:_Chapters/1.09:_Bezout&#39;s_Lemma&#34;&gt;Bezout&amp;rsquo;s Lemma&lt;/a&gt;&amp;#160;&lt;a href=&#34;#fnref:2&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:3&#34; role=&#34;doc-endnote&#34;&gt;
+&lt;p&gt;You&amp;rsquo;ll find a proof in any good algebra book, Theorem 5.1 in &lt;a href=&#34;#references&#34;&gt;[6]&lt;/a&gt; for example.&amp;#160;&lt;a href=&#34;#fnref:3&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:4&#34; role=&#34;doc-endnote&#34;&gt;
+&lt;p&gt;Its full name is &amp;ldquo;the ring of polynomials over \(F\)&amp;rdquo;&amp;#160;&lt;a href=&#34;#fnref:4&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:5&#34; role=&#34;doc-endnote&#34;&gt;
+&lt;p&gt;You can now make people think you&amp;rsquo;re crazy by telling them 3 times 3 equals 5&amp;#160;&lt;a href=&#34;#fnref:5&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:6&#34; role=&#34;doc-endnote&#34;&gt;
+&lt;p&gt;Proof: the distance between any two codewords \(c_1\) and \(c_2\) is the same as the distance between the all-zero word and \(c_1 - c_2\). Thus \(d_{min}\) is equal to the minimum number of nonzero components across all nonzero codewords. We can take the codeword with one nonzero data symbol and \(n-k\) check symbols. Hence \(d_{min} \le n-k+1 \).&amp;#160;&lt;a href=&#34;#fnref:6&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:7&#34; role=&#34;doc-endnote&#34;&gt;
+&lt;p&gt;In ring theory terminology, this makes the set of polynomial codewords is an &lt;a href=&#34;https://en.wikipedia.org/wiki/Ideal_(ring_theory)&#34;&gt;ideal&lt;/a&gt; of the quotient ring \(F[x]/\langle x^n-1 \rangle \).&amp;#160;&lt;a href=&#34;#fnref:7&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:8&#34; role=&#34;doc-endnote&#34;&gt;
+&lt;p&gt;It is used to contruct the &lt;a href=&#34;https://en.wikipedia.org/wiki/Leech_lattice&#34;&gt;Leech lattice&lt;/a&gt;, the &lt;em&gt;densest&lt;/em&gt; packing of spheres in \(\mathbb{R}^{24}\)! Also see the (5,8,24) &lt;a href=&#34;https://en.wikipedia.org/wiki/Steiner_system#Construction_from_the_binary_Golay_code&#34;&gt;Steiner system&lt;/a&gt; for another rabbit hole.&amp;#160;&lt;a href=&#34;#fnref:8&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:9&#34; role=&#34;doc-endnote&#34;&gt;
+&lt;p&gt;There is a truly marvelous proof of this, which the footnotes of this blog are too small to contain. But see &lt;a href=&#34;#references&#34;&gt;[1]&lt;/a&gt; Chapter 6.&amp;#160;&lt;a href=&#34;#fnref:9&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/section&gt;
+</description>
+      
+    </item>
+    
+    <item>
+      <title>About</title>
+      <link>https://meiji163.github.io/about/</link>
+      <pubDate>Fri, 20 Aug 2021 21:38:52 +0800</pubDate>
+      
+      <guid>https://meiji163.github.io/about/</guid>
+      
+        <description>&lt;p&gt;HI I&amp;rsquo;m meiji163. I currently work on databases at GitHub.
+Fun fact: 163 is the largest &lt;a href=&#34;https://en.wikipedia.org/wiki/Heegner_number&#34;&gt;Heegner number&lt;/a&gt;!&lt;/p&gt;
+&lt;p&gt;Find me on &lt;a href=&#34;https://github.com/meiji163&#34;&gt;GitHub&lt;/a&gt; and &lt;a href=&#34;https://www.youtube.com/watch?v=oHg5SJYRHA0&#34;&gt;Twitter&lt;/a&gt;.
+If anyone needs me I&amp;rsquo;ll be in &lt;em&gt;the Chamber of Understanding&lt;/em&gt;!&lt;/p&gt;
+
+&lt;div style=&#34;position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;&#34;&gt;
+  &lt;iframe src=&#34;https://www.youtube.com/embed/78kn2YBfHFw&#34; style=&#34;position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;&#34; allowfullscreen title=&#34;YouTube Video&#34;&gt;&lt;/iframe&gt;
+&lt;/div&gt;
+
+</description>
+      
+    </item>
+    
+    <item>
+      <title>Fun With GitHub CLI Extensions</title>
+      <link>https://meiji163.github.io/post/gh-extension/</link>
+      <pubDate>Sat, 25 Dec 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://meiji163.github.io/post/gh-extension/</guid>
+      
+        <description>&lt;blockquote&gt;
+&lt;p&gt;And everything else which can be attributed to body presupposes extension, and is only a mode of that which is extended.&lt;br&gt;
+&amp;ndash; Descartes, &lt;em&gt;Principles of Philosophy&lt;/em&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2 id=&#34;introduction&#34;&gt;Introduction&lt;/h2&gt;
+&lt;p&gt;&lt;code&gt;gh&lt;/code&gt; is the official GitHub CLI, maintained in the public &lt;a href=&#34;https://github.com/cli/cli&#34;&gt;cli/cli&lt;/a&gt; repository.&lt;br&gt;
+Like its predecessor hub&lt;sup id=&#34;fnref:1&#34;&gt;&lt;a href=&#34;#fn:1&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;1&lt;/a&gt;&lt;/sup&gt;, &lt;code&gt;gh&lt;/code&gt; wraps common git commands. But &lt;code&gt;gh&lt;/code&gt; does much more, ultimately aiming to be a general GitHub interface for your terminal.
+You can for example run actions with &lt;code&gt;gh workflow&lt;/code&gt;, publish gists with &lt;code&gt;gh gist&lt;/code&gt;, or access your codespaces with &lt;code&gt;gh cs&lt;/code&gt;. If you don&amp;rsquo;t already have it, check out &lt;a href=&#34;https://cli.github.com/&#34;&gt;here&lt;/a&gt; to get started!&lt;/p&gt;
+&lt;p&gt;Recently, I interned for the GitHub CLI team via the MLH Fellowship&lt;sup id=&#34;fnref:2&#34;&gt;&lt;a href=&#34;#fn:2&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;2&lt;/a&gt;&lt;/sup&gt;.
+I learned a great deal about software and golang from the senior devs (&lt;a href=&#34;https://github.com/vilmibm&#34;&gt;@vilmbim&lt;/a&gt;, &lt;a href=&#34;https://github.com/mislav&#34;&gt;@mislav&lt;/a&gt;, and &lt;a href=&#34;https://github.com/samcoe&#34;&gt;@samcoe&lt;/a&gt;).
+I was also pleasantly surprised at how easy it was to use and contribute to the CLI. It has great user experience and a ton of features for using GitHub programmatically.&lt;/p&gt;
+&lt;p&gt;However my favorite part of &lt;code&gt;gh&lt;/code&gt; is &lt;strong&gt;extensions&lt;/strong&gt;, which launched in v2.0. Extensions are programs that you can install, execute, and upgrade &amp;ndash; just like a mini package-manager!
+If there&amp;rsquo;s any functionality you want that falls outside the scope of the core commands, you can find or make an extension that does just that.&lt;/p&gt;
+&lt;h2 id=&#34;using-extensions&#34;&gt;Using extensions&lt;/h2&gt;
+&lt;p&gt;&lt;code&gt;gh&lt;/code&gt; installs extensions from GitHub repositories with a &amp;ldquo;gh-&amp;rdquo; prefix (e.g. meiji163/gh-coolextension). All that&amp;rsquo;s required is a top-level executable with the same name as the repo. Once you install an extension, it creates a new top-level &lt;code&gt;gh&lt;/code&gt; command under that name aliased to that executable. Here is an example:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# install an extension by repo name &lt;/span&gt;
+$ gh extension install vilmibm/gh-screensaver  
+
+&lt;span class=&#34;c1&#34;&gt;# execute the extension&lt;/span&gt;
+$ gh screensaver 
+
+&lt;span class=&#34;c1&#34;&gt;# upgrade the extension&lt;/span&gt;
+$ gh extensions upgrade screensaver
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;There is already a quickly growing ecosystem of extensions to choose from; when I started in mid-September there were less than 100, and at the time of writing there are &lt;a href=&#34;https://github.com/topics/gh-extension&#34;&gt;145&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;I love not only how useful, but also how creative and fun they are. Here&amp;rsquo;s a few of my favorites:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.com/dlvhdr/gh-prs&#34;&gt;dlvhdr/gh-prs&lt;/a&gt;: A slick dashboard of all your pull requests, with lots of configurability!&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;img src=&#34;https://github.com/dlvhdr/gh-prs/blob/8621183574c573e4077360b5027ffea70999b921/demo.gif?raw=true&#34; alt=&#34;gh-prs&#34;&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href=&#34;https://github.com/vilmibm/gh-screensaver&#34;&gt;vilmibm/gh-screensaver&lt;/a&gt;: Cool and colorful terminal animations (I added the game of life one)
+&lt;img src=&#34;https://user-images.githubusercontent.com/98482/134737341-701d0e7d-476f-4a29-8309-d34b4935c6a3.gif&#34; alt=&#34;gh-screensaver&#34;&gt;
+&lt;img src=&#34;https://user-images.githubusercontent.com/98482/134737299-aa306b69-ceb4-49c1-95c8-3582d195250c.gif&#34; alt=&#34;gh firework&#34;&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href=&#34;https://github.com/yusukebe/gh-markdown-preview&#34;&gt;yusukebe/gh-markdown-preview&lt;/a&gt;: Renders your local md files with GitHub-flavored markdown in your browser. Super useful for writing readmes.
+&lt;img src=&#34;https://user-images.githubusercontent.com/10682/138411417-dd12a831-bacc-4b05-a33d-47d3f6b45483.png&#34; alt=&#34;gh-markdown&#34;&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href=&#34;https://github.com/kawarimidoll/gh-graph&#34;&gt;kawarimidoll/gh-graph&lt;/a&gt;: View your contribution graph in the terminal
+&lt;img src=&#34;https://user-images.githubusercontent.com/8146876/131276560-9b97596f-2f21-48ed-a946-498c47d9faf1.png&#34; alt=&#34;gh-grpah&#34;&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;writing-extensions&#34;&gt;Writing extensions&lt;/h2&gt;
+&lt;p&gt;The CLI team made some tools to help write extensions (nice guys, eh?). Use the &lt;code&gt;gh extension create&lt;/code&gt; command and you&amp;rsquo;ll be prompted for the name and what kind of extension you want to make. A local git repository will then be created for you with some boilerplate.&lt;/p&gt;
+&lt;p&gt;Extensions can be written in any language, but for our purpose languages are split into three categories: interpreted, Golang, and other compiled language. Here are a few key differences between them when writing extensions.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Interpreted&lt;/strong&gt;:
+This requires the user to have the interpreter for the language (and any dependencies) installed. For that reason, most are written in bash, but it could be python, ruby, etc.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Compiled (not golang)&lt;/strong&gt;:
+This allows you to distribute binaries from your extension repo.
+Precompiled binary extensions are fully supported since gh version 2.3.0. That means if you publish a release with binary assets from your extension repo, &lt;code&gt;gh extension install&lt;/code&gt; will download the appropriate binary (instead of looking for a top-level executable).&lt;/p&gt;
+&lt;p&gt;The binary assets have to be named as &amp;ldquo;platform-architecture&amp;rdquo; (e.g. darwin-arm64). Luckily @vilmibm recently made &lt;a href=&#34;https://github.com/cli/gh-extension-precompile&#34;&gt;gh-extension-precompile&lt;/a&gt;, a GitHub action that automates the building and releasing for you. Modify the build script for your language as needed.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Golang&lt;/strong&gt;: The stuff for compiled languages also applies here, but there&amp;rsquo;s even &lt;em&gt;more&lt;/em&gt; tools for golang! The CLI team recently open-sourced &lt;a href=&#34;https://github.com/cli/go-gh&#34;&gt;go-gh&lt;/a&gt;, a module for golang that exposes a small subset of cli/cli internals. This includes an HTTP client for both the REST and GraphQL API for GitHub. It also has an &lt;code&gt;Exec&lt;/code&gt; function that safely shells out to &lt;code&gt;gh&lt;/code&gt;, and a &lt;code&gt;CurrentRepository&lt;/code&gt; function. It&amp;rsquo;s still in beta, so there will likely be more functionality to come. See below for an example usage.&lt;/p&gt;
+&lt;h3 id=&#34;github-apis&#34;&gt;GitHub APIs&lt;/h3&gt;
+&lt;p&gt;One of the main reasons to write gh extensions is that you can easily make authenticated GitHub API calls (although your extension can be completely unrelated to GitHub) since the user will presumably have an auth token for &lt;code&gt;gh&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;A typical way would be to use the &lt;code&gt;gh api&lt;/code&gt; command. This command wraps both the REST and GraphQL GitHub API.
+You can select format the response using jquery syntax with the &lt;code&gt;--jq&lt;/code&gt; flag, or (even better) with &lt;a href=&#34;https://golangdocs.com/templates-in-golang&#34;&gt;golang templates&lt;/a&gt; using the &lt;code&gt;--template&lt;/code&gt; flag.
+Templates are quite powerful for text formatting. See &lt;code&gt;gh formatting help&lt;/code&gt; for more details on built-in functions and examples.&lt;/p&gt;
+&lt;p&gt;For example, here is a script to print a table of a user&amp;rsquo;s starred repos:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#!/usr/bin/bash
+&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;&lt;/span&gt;gh api /users/&lt;span class=&#34;s2&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$USERNAME&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;&lt;/span&gt;/starred &lt;span class=&#34;se&#34;&gt;\
+&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;&lt;/span&gt;    --template &lt;span class=&#34;s1&#34;&gt;&amp;#39;
+&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;    {{- tablerow &amp;#34;NAME&amp;#34; &amp;#34;DESCRIPTION&amp;#34; -}}
+&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;    {{- range .}}{{- tablerow .name .description -}}{{- end -}}&amp;#39;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;A little polishing, and this would be a fine bash gh-extension!&lt;/p&gt;
+&lt;p&gt;If you&amp;rsquo;re using golang, you can use the clients from &lt;code&gt;go-gh&lt;/code&gt;. Here is how to get the same data as above:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;nx&#34;&gt;opts&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:=&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;api&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;ClientOptions&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;EnableCache&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;kc&#34;&gt;true&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt;client&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;err&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;gh&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;RESTClient&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;opts&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;err&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;!=&lt;/span&gt; &lt;span class=&#34;kc&#34;&gt;nil&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+    &lt;span class=&#34;nx&#34;&gt;log&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Fatal&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;err&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt;response&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:=&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;[]&lt;/span&gt;&lt;span class=&#34;kd&#34;&gt;struct&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt; 
+    &lt;span class=&#34;nx&#34;&gt;Name&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;string&lt;/span&gt; 
+    &lt;span class=&#34;nx&#34;&gt;Description&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;string&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;}{}&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt;err&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;client&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Get&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;fmt&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Sprintf&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;users/%s/starred&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;username&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;),&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;response&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;You can also use the GraphQL API (somewhat annoyingly, there are features not available in the REST API available in GraphQL and vice versa). Here is a query to get the same data once again:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-graphql&#34; data-lang=&#34;graphql&#34;&gt;&lt;span class=&#34;kd&#34;&gt;query&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;nc&#34;&gt;GetStarredRepos&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$username&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;nc&#34;&gt;String&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;!)&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;  &lt;/span&gt;&lt;span class=&#34;py&#34;&gt;user&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;py&#34;&gt;login&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$username&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;    &lt;/span&gt;&lt;span class=&#34;nc&#34;&gt;starredRepositories&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;py&#34;&gt;first&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;nc&#34;&gt;100&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;      &lt;/span&gt;&lt;span class=&#34;py&#34;&gt;nodes&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;        &lt;/span&gt;&lt;span class=&#34;py&#34;&gt;name&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;        &lt;/span&gt;&lt;span class=&#34;py&#34;&gt;description&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;      &lt;/span&gt;&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;    &lt;/span&gt;&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;  &lt;/span&gt;&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;GitHub has a &lt;a href=&#34;https://docs.github.com/en/graphql/overview/explorer&#34;&gt;great tool&lt;/a&gt; for exploring their GraphQL schema.
+There is also a &lt;a href=&#34;https://github.com/shurcooL/githubv4&#34;&gt;GitHub GraphQL library&lt;/a&gt; for golang that provides a more concise interface.&lt;/p&gt;
+&lt;h3 id=&#34;three-more-extensions&#34;&gt;Three more extensions&lt;/h3&gt;
+&lt;p&gt;To conclude, I want to go over three extensions I wrote during my time on the CLI team.
+They certainly aren&amp;rsquo;t the best quality since I wrote them while learning golang and gh, but hopefully they will serve as examples and perhaps give you ideas for your own extension &amp;ndash; &lt;em&gt;I&amp;rsquo;m eager to see what you make!&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;&lt;a href=&#34;https://github.com/meiji163/gh-notify&#34;&gt;gh-notify&lt;/a&gt;:&lt;/strong&gt;&lt;br&gt;
+This one is pretty simple. It&amp;rsquo;s a bash script that fetches notifications and pipes it into &lt;a href=&#34;https://github.com/junegunn/fzf&#34;&gt;fzf&lt;/a&gt;.
+If you select a notification linked to a pull request or issue, it will show it with the appropriate &lt;code&gt;gh&lt;/code&gt; command.
+I wrote it for a hackday.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# show unread notifs&lt;/span&gt;
+$ gh notify 
+
+&lt;span class=&#34;c1&#34;&gt;# show first 10 of all notifs  &lt;/span&gt;
+$ gh notify -a -n &lt;span class=&#34;m&#34;&gt;10&lt;/span&gt; 
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;strong&gt;&lt;a href=&#34;https://github.com/meiji163/gh-search&#34;&gt;gh-search&lt;/a&gt;:&lt;/strong&gt;&lt;br&gt;
+This extension provides access to the search API for repositories. It was a personal tool, as I&amp;rsquo;m frequently looking for great new projects on GitHub.&lt;/p&gt;
+&lt;p&gt;It allows you to filter with &lt;code&gt;--lang&lt;/code&gt; or &lt;code&gt;--topic&lt;/code&gt; flags, or simply enter the raw search query in &lt;a href=&#34;https://docs.github.com/en/search-github/getting-started-with-searching-on-github/understanding-the-search-syntax&#34;&gt;GitHub syntax&lt;/a&gt; with the &lt;code&gt;-q&lt;/code&gt; flag.
+It then shows you the results in a searchable scrolling menu.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# search for cli repos with hacktoberfest topic&lt;/span&gt;
+$ gh search cli --topic&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;hacktoberfest
+
+&lt;span class=&#34;c1&#34;&gt;# custom search with GitHub syntax&lt;/span&gt;
+$ gh search -q&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;org:cli created:&amp;gt;2019-01-01&amp;#34;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;I wrote it in golang using go-gh and &lt;a href=&#34;https://github.com/spf13/cobra/&#34;&gt;cobra&lt;/a&gt;, a nice library for CLI apps (and the same one used in gh).&lt;/p&gt;
+&lt;p&gt;Note that this extension will probably be obsolete&amp;rsquo;d once &lt;code&gt;gh&lt;/code&gt; adds search to the core commands (ref: &lt;a href=&#34;https://github.com/cli/cli/issues/4834&#34;&gt;cli#4834&lt;/a&gt;).&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;&lt;a href=&#34;https://github.com/meiji163/gh-spam&#34;&gt;gh-spam&lt;/a&gt;:&lt;/strong&gt;&lt;br&gt;
+This extension is a simple classifier for spam issues (again in golang). I wrote it on the last hackday (they have a lot of hackdays at GitHub, which is great). During the internship I noticed a fairly large volume of spam issues on the cli/cli repo that had to be closed manually.
+As an ML-inclined fellow, I thought I would take a crack at automating this.&lt;/p&gt;
+&lt;p&gt;To use it, you first download a labeled dataset of issues from a target repo (this only really works if you have a large repo). Then you train a classifier on it, which by default is a &lt;a href=&#34;https://en.wikipedia.org/wiki/Random_forest&#34;&gt;random forest&lt;/a&gt;.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# download data from cli/cli repo &lt;/span&gt;
+$ gh-spam download -R cli/cli
+
+&lt;span class=&#34;c1&#34;&gt;# classify an issue &lt;/span&gt;
+$ gh-spam classify -R cli/cli &lt;span class=&#34;m&#34;&gt;4894&lt;/span&gt;
+&lt;span class=&#34;c1&#34;&gt;#4894: spam&lt;/span&gt;
+
+&lt;span class=&#34;c1&#34;&gt;# classify multiple issues&lt;/span&gt;
+$ gh-spam classify -R cli/cli &lt;span class=&#34;m&#34;&gt;4913&lt;/span&gt; &lt;span class=&#34;m&#34;&gt;4907&lt;/span&gt; &lt;span class=&#34;m&#34;&gt;4906&lt;/span&gt; &lt;span class=&#34;m&#34;&gt;4894&lt;/span&gt;
+&lt;span class=&#34;c1&#34;&gt;#4913: not spam&lt;/span&gt;
+&lt;span class=&#34;c1&#34;&gt;#4907: not spam&lt;/span&gt;
+&lt;span class=&#34;c1&#34;&gt;#4906: not spam&lt;/span&gt;
+&lt;span class=&#34;c1&#34;&gt;#4894: spam&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Rather than do any fancy NLP on the issue content, the classifier inputs (aka features) are based primarily on the &amp;ldquo;reputation&amp;rdquo; of the author, i.e. number of contributions, association with the target repo, age of account, etc.
+I also took into account issues which just post one of the issue templates without substantive change by using a string-matching score.
+This approach turns out to be sufficiently accurate (at least for the cli/cli repo).&lt;/p&gt;
+&lt;p&gt;Making this extension was particularly interesting, because I previously only used python for machine learning. I looked around for ML libraries in golang, and ended up using &lt;a href=&#34;https://github.com/sjwhitworth/golearn&#34;&gt;golearn&lt;/a&gt;. It has a nice API similar to scikit-learn, but in comparison it is pretty awkward for handling data, and has less clear documentation&lt;sup id=&#34;fnref:3&#34;&gt;&lt;a href=&#34;#fn:3&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;3&lt;/a&gt;&lt;/sup&gt;.&lt;/p&gt;
+&lt;h2 id=&#34;further-resources&#34;&gt;Further Resources&lt;/h2&gt;
+&lt;p&gt;Here are a few more resources you may find useful.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://docs.github.com/en/github-cli/github-cli/creating-github-cli-extensions&#34;&gt;official GitHub guide&lt;/a&gt; for extensions&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://www.youtube.com/watch?v=tzK3ZuiEjcA&amp;amp;feature=youtu.be&amp;amp;ab_channel=vilmibm&#34;&gt;precompiled extension demo&lt;/a&gt; by @vilmibm&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.blog/2021-08-24-github-cli-2-0-includes-extensions/&#34;&gt;GitHub blogpost&lt;/a&gt; on extensions launch&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://cli.github.com/manual/&#34;&gt;manual&lt;/a&gt; for gh&lt;/li&gt;
+&lt;/ul&gt;
+&lt;section class=&#34;footnotes&#34; role=&#34;doc-endnotes&#34;&gt;
+&lt;hr&gt;
+&lt;ol&gt;
+&lt;li id=&#34;fn:1&#34; role=&#34;doc-endnote&#34;&gt;
+&lt;p&gt;&lt;a href=&#34;https://github.com/github/hub&#34;&gt;https://github.com/github/hub&lt;/a&gt;&amp;#160;&lt;a href=&#34;#fnref:1&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:2&#34; role=&#34;doc-endnote&#34;&gt;
+&lt;p&gt;The MLH Fellowship is basically an internship done in small groups called pods. I thought it was fantastic! Learn more at &lt;a href=&#34;https://fellowship.mlh.io/&#34;&gt;https://fellowship.mlh.io/&lt;/a&gt;&amp;#160;&lt;a href=&#34;#fnref:2&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:3&#34; role=&#34;doc-endnote&#34;&gt;
+&lt;p&gt;The documentation complaint is a &amp;ldquo;golang vs. python&amp;rdquo; complaint more than a &amp;ldquo;golearn vs. sklearn&amp;rdquo; complaint.&amp;#160;&lt;a href=&#34;#fnref:3&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/section&gt;
+</description>
+      
+    </item>
     
     <item>
       <title>Combinatorial Hyperbolic Embeddings</title>
@@ -311,193 +964,6 @@ Note that &amp;ldquo;hyperbolicity&amp;rdquo; as defined here can apply to any m
 &lt;/li&gt;
 &lt;li id=&#34;fn:5&#34; role=&#34;doc-endnote&#34;&gt;
 &lt;p&gt;At the time of writing &lt;code&gt;sarkar_embedding&lt;/code&gt; is only on &lt;a href=&#34;https://github.com/meiji163/hyperlib&#34;&gt;this fork&lt;/a&gt; of Hyperlib.&amp;#160;&lt;a href=&#34;#fnref:5&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;/ol&gt;
-&lt;/section&gt;
-</description>
-      
-    </item>
-    
-    <item>
-      <title>About</title>
-      <link>https://meiji163.github.io/about/</link>
-      <pubDate>Fri, 20 Aug 2021 21:38:52 +0800</pubDate>
-      
-      <guid>https://meiji163.github.io/about/</guid>
-      
-        <description>&lt;p&gt;HI I&amp;rsquo;m meiji163. I currently work on databases at GitHub.
-Fun fact: 163 is the largest &lt;a href=&#34;https://en.wikipedia.org/wiki/Heegner_number&#34;&gt;Heegner number&lt;/a&gt;!&lt;/p&gt;
-&lt;p&gt;Find me on &lt;a href=&#34;https://github.com/meiji163&#34;&gt;GitHub&lt;/a&gt; and &lt;a href=&#34;https://www.youtube.com/watch?v=oHg5SJYRHA0&#34;&gt;Twitter&lt;/a&gt;.
-If anyone needs me I&amp;rsquo;ll be in &lt;em&gt;the Chamber of Understanding&lt;/em&gt;!&lt;/p&gt;
-
-&lt;div style=&#34;position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;&#34;&gt;
-  &lt;iframe src=&#34;https://www.youtube.com/embed/78kn2YBfHFw&#34; style=&#34;position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;&#34; allowfullscreen title=&#34;YouTube Video&#34;&gt;&lt;/iframe&gt;
-&lt;/div&gt;
-
-</description>
-      
-    </item>
-    
-    <item>
-      <title>Fun With GitHub CLI Extensions</title>
-      <link>https://meiji163.github.io/post/gh-extension/</link>
-      <pubDate>Sat, 25 Dec 2021 00:00:00 +0000</pubDate>
-      
-      <guid>https://meiji163.github.io/post/gh-extension/</guid>
-      
-        <description>&lt;blockquote&gt;
-&lt;p&gt;And everything else which can be attributed to body presupposes extension, and is only a mode of that which is extended.&lt;br&gt;
-&amp;ndash; Descartes, &lt;em&gt;Principles of Philosophy&lt;/em&gt;&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;h2 id=&#34;introduction&#34;&gt;Introduction&lt;/h2&gt;
-&lt;p&gt;&lt;code&gt;gh&lt;/code&gt; is the official GitHub CLI, maintained in the public &lt;a href=&#34;https://github.com/cli/cli&#34;&gt;cli/cli&lt;/a&gt; repository.&lt;br&gt;
-Like its predecessor hub&lt;sup id=&#34;fnref:1&#34;&gt;&lt;a href=&#34;#fn:1&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;1&lt;/a&gt;&lt;/sup&gt;, &lt;code&gt;gh&lt;/code&gt; wraps common git commands. But &lt;code&gt;gh&lt;/code&gt; does much more, ultimately aiming to be a general GitHub interface for your terminal.
-You can for example run actions with &lt;code&gt;gh workflow&lt;/code&gt;, publish gists with &lt;code&gt;gh gist&lt;/code&gt;, or access your codespaces with &lt;code&gt;gh cs&lt;/code&gt;. If you don&amp;rsquo;t already have it, check out &lt;a href=&#34;https://cli.github.com/&#34;&gt;here&lt;/a&gt; to get started!&lt;/p&gt;
-&lt;p&gt;Recently, I interned for the GitHub CLI team via the MLH Fellowship&lt;sup id=&#34;fnref:2&#34;&gt;&lt;a href=&#34;#fn:2&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;2&lt;/a&gt;&lt;/sup&gt;.
-I learned a great deal about software and golang from the senior devs (&lt;a href=&#34;https://github.com/vilmibm&#34;&gt;@vilmbim&lt;/a&gt;, &lt;a href=&#34;https://github.com/mislav&#34;&gt;@mislav&lt;/a&gt;, and &lt;a href=&#34;https://github.com/samcoe&#34;&gt;@samcoe&lt;/a&gt;).
-I was also pleasantly surprised at how easy it was to use and contribute to the CLI. It has great user experience and a ton of features for using GitHub programmatically.&lt;/p&gt;
-&lt;p&gt;However my favorite part of &lt;code&gt;gh&lt;/code&gt; is &lt;strong&gt;extensions&lt;/strong&gt;, which launched in v2.0. Extensions are programs that you can install, execute, and upgrade &amp;ndash; just like a mini package-manager!
-If there&amp;rsquo;s any functionality you want that falls outside the scope of the core commands, you can find or make an extension that does just that.&lt;/p&gt;
-&lt;h2 id=&#34;using-extensions&#34;&gt;Using extensions&lt;/h2&gt;
-&lt;p&gt;&lt;code&gt;gh&lt;/code&gt; installs extensions from GitHub repositories with a &amp;ldquo;gh-&amp;rdquo; prefix (e.g. meiji163/gh-coolextension). All that&amp;rsquo;s required is a top-level executable with the same name as the repo. Once you install an extension, it creates a new top-level &lt;code&gt;gh&lt;/code&gt; command under that name aliased to that executable. Here is an example:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# install an extension by repo name &lt;/span&gt;
-$ gh extension install vilmibm/gh-screensaver  
-
-&lt;span class=&#34;c1&#34;&gt;# execute the extension&lt;/span&gt;
-$ gh screensaver 
-
-&lt;span class=&#34;c1&#34;&gt;# upgrade the extension&lt;/span&gt;
-$ gh extensions upgrade screensaver
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;There is already a quickly growing ecosystem of extensions to choose from; when I started in mid-September there were less than 100, and at the time of writing there are &lt;a href=&#34;https://github.com/topics/gh-extension&#34;&gt;145&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;I love not only how useful, but also how creative and fun they are. Here&amp;rsquo;s a few of my favorites:&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://github.com/dlvhdr/gh-prs&#34;&gt;dlvhdr/gh-prs&lt;/a&gt;: A slick dashboard of all your pull requests, with lots of configurability!&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;&lt;img src=&#34;https://github.com/dlvhdr/gh-prs/blob/8621183574c573e4077360b5027ffea70999b921/demo.gif?raw=true&#34; alt=&#34;gh-prs&#34;&gt;&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;
-&lt;p&gt;&lt;a href=&#34;https://github.com/vilmibm/gh-screensaver&#34;&gt;vilmibm/gh-screensaver&lt;/a&gt;: Cool and colorful terminal animations (I added the game of life one)
-&lt;img src=&#34;https://user-images.githubusercontent.com/98482/134737341-701d0e7d-476f-4a29-8309-d34b4935c6a3.gif&#34; alt=&#34;gh-screensaver&#34;&gt;
-&lt;img src=&#34;https://user-images.githubusercontent.com/98482/134737299-aa306b69-ceb4-49c1-95c8-3582d195250c.gif&#34; alt=&#34;gh firework&#34;&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;&lt;a href=&#34;https://github.com/yusukebe/gh-markdown-preview&#34;&gt;yusukebe/gh-markdown-preview&lt;/a&gt;: Renders your local md files with GitHub-flavored markdown in your browser. Super useful for writing readmes.
-&lt;img src=&#34;https://user-images.githubusercontent.com/10682/138411417-dd12a831-bacc-4b05-a33d-47d3f6b45483.png&#34; alt=&#34;gh-markdown&#34;&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;&lt;a href=&#34;https://github.com/kawarimidoll/gh-graph&#34;&gt;kawarimidoll/gh-graph&lt;/a&gt;: View your contribution graph in the terminal
-&lt;img src=&#34;https://user-images.githubusercontent.com/8146876/131276560-9b97596f-2f21-48ed-a946-498c47d9faf1.png&#34; alt=&#34;gh-grpah&#34;&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h2 id=&#34;writing-extensions&#34;&gt;Writing extensions&lt;/h2&gt;
-&lt;p&gt;The CLI team made some tools to help write extensions (nice guys, eh?). Use the &lt;code&gt;gh extension create&lt;/code&gt; command and you&amp;rsquo;ll be prompted for the name and what kind of extension you want to make. A local git repository will then be created for you with some boilerplate.&lt;/p&gt;
-&lt;p&gt;Extensions can be written in any language, but for our purpose languages are split into three categories: interpreted, Golang, and other compiled language. Here are a few key differences between them when writing extensions.&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;Interpreted&lt;/strong&gt;:
-This requires the user to have the interpreter for the language (and any dependencies) installed. For that reason, most are written in bash, but it could be python, ruby, etc.&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;Compiled (not golang)&lt;/strong&gt;:
-This allows you to distribute binaries from your extension repo.
-Precompiled binary extensions are fully supported since gh version 2.3.0. That means if you publish a release with binary assets from your extension repo, &lt;code&gt;gh extension install&lt;/code&gt; will download the appropriate binary (instead of looking for a top-level executable).&lt;/p&gt;
-&lt;p&gt;The binary assets have to be named as &amp;ldquo;platform-architecture&amp;rdquo; (e.g. darwin-arm64). Luckily @vilmibm recently made &lt;a href=&#34;https://github.com/cli/gh-extension-precompile&#34;&gt;gh-extension-precompile&lt;/a&gt;, a GitHub action that automates the building and releasing for you. Modify the build script for your language as needed.&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;Golang&lt;/strong&gt;: The stuff for compiled languages also applies here, but there&amp;rsquo;s even &lt;em&gt;more&lt;/em&gt; tools for golang! The CLI team recently open-sourced &lt;a href=&#34;https://github.com/cli/go-gh&#34;&gt;go-gh&lt;/a&gt;, a module for golang that exposes a small subset of cli/cli internals. This includes an HTTP client for both the REST and GraphQL API for GitHub. It also has an &lt;code&gt;Exec&lt;/code&gt; function that safely shells out to &lt;code&gt;gh&lt;/code&gt;, and a &lt;code&gt;CurrentRepository&lt;/code&gt; function. It&amp;rsquo;s still in beta, so there will likely be more functionality to come. See below for an example usage.&lt;/p&gt;
-&lt;h3 id=&#34;github-apis&#34;&gt;GitHub APIs&lt;/h3&gt;
-&lt;p&gt;One of the main reasons to write gh extensions is that you can easily make authenticated GitHub API calls (although your extension can be completely unrelated to GitHub) since the user will presumably have an auth token for &lt;code&gt;gh&lt;/code&gt;.&lt;/p&gt;
-&lt;p&gt;A typical way would be to use the &lt;code&gt;gh api&lt;/code&gt; command. This command wraps both the REST and GraphQL GitHub API.
-You can select format the response using jquery syntax with the &lt;code&gt;--jq&lt;/code&gt; flag, or (even better) with &lt;a href=&#34;https://golangdocs.com/templates-in-golang&#34;&gt;golang templates&lt;/a&gt; using the &lt;code&gt;--template&lt;/code&gt; flag.
-Templates are quite powerful for text formatting. See &lt;code&gt;gh formatting help&lt;/code&gt; for more details on built-in functions and examples.&lt;/p&gt;
-&lt;p&gt;For example, here is a script to print a table of a user&amp;rsquo;s starred repos:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#!/usr/bin/bash
-&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;&lt;/span&gt;gh api /users/&lt;span class=&#34;s2&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$USERNAME&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;&lt;/span&gt;/starred &lt;span class=&#34;se&#34;&gt;\
-&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;&lt;/span&gt;    --template &lt;span class=&#34;s1&#34;&gt;&amp;#39;
-&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;    {{- tablerow &amp;#34;NAME&amp;#34; &amp;#34;DESCRIPTION&amp;#34; -}}
-&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;    {{- range .}}{{- tablerow .name .description -}}{{- end -}}&amp;#39;&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;A little polishing, and this would be a fine bash gh-extension!&lt;/p&gt;
-&lt;p&gt;If you&amp;rsquo;re using golang, you can use the clients from &lt;code&gt;go-gh&lt;/code&gt;. Here is how to get the same data as above:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;nx&#34;&gt;opts&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:=&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;api&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;ClientOptions&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;EnableCache&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;kc&#34;&gt;true&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
-&lt;span class=&#34;nx&#34;&gt;client&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;err&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;gh&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;RESTClient&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;opts&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
-&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;err&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;!=&lt;/span&gt; &lt;span class=&#34;kc&#34;&gt;nil&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
-    &lt;span class=&#34;nx&#34;&gt;log&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Fatal&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;err&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
-&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
-&lt;span class=&#34;nx&#34;&gt;response&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:=&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;[]&lt;/span&gt;&lt;span class=&#34;kd&#34;&gt;struct&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt; 
-    &lt;span class=&#34;nx&#34;&gt;Name&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;string&lt;/span&gt; 
-    &lt;span class=&#34;nx&#34;&gt;Description&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;string&lt;/span&gt;
-&lt;span class=&#34;p&#34;&gt;}{}&lt;/span&gt;
-&lt;span class=&#34;nx&#34;&gt;err&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;client&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Get&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;fmt&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Sprintf&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;users/%s/starred&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;username&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;),&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;response&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;You can also use the GraphQL API (somewhat annoyingly, there are features not available in the REST API available in GraphQL and vice versa). Here is a query to get the same data once again:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-graphql&#34; data-lang=&#34;graphql&#34;&gt;&lt;span class=&#34;kd&#34;&gt;query&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;nc&#34;&gt;GetStarredRepos&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$username&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;nc&#34;&gt;String&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;!)&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
-&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;  &lt;/span&gt;&lt;span class=&#34;py&#34;&gt;user&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;py&#34;&gt;login&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$username&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
-&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;    &lt;/span&gt;&lt;span class=&#34;nc&#34;&gt;starredRepositories&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;py&#34;&gt;first&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;nc&#34;&gt;100&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
-&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;      &lt;/span&gt;&lt;span class=&#34;py&#34;&gt;nodes&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
-&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;        &lt;/span&gt;&lt;span class=&#34;py&#34;&gt;name&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
-&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;        &lt;/span&gt;&lt;span class=&#34;py&#34;&gt;description&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
-&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;      &lt;/span&gt;&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
-&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;    &lt;/span&gt;&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
-&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;  &lt;/span&gt;&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
-&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
-&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;GitHub has a &lt;a href=&#34;https://docs.github.com/en/graphql/overview/explorer&#34;&gt;great tool&lt;/a&gt; for exploring their GraphQL schema.
-There is also a &lt;a href=&#34;https://github.com/shurcooL/githubv4&#34;&gt;GitHub GraphQL library&lt;/a&gt; for golang that provides a more concise interface.&lt;/p&gt;
-&lt;h3 id=&#34;three-more-extensions&#34;&gt;Three more extensions&lt;/h3&gt;
-&lt;p&gt;To conclude, I want to go over three extensions I wrote during my time on the CLI team.
-They certainly aren&amp;rsquo;t the best quality since I wrote them while learning golang and gh, but hopefully they will serve as examples and perhaps give you ideas for your own extension &amp;ndash; &lt;em&gt;I&amp;rsquo;m eager to see what you make!&lt;/em&gt;&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;&lt;a href=&#34;https://github.com/meiji163/gh-notify&#34;&gt;gh-notify&lt;/a&gt;:&lt;/strong&gt;&lt;br&gt;
-This one is pretty simple. It&amp;rsquo;s a bash script that fetches notifications and pipes it into &lt;a href=&#34;https://github.com/junegunn/fzf&#34;&gt;fzf&lt;/a&gt;.
-If you select a notification linked to a pull request or issue, it will show it with the appropriate &lt;code&gt;gh&lt;/code&gt; command.
-I wrote it for a hackday.&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# show unread notifs&lt;/span&gt;
-$ gh notify 
-
-&lt;span class=&#34;c1&#34;&gt;# show first 10 of all notifs  &lt;/span&gt;
-$ gh notify -a -n &lt;span class=&#34;m&#34;&gt;10&lt;/span&gt; 
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;strong&gt;&lt;a href=&#34;https://github.com/meiji163/gh-search&#34;&gt;gh-search&lt;/a&gt;:&lt;/strong&gt;&lt;br&gt;
-This extension provides access to the search API for repositories. It was a personal tool, as I&amp;rsquo;m frequently looking for great new projects on GitHub.&lt;/p&gt;
-&lt;p&gt;It allows you to filter with &lt;code&gt;--lang&lt;/code&gt; or &lt;code&gt;--topic&lt;/code&gt; flags, or simply enter the raw search query in &lt;a href=&#34;https://docs.github.com/en/search-github/getting-started-with-searching-on-github/understanding-the-search-syntax&#34;&gt;GitHub syntax&lt;/a&gt; with the &lt;code&gt;-q&lt;/code&gt; flag.
-It then shows you the results in a searchable scrolling menu.&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# search for cli repos with hacktoberfest topic&lt;/span&gt;
-$ gh search cli --topic&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;hacktoberfest
-
-&lt;span class=&#34;c1&#34;&gt;# custom search with GitHub syntax&lt;/span&gt;
-$ gh search -q&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;org:cli created:&amp;gt;2019-01-01&amp;#34;&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;I wrote it in golang using go-gh and &lt;a href=&#34;https://github.com/spf13/cobra/&#34;&gt;cobra&lt;/a&gt;, a nice library for CLI apps (and the same one used in gh).&lt;/p&gt;
-&lt;p&gt;Note that this extension will probably be obsolete&amp;rsquo;d once &lt;code&gt;gh&lt;/code&gt; adds search to the core commands (ref: &lt;a href=&#34;https://github.com/cli/cli/issues/4834&#34;&gt;cli#4834&lt;/a&gt;).&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;&lt;a href=&#34;https://github.com/meiji163/gh-spam&#34;&gt;gh-spam&lt;/a&gt;:&lt;/strong&gt;&lt;br&gt;
-This extension is a simple classifier for spam issues (again in golang). I wrote it on the last hackday (they have a lot of hackdays at GitHub, which is great). During the internship I noticed a fairly large volume of spam issues on the cli/cli repo that had to be closed manually.
-As an ML-inclined fellow, I thought I would take a crack at automating this.&lt;/p&gt;
-&lt;p&gt;To use it, you first download a labeled dataset of issues from a target repo (this only really works if you have a large repo). Then you train a classifier on it, which by default is a &lt;a href=&#34;https://en.wikipedia.org/wiki/Random_forest&#34;&gt;random forest&lt;/a&gt;.&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# download data from cli/cli repo &lt;/span&gt;
-$ gh-spam download -R cli/cli
-
-&lt;span class=&#34;c1&#34;&gt;# classify an issue &lt;/span&gt;
-$ gh-spam classify -R cli/cli &lt;span class=&#34;m&#34;&gt;4894&lt;/span&gt;
-&lt;span class=&#34;c1&#34;&gt;#4894: spam&lt;/span&gt;
-
-&lt;span class=&#34;c1&#34;&gt;# classify multiple issues&lt;/span&gt;
-$ gh-spam classify -R cli/cli &lt;span class=&#34;m&#34;&gt;4913&lt;/span&gt; &lt;span class=&#34;m&#34;&gt;4907&lt;/span&gt; &lt;span class=&#34;m&#34;&gt;4906&lt;/span&gt; &lt;span class=&#34;m&#34;&gt;4894&lt;/span&gt;
-&lt;span class=&#34;c1&#34;&gt;#4913: not spam&lt;/span&gt;
-&lt;span class=&#34;c1&#34;&gt;#4907: not spam&lt;/span&gt;
-&lt;span class=&#34;c1&#34;&gt;#4906: not spam&lt;/span&gt;
-&lt;span class=&#34;c1&#34;&gt;#4894: spam&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Rather than do any fancy NLP on the issue content, the classifier inputs (aka features) are based primarily on the &amp;ldquo;reputation&amp;rdquo; of the author, i.e. number of contributions, association with the target repo, age of account, etc.
-I also took into account issues which just post one of the issue templates without substantive change by using a string-matching score.
-This approach turns out to be sufficiently accurate (at least for the cli/cli repo).&lt;/p&gt;
-&lt;p&gt;Making this extension was particularly interesting, because I previously only used python for machine learning. I looked around for ML libraries in golang, and ended up using &lt;a href=&#34;https://github.com/sjwhitworth/golearn&#34;&gt;golearn&lt;/a&gt;. It has a nice API similar to scikit-learn, but in comparison it is pretty awkward for handling data, and has less clear documentation&lt;sup id=&#34;fnref:3&#34;&gt;&lt;a href=&#34;#fn:3&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;3&lt;/a&gt;&lt;/sup&gt;.&lt;/p&gt;
-&lt;h2 id=&#34;further-resources&#34;&gt;Further Resources&lt;/h2&gt;
-&lt;p&gt;Here are a few more resources you may find useful.&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://docs.github.com/en/github-cli/github-cli/creating-github-cli-extensions&#34;&gt;official GitHub guide&lt;/a&gt; for extensions&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://www.youtube.com/watch?v=tzK3ZuiEjcA&amp;amp;feature=youtu.be&amp;amp;ab_channel=vilmibm&#34;&gt;precompiled extension demo&lt;/a&gt; by @vilmibm&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://github.blog/2021-08-24-github-cli-2-0-includes-extensions/&#34;&gt;GitHub blogpost&lt;/a&gt; on extensions launch&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://cli.github.com/manual/&#34;&gt;manual&lt;/a&gt; for gh&lt;/li&gt;
-&lt;/ul&gt;
-&lt;section class=&#34;footnotes&#34; role=&#34;doc-endnotes&#34;&gt;
-&lt;hr&gt;
-&lt;ol&gt;
-&lt;li id=&#34;fn:1&#34; role=&#34;doc-endnote&#34;&gt;
-&lt;p&gt;&lt;a href=&#34;https://github.com/github/hub&#34;&gt;https://github.com/github/hub&lt;/a&gt;&amp;#160;&lt;a href=&#34;#fnref:1&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li id=&#34;fn:2&#34; role=&#34;doc-endnote&#34;&gt;
-&lt;p&gt;The MLH Fellowship is basically an internship done in small groups called pods. I thought it was fantastic! Learn more at &lt;a href=&#34;https://fellowship.mlh.io/&#34;&gt;https://fellowship.mlh.io/&lt;/a&gt;&amp;#160;&lt;a href=&#34;#fnref:2&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li id=&#34;fn:3&#34; role=&#34;doc-endnote&#34;&gt;
-&lt;p&gt;The documentation complaint is a &amp;ldquo;golang vs. python&amp;rdquo; complaint more than a &amp;ldquo;golearn vs. sklearn&amp;rdquo; complaint.&amp;#160;&lt;a href=&#34;#fnref:3&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ol&gt;
 &lt;/section&gt;

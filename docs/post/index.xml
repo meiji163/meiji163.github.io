@@ -6,15 +6,17 @@
     <description>Recent content in Posts on meiji163</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
-    <lastBuildDate>Sat, 25 Dec 2021 00:00:00 +0000</lastBuildDate><atom:link href="https://meiji163.github.io/post/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Thu, 02 Nov 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://meiji163.github.io/post/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>Combinatorial Hyperbolic Embeddings</title>
-      <link>https://meiji163.github.io/post/combo-hyperbolic-embedding/</link>
-      <pubDate>Tue, 24 Aug 2021 00:00:00 +0000</pubDate>
+      <title>Error Correcting Codes: Part 1</title>
+      <link>https://meiji163.github.io/post/ecc/</link>
+      <pubDate>Thu, 02 Nov 2023 00:00:00 +0000</pubDate>
       
-      <guid>https://meiji163.github.io/post/combo-hyperbolic-embedding/</guid>
-      <description>Introduction The manifold hypothesis says that most real-world datasets lie approximately on a low-dimensional manifold, but by some Kantian twist of fate we rarely have direct access to this manifold1. As a result, most machine learning techniques utilize only local structure (e.g. the &amp;ldquo;loss + SGD&amp;rdquo; machine).
-In contrast, Topological and Geometric Data Analysis (TGDA) is a burgeoning field that studies the global structure of data. This is exciting not only because of potential domain applications &amp;ndash; it also opens possibilities for porting a lot of powerful and beautiful math to the ML realm.</description>
+      <guid>https://meiji163.github.io/post/ecc/</guid>
+      <description>&amp;ldquo;There is geometry in the humming of the strings, there is music in the spacing of the spheres.&amp;rdquo;
+&amp;ndash; Pythagoras
+ Introduction Recently I started exploring the world of error-correcting codes, and algebraic codes in particular. It&amp;rsquo;s a perfect example of mathematical hacking, where the Platonic realm of mathematical objects collides with the concrete world of signals, circuits, and CPUs to create something incredibly useful.
+In this post I&amp;rsquo;ll share what I&amp;rsquo;ve learned so far about algebraic codes and go into some detail about Reed-Solomon and BCH codes.</description>
     </item>
     
     <item>
@@ -27,6 +29,16 @@ In contrast, Topological and Geometric Data Analysis (TGDA) is a burgeoning fiel
 &amp;ndash; Descartes, Principles of Philosophy
  Introduction gh is the official GitHub CLI, maintained in the public cli/cli repository.
 Like its predecessor hub1, gh wraps common git commands. But gh does much more, ultimately aiming to be a general GitHub interface for your terminal. You can for example run actions with gh workflow, publish gists with gh gist, or access your codespaces with gh cs.</description>
+    </item>
+    
+    <item>
+      <title>Combinatorial Hyperbolic Embeddings</title>
+      <link>https://meiji163.github.io/post/combo-hyperbolic-embedding/</link>
+      <pubDate>Tue, 24 Aug 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://meiji163.github.io/post/combo-hyperbolic-embedding/</guid>
+      <description>Introduction The manifold hypothesis says that most real-world datasets lie approximately on a low-dimensional manifold, but by some Kantian twist of fate we rarely have direct access to this manifold1. As a result, most machine learning techniques utilize only local structure (e.g. the &amp;ldquo;loss + SGD&amp;rdquo; machine).
+In contrast, Topological and Geometric Data Analysis (TGDA) is a burgeoning field that studies the global structure of data. This is exciting not only because of potential domain applications &amp;ndash; it also opens possibilities for porting a lot of powerful and beautiful math to the ML realm.</description>
     </item>
     
     <item>
