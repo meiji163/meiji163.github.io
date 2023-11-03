@@ -64,7 +64,7 @@ For example, a polynomial with binary coefficients like \(x^3 + x + 1\) is a mem
 &lt;p&gt;$$ 1x^0 + 1x^1 + 0x^2 + 1x^3 \leftrightarrow (1,1,0,1).$$&lt;/p&gt;
 &lt;p&gt;Now to add polynomials, we just add each corresponding coordinate of the vectors.&lt;/p&gt;
 &lt;p&gt;&lt;em&gt;So then polynomial multiplication also defines multiplication of vectors?&lt;/em&gt;&lt;/p&gt;
-&lt;p&gt;Not quite. The trouble is when you multiply two polynomials, the degree of the product polynomial is can grow without bound! That&amp;rsquo;s not good if we want to the vector size to be fixed.&lt;/p&gt;
+&lt;p&gt;Not quite. The trouble is when you multiply two polynomials, the degree of the product polynomial is can grow without bound! That&amp;rsquo;s not good if we want the vector size to be fixed.&lt;/p&gt;
 &lt;p&gt;This is where we take inspiration from the integers mod \(p\).
 In that case, whenever we get a result bigger than \(p\), we divide it by \(p\) and use the remainder instead.
 Similarly, for polynomials we choose a &amp;ldquo;modulus&amp;rdquo; polynomial \(p(x)\) with degree \(n\).
@@ -82,9 +82,9 @@ x \cdot (x^2 + x) = x^3 + x^2  = x^2 + x + 1
 \end{aligned}
 $$&lt;/p&gt;
 &lt;p&gt;where we replaced \(x^3\) by \( x + 1\), or equivalently, divided out \(p(x)\).&lt;/p&gt;
-&lt;p&gt;When the polynomials as viewed binary vectors, we can interpret each vector as spelling out an integer in binary. For example \(x^2 + x + 1 \leftrightarrow 111_2 = 7\).
+&lt;p&gt;When the polynomials are as viewed binary vectors, we can interpret each vector as spelling out an integer in binary. For example \(x^2 + x + 1 \leftrightarrow 111_2 = 7\).
 Each field element gets assigned a number 0-7 according to this notational pun. &lt;em&gt;But beware, you can&amp;rsquo;t add and multiply them like regular integers&lt;sup id=&#34;fnref:5&#34;&gt;&lt;a href=&#34;#fn:5&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;5&lt;/a&gt;&lt;/sup&gt;!&lt;/em&gt;&lt;/p&gt;
-&lt;p&gt;Another way of representing finite fields comes from the &lt;a href=&#34;https://en.wikipedia.org/wiki/Primitive_element_theorem&#34;&gt;primitive element theorem&lt;/a&gt;, which says that every finite field has a special element \(\omega\), called the primitive element, such that the successive powers \(\omega^1, \omega^2, \dots \) generate the whole field.&lt;/p&gt;
+&lt;p&gt;Yet another way of representing finite fields comes from the &lt;a href=&#34;https://en.wikipedia.org/wiki/Primitive_element_theorem&#34;&gt;primitive element theorem&lt;/a&gt;, which says that every finite field has a special element \(\omega\), called the primitive element, such that the successive powers \(\omega^1, \omega^2, \dots \) generate the whole field.&lt;/p&gt;
 &lt;p&gt;In our contruction of \(GF(2^3)\), a primitive element is the polynomial \(x\), aka &amp;ldquo;\(2\)&amp;rdquo; in our binary labeling scheme. Compare the different representations in the table below.&lt;/p&gt;
 &lt;table&gt;
 &lt;thead&gt;
@@ -188,16 +188,17 @@ What we want is a set of &amp;ldquo;codeword&amp;rdquo; vectors such that whenev
 &lt;p&gt;Thus we need the codewords to be as &amp;ldquo;far apart&amp;rdquo; as possible, to minimize the chances of a word being &amp;ldquo;close&amp;rdquo; to two codewords simulatenously.
 The &lt;a href=&#34;https://en.wikipedia.org/wiki/Hamming_distance&#34;&gt;Hamming Distance&lt;/a&gt;, defined as the number of places where two words differ, is exactly the right notion of distance to measure this. Now the problem can be phrased as:&lt;/p&gt;
 &lt;p&gt;&lt;em&gt;Find a set of codewords that maximizes the minimum distance betweeen any two codewords.&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;Equivalently, find a packing of non-intersecting spheres, such that the common radius is as large as possible.&lt;/p&gt;
 &lt;h3 id=&#34;algebraic-codes&#34;&gt;Algebraic Codes&lt;/h3&gt;
 &lt;p&gt;Codeword vectors can be chosen arbitrarily, but to make the problem tractable we impose an algebraic structure on the codewords, like a musician might impose meter and harmony on their music.&lt;/p&gt;
-&lt;p&gt;First require that the codewords form a &lt;em&gt;linear subspace&lt;/em&gt; of \(F^n\).
+&lt;p&gt;First we require that the codewords form a &lt;em&gt;linear subspace&lt;/em&gt; of \(F^n\).
 That means whenever we add two codeword vectors or scale a codeword vector, we get another codeword vector.
 These are called &lt;em&gt;linear codes&lt;/em&gt;. It&amp;rsquo;s not too hard to bound the best possible minimum distance for linear codes.&lt;/p&gt;
 &lt;p&gt;But first, a little more terminology: A code that encodes length \(k\) words into length \(n\) codewords and uses \(n-k\) check symbols is called an \( (n, k)\) code. Now we can state the&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Hamming Bound:&lt;/strong&gt;
 The minimum distance \( d_{min} \) between any two codewords of a \( (n,k) \) linear code satisfies \(d_{min} \le n-k+1\).&lt;sup id=&#34;fnref:6&#34;&gt;&lt;a href=&#34;#fn:6&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;6&lt;/a&gt;&lt;/sup&gt;&lt;/p&gt;
 &lt;p&gt;This tells us the max number of errors a linear code can correct is \( \lfloor (n-k+1)/2 \rfloor \). However it does not tell us if such a code exists for a given \(n\) and \(k\) (booo!).&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;Example:&lt;/strong&gt; The \( (7,4) \) binary Hamming code can correct 1 error. Its codewords form a four-dimensional subspace of \(GF(2)^7\), spanned by these vectors:&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Example:&lt;/strong&gt; The \( (7,4) \) binary Hamming code can correct 1 error. Its codewords form a four-dimensional subspace of \(GF(2)^7\) spanned by these vectors:&lt;/p&gt;
 &lt;p&gt;$$
 \begin{aligned}
 1000110 &amp;amp; \cr
@@ -253,8 +254,8 @@ For the generating polynomial, cook up a polynomial in \(F[x]\) with roots at \(
 &lt;p&gt;&lt;em&gt;OK I cooked up my RS code, but why is it good?&lt;/em&gt;&lt;/p&gt;
 &lt;p&gt;It can be shown&lt;sup id=&#34;fnref:9&#34;&gt;&lt;a href=&#34;#fn:9&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;9&lt;/a&gt;&lt;/sup&gt; that whenever a \( (n,k) \) RS code exists, it achieves equality in the Hamming bound, i.e. \(d_{min} = n-k+1\). So these codes are optimally error correcting linear codes.&lt;/p&gt;
 &lt;p&gt;What accounts for this? It&amp;rsquo;s closely related to the Fourier transform over the field \(F\).
-If you&amp;rsquo;re familiar with the &lt;a href=&#34;https://en.wikipedia.org/wiki/Discrete_Fourier_transform&#34;&gt;Discrete Fourier transform&lt;/a&gt; of a vector, it&amp;rsquo;s exactly the same except \(\omega\) plays the role of \(e^{-2\pi i/n}.\) Requiring \(\omega^j\) to be a root of \(g(x)\) is equivalent to requiring the \(j^{th}\) component of the Fourier transform to be 0.&lt;/p&gt;
-&lt;p&gt;The RS generating polynomial would be analogous to a low-pass frequency filter, requiring all frequencies to be greater than some value. This forces the minimum weight (i.e. number of nonzero components) of a codeword to be bounded away from 0.&lt;/p&gt;
+If you&amp;rsquo;re familiar with the &lt;a href=&#34;https://en.wikipedia.org/wiki/Discrete_Fourier_transform&#34;&gt;Discrete Fourier transform&lt;/a&gt; of a vector, it&amp;rsquo;s exactly the same except \(\omega\) plays the role of \(e^{-2\pi i/n}.\) Requiring \(\omega^j\) to be a root of \(g(x)\) is equivalent to requiring the \(j^{th}\) component of the Fourier transform to be zero.&lt;/p&gt;
+&lt;p&gt;The RS generating polynomial is then analogous to a low-pass frequency filter, which forces the frequencies of all codewords to be greater than some value. This forces the minimum weight (i.e. number of nonzero components) of a codeword to be bounded away from 0.&lt;/p&gt;
 &lt;p&gt;(This is a manifestation of &lt;a href=&#34;https://terrytao.wordpress.com/2010/06/25/the-uncertainty-principle/&#34;&gt;the uncertainty principle&lt;/a&gt;, which roughly says that you cannot be simultaneously localized in both frequency and position. &lt;a href=&#34;#references&#34;&gt;[8]&lt;/a&gt;)&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Examples:&lt;/strong&gt; Let&amp;rsquo;s construct a \( (7,3) \) RS code over \( GF(8) \), using the representation of \(GF(8)\) from before. Let&amp;rsquo;s choose the generating polynomial as&lt;/p&gt;
 &lt;p&gt;$$ g(x) = (x-\omega^4)(x-\omega^5)(x-\omega^6)(x-\omega^7).$$&lt;/p&gt;
@@ -269,7 +270,7 @@ With check symbols it is &lt;code&gt;3326163&lt;/code&gt;. Now I can change any 
 &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;RS-7-3-decode&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;3&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;2&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;6&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;7&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;3&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;])&lt;/span&gt; &lt;span class=&#34;c1&#34;&gt;;; =&amp;gt; [1 6 3]&lt;/span&gt;
 &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;RS-7-3-decode&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;3&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;3&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;2&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;6&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;6&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;6&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;6&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;])&lt;/span&gt; &lt;span class=&#34;c1&#34;&gt;;; =&amp;gt; [1 6 3]&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;It feels &lt;em&gt;magical&lt;/em&gt; when you see it up close!&lt;/p&gt;
-&lt;p&gt;For a bigger example, let&amp;rsquo;s construct a \( (255, 233) \) RS code over \(GF(256)\). It uses 32 check symbols to correct 16 errors. This code is one recommended by the &amp;ldquo;Consultative Committee for Space Data Systems&amp;rdquo; &lt;a href=&#34;#references&#34;&gt;[4]&lt;/a&gt;. Famously, it was used for &lt;a href=&#34;https://en.wikipedia.org/wiki/Voyager_program&#34;&gt;Voyager mission&lt;/a&gt; communications (in combination with other error-correcting codes).&lt;/p&gt;
+&lt;p&gt;For a bigger example, let&amp;rsquo;s construct a \( (255, 233) \) RS code over \(GF(256)\). It uses 32 check symbols to correct 16 errors (here the symbols are bytes). This code is one recommended by the &amp;ldquo;Consultative Committee for Space Data Systems&amp;rdquo; &lt;a href=&#34;#references&#34;&gt;[4]&lt;/a&gt;. Famously, it was used for &lt;a href=&#34;https://en.wikipedia.org/wiki/Voyager_program&#34;&gt;Voyager mission&lt;/a&gt; communications (in combination with other error-correcting codes).&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-clojure&#34; data-lang=&#34;clojure&#34;&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;def &lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;RS-255-223&lt;/span&gt;
   &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;let &lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;exp&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;ss&#34;&gt;:exp&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;GF256&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
         &lt;span class=&#34;nv&#34;&gt;roots&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;for &lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;e&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;range &lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;33&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)]&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;exp&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;e&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;))]&lt;/span&gt;
@@ -296,11 +297,12 @@ g(x) &amp;amp;= (x-\omega)(x-\omega^2)(x-\omega^3)(x-\omega^4) \cr
 &amp;amp;= (x^4+x+1)(x^4+x^3+x^2+1).
 \end{aligned}
 $$&lt;/p&gt;
-&lt;p&gt;This polynomial has coefficients in \(GF(2)\), but its roots lie in the bigger field \(GF(16).\) This is analogous to a polynomial with real-valued coefficients having complex roots.&lt;/p&gt;
-&lt;p&gt;The same argument from the RS codes shows that BCH codes are also optimal. The polynomial generates the \((15,7)\) binary BCH code, which corrects 2 errors.&lt;/p&gt;
+&lt;p&gt;This polynomial has coefficients in \(GF(2)\), but its roots lie in the bigger field \(GF(16).\) This is analogous to a polynomial with real-valued coefficients having complex roots.
+The code generated by this polynomial is called the \((15,7)\) binary BCH code, which corrects 2 errors.&lt;/p&gt;
+&lt;p&gt;The same argument from the RS codes shows that BCH codes also have an optimal minimal distance.&lt;/p&gt;
 &lt;h3 id=&#34;codecs&#34;&gt;Codecs&lt;/h3&gt;
-&lt;p&gt;As I said above, given a generating polynomial \(g(x)\) and data polynomial \(w(x)\) one way to encode is to use \(g(x)w(x)\) as the codeword. The codeword polynomials are the ones divisible by \(g(x).\)&lt;/p&gt;
-&lt;p&gt;It&amp;rsquo;s more convenient to use an encoding where the symbols of \(w(x)\) are visible in the codeword polynomial. To do this, set the top \(k\) coefficients as the coefficients of \(w(x)\), then add a degree \(n-k\) polynomial such that the codeword \(c(x)\)is divisible by \(g(x).\)
+&lt;p&gt;As I said above, given a generating polynomial \(g(x)\) and data polynomial \(w(x)\) one way to encode is to use \(g(x)w(x)\) as the codeword. The &lt;em&gt;codeword polynomials&lt;/em&gt; are the ones divisible by \(g(x).\)&lt;/p&gt;
+&lt;p&gt;It&amp;rsquo;s convenient to use an encoding where the symbols of \(w(x)\) are visible in the codeword. To do this, set the top \(k\) coefficients as the coefficients of \(w(x)\), then add a degree \(n-k\) polynomial such that the codeword \(c(x)\) is divisible by \(g(x).\)
 Algebraically, \( c(x) = x^k w(x) + r(x) \) where \(r(x) = -x^k w(k) \pmod{g(x)}\).&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-clojure&#34; data-lang=&#34;clojure&#34;&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kd&#34;&gt;defn &lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;encode&lt;/span&gt;
   &lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;data-poly&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;gen-poly&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;amp;&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;field&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]]&lt;/span&gt;
@@ -327,8 +329,8 @@ Algebraically, \( c(x) = x^k w(x) + r(x) \) where \(r(x) = -x^k w(k) \pmod{g(x)}
   &lt;span class=&#34;c1&#34;&gt;;;     :sizes [42 1 163 66 101 100]}&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;A more efficient decoder is based on the &lt;a href=&#34;https://en.wikipedia.org/wiki/Berlekamp%E2%80%93Massey_algorithm&#34;&gt;Berlekamp-Massey algorithm&lt;/a&gt;, which I haven&amp;rsquo;t implemented. (Maybe you can, my brave reader)&lt;/p&gt;
 &lt;h2 id=&#34;generating-qr-codes&#34;&gt;Generating QR Codes&lt;/h2&gt;
-&lt;p&gt;Typically error-correcting codecs are implemented in hardware circuits, which run many orders of magnitude faster than my implementation.
-However just to prove that my terribly slow implementation isn&amp;rsquo;t completely useless, I made a QR code generator.&lt;/p&gt;
+&lt;p&gt;Typically error-correcting codecs are implemented in hardware circuits, which of course run several orders of magnitude faster than my implementation.
+Just to prove that my terribly slow implementation isn&amp;rsquo;t completely useless, I made a QR code generator.&lt;/p&gt;
 &lt;p&gt;There are many versions of QR codes, so I went with the 21x21 version as specified by the ISO/IEC standard &lt;a href=&#34;#references&#34;&gt;[5]&lt;/a&gt;. I implemented just enough of the standard to make some example QR codes.&lt;/p&gt;
 &lt;h3 id=&#34;qr-specification&#34;&gt;QR specification&lt;/h3&gt;
 &lt;p&gt;There are two error-correcting codes involved in the QR code. One is for the &amp;ldquo;format bits&amp;rdquo; and the other is for the &amp;ldquo;data bits&amp;rdquo;.&lt;/p&gt;
@@ -410,7 +412,7 @@ There are also some details with the bit ordering that bit me a few times (OK I&
 &lt;/div&gt;
 
 &lt;h2 id=&#34;conclusion&#34;&gt;Conclusion&lt;/h2&gt;
-&lt;p&gt;Error-correcting codes are fundamental algorithms for everything involving data transfer. What&amp;rsquo;s more, they are built from a wonderful blend of linear algebra, geometry, and ring theory. I hope I&amp;rsquo;ve given you a taste for what they are like.&lt;/p&gt;
+&lt;p&gt;Error-correcting codes are fundamental algorithms for everything involving data transfer. What&amp;rsquo;s more, they are built from a wonderful blend of linear algebra, geometry, and field theory. I hope I&amp;rsquo;ve given you a taste for what they are like.&lt;/p&gt;
 &lt;p&gt;&lt;em&gt;Zzzz&amp;hellip; I fell asleep right when you mentioned algebra&lt;/em&gt;&lt;/p&gt;
 &lt;p&gt;Wake up, there&amp;rsquo;s much more to explore! I&amp;rsquo;ve glossed over and omitted many details. For the interested reader please check out the references &lt;a href=&#34;#references&#34;&gt;[1] [2] [3]&lt;/a&gt;.
 There are also many more applications I&amp;rsquo;ve skipped including:&lt;/p&gt;
@@ -457,13 +459,13 @@ For vim, I&amp;rsquo;ve seen &lt;a href=&#34;https://github.com/tpope/vim-firepl
 &lt;p&gt;Its full name is &amp;ldquo;the ring of polynomials over \(F\)&amp;rdquo;&amp;#160;&lt;a href=&#34;#fnref:4&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;li id=&#34;fn:5&#34; role=&#34;doc-endnote&#34;&gt;
-&lt;p&gt;You can now make people think you&amp;rsquo;re crazy by telling them 3 times 3 equals 5&amp;#160;&lt;a href=&#34;#fnref:5&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;You can now tell everyone that 3 times 3 equals 5&amp;#160;&lt;a href=&#34;#fnref:5&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;li id=&#34;fn:6&#34; role=&#34;doc-endnote&#34;&gt;
-&lt;p&gt;Proof: the distance between any two codewords \(c_1\) and \(c_2\) is the same as the distance between the all-zero word and \(c_1 - c_2\). Thus \(d_{min}\) is equal to the minimum number of nonzero components across all nonzero codewords. We can take the codeword with one nonzero data symbol and \(n-k\) check symbols. Hence \(d_{min} \le n-k+1 \).&amp;#160;&lt;a href=&#34;#fnref:6&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Proof: the distance between any two codewords \(c_1\) and \(c_2\) is the same as the distance between the all-zero word and \(c_1 - c_2\). Thus \(d_{min}\) is equal to the minimum number of nonzero components of a codeword, across all nonzero codewords. But we can take the codeword with one nonzero data symbol and \(n-k\) check symbols. Hence \(d_{min} \le n-k+1 \).&amp;#160;&lt;a href=&#34;#fnref:6&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;li id=&#34;fn:7&#34; role=&#34;doc-endnote&#34;&gt;
-&lt;p&gt;In ring theory terminology, this makes the set of polynomial codewords is an &lt;a href=&#34;https://en.wikipedia.org/wiki/Ideal_(ring_theory)&#34;&gt;ideal&lt;/a&gt; of the quotient ring \(F[x]/\langle x^n-1 \rangle \).&amp;#160;&lt;a href=&#34;#fnref:7&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;In ring theory terminology, this means the set of polynomial codewords is an &lt;a href=&#34;https://en.wikipedia.org/wiki/Ideal_(ring_theory)&#34;&gt;ideal&lt;/a&gt; of the quotient ring \(F[x]/\langle x^n-1 \rangle \).&amp;#160;&lt;a href=&#34;#fnref:7&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;li id=&#34;fn:8&#34; role=&#34;doc-endnote&#34;&gt;
 &lt;p&gt;It is used to contruct the &lt;a href=&#34;https://en.wikipedia.org/wiki/Leech_lattice&#34;&gt;Leech lattice&lt;/a&gt;, the &lt;em&gt;densest&lt;/em&gt; packing of spheres in \(\mathbb{R}^{24}\)! Also see the (5,8,24) &lt;a href=&#34;https://en.wikipedia.org/wiki/Steiner_system#Construction_from_the_binary_Golay_code&#34;&gt;Steiner system&lt;/a&gt; for another rabbit hole.&amp;#160;&lt;a href=&#34;#fnref:8&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
